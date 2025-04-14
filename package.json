@@ -1,0 +1,22 @@
+{
+  "name": "riddle-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "nodemon --exec ts-node src/main.ts"
+  },
+  "dependencies": {
+    "antlr4": "^4.13.2",
+    "cmake-js": "^7.3.0",
+    "llvm-bindings": "^0.4.2",
+    "zlib": "^1.0.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.5.3"
+  },
+  "private": true
+}
