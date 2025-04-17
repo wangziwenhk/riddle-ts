@@ -1,4 +1,4 @@
-export type PrimitiveType = 'int' | 'short' | 'long' | 'char' | 'float' | 'boolean' | 'void' | 'double';
+export type PrimitiveType = 'int' | 'short' | 'long' | 'char' | 'float' | 'bool' | 'void' | 'double';
 
 export interface Types {
     kind: string;

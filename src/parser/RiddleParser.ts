@@ -94,8 +94,14 @@ export default class RiddleParser extends Parser {
 	public static readonly WHITESPACE = 73;
 	public static override readonly EOF = Token.EOF;
 	public static readonly RULE_program = 0;
-	public static readonly RULE_statement = 1;
-	public static readonly RULE_id = 2;
+	public static readonly RULE_expressionEnd = 1;
+	public static readonly RULE_expression = 2;
+	public static readonly RULE_statement = 3;
+	public static readonly RULE_varDecl = 4;
+	public static readonly RULE_block = 5;
+	public static readonly RULE_declArgs = 6;
+	public static readonly RULE_funcDecl = 7;
+	public static readonly RULE_id = 8;
 	public static readonly literalNames: (string | null)[] = [ null, "'var'", 
                                                             "'val'", "'for'", 
                                                             "'while'", "'continue'", 
@@ -182,7 +188,8 @@ export default class RiddleParser extends Parser {
                                                              "WHITESPACE" ];
 	// tslint:disable:no-trailing-whitespace
 	public static readonly ruleNames: string[] = [
-		"program", "statement", "id",
+		"program", "expressionEnd", "expression", "statement", "varDecl", "block", 
+		"declArgs", "funcDecl", "id",
 	];
 	public get grammarFileName(): string { return "RiddleParser.g4"; }
 	public get literalNames(): (string | null)[] { return RiddleParser.literalNames; }
@@ -206,20 +213,22 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 9;
+			this.state = 21;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 49154) !== 0) || ((((_la - 58)) & ~0x1F) === 0 && ((1 << (_la - 58)) & 37) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 49666) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 1258291201) !== 0)) {
 				{
 				{
-				this.state = 6;
-				this.statement();
+				this.state = 18;
+				this.expressionEnd();
 				}
 				}
-				this.state = 11;
+				this.state = 23;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 			}
+			this.state = 24;
+			this.match(RiddleParser.EOF);
 			}
 		}
 		catch (re) {
@@ -237,86 +246,42 @@ export default class RiddleParser extends Parser {
 		return localctx;
 	}
 	// @RuleVersion(0)
-	public statement(): StatementContext {
-		let localctx: StatementContext = new StatementContext(this, this._ctx, this.state);
-		this.enterRule(localctx, 2, RiddleParser.RULE_statement);
-		let _la: number;
+	public expressionEnd(): ExpressionEndContext {
+		let localctx: ExpressionEndContext = new ExpressionEndContext(this, this._ctx, this.state);
+		this.enterRule(localctx, 2, RiddleParser.RULE_expressionEnd);
 		try {
-			this.state = 26;
+			this.state = 31;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case 60:
-				localctx = new IntegerContext(this, localctx);
-				this.enterOuterAlt(localctx, 1);
-				{
-				this.state = 12;
-				this.match(RiddleParser.Decimal);
-				}
-				break;
-			case 63:
-				localctx = new FloatContext(this, localctx);
-				this.enterOuterAlt(localctx, 2);
-				{
-				this.state = 13;
-				this.match(RiddleParser.Float);
-				}
-				break;
+			case 1:
+			case 9:
 			case 14:
 			case 15:
-				localctx = new BooleanContext(this, localctx);
-				this.enterOuterAlt(localctx, 3);
-				{
-				this.state = 14;
-				_la = this._input.LA(1);
-				if(!(_la===14 || _la===15)) {
-				this._errHandler.recoverInline(this);
-				}
-				else {
-					this._errHandler.reportMatch(this);
-				    this.consume();
-				}
-				}
-				break;
+			case 33:
 			case 58:
-				localctx = new ObjectContext(this, localctx);
-				this.enterOuterAlt(localctx, 4);
+			case 60:
+			case 63:
+				this.enterOuterAlt(localctx, 1);
 				{
-				this.state = 15;
-				this.id();
-				}
-				break;
-			case 1:
-				localctx = new VarDeclContext(this, localctx);
-				this.enterOuterAlt(localctx, 5);
-				{
-				this.state = 16;
-				this.match(RiddleParser.Var);
-				this.state = 17;
-				(localctx as VarDeclContext)._name = this.id();
-				this.state = 20;
+				this.state = 26;
+				this.expression();
+				this.state = 28;
 				this._errHandler.sync(this);
-				_la = this._input.LA(1);
-				if (_la===35) {
-					{
-					this.state = 18;
-					this.match(RiddleParser.Colon);
-					this.state = 19;
-					(localctx as VarDeclContext)._type_ = this.statement();
-					}
-				}
-
-				this.state = 24;
-				this._errHandler.sync(this);
-				switch ( this._interp.adaptivePredict(this._input, 2, this._ctx) ) {
+				switch ( this._interp.adaptivePredict(this._input, 1, this._ctx) ) {
 				case 1:
 					{
-					this.state = 22;
-					this.match(RiddleParser.Assign);
-					this.state = 23;
-					(localctx as VarDeclContext)._value = this.statement();
+					this.state = 27;
+					this.match(RiddleParser.Endl);
 					}
 					break;
 				}
+				}
+				break;
+			case 57:
+				this.enterOuterAlt(localctx, 2);
+				{
+				this.state = 30;
+				this.match(RiddleParser.Endl);
 				}
 				break;
 			default:
@@ -338,13 +303,342 @@ export default class RiddleParser extends Parser {
 		return localctx;
 	}
 	// @RuleVersion(0)
-	public id(): IdContext {
-		let localctx: IdContext = new IdContext(this, this._ctx, this.state);
-		this.enterRule(localctx, 4, RiddleParser.RULE_id);
+	public expression(): ExpressionContext {
+		let localctx: ExpressionContext = new ExpressionContext(this, this._ctx, this.state);
+		this.enterRule(localctx, 4, RiddleParser.RULE_expression);
+		let _la: number;
+		try {
+			this.state = 38;
+			this._errHandler.sync(this);
+			switch (this._input.LA(1)) {
+			case 60:
+				localctx = new IntegerContext(this, localctx);
+				this.enterOuterAlt(localctx, 1);
+				{
+				this.state = 33;
+				this.match(RiddleParser.Decimal);
+				}
+				break;
+			case 63:
+				localctx = new FloatContext(this, localctx);
+				this.enterOuterAlt(localctx, 2);
+				{
+				this.state = 34;
+				this.match(RiddleParser.Float);
+				}
+				break;
+			case 14:
+			case 15:
+				localctx = new BooleanContext(this, localctx);
+				this.enterOuterAlt(localctx, 3);
+				{
+				this.state = 35;
+				_la = this._input.LA(1);
+				if(!(_la===14 || _la===15)) {
+				this._errHandler.recoverInline(this);
+				}
+				else {
+					this._errHandler.reportMatch(this);
+				    this.consume();
+				}
+				}
+				break;
+			case 58:
+				localctx = new ObjectContext(this, localctx);
+				this.enterOuterAlt(localctx, 4);
+				{
+				this.state = 36;
+				this.id();
+				}
+				break;
+			case 1:
+			case 9:
+			case 33:
+				localctx = new StatementExprContext(this, localctx);
+				this.enterOuterAlt(localctx, 5);
+				{
+				this.state = 37;
+				this.statement();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+		}
+		catch (re) {
+			if (re instanceof RecognitionException) {
+				localctx.exception = re;
+				this._errHandler.reportError(this, re);
+				this._errHandler.recover(this, re);
+			} else {
+				throw re;
+			}
+		}
+		finally {
+			this.exitRule();
+		}
+		return localctx;
+	}
+	// @RuleVersion(0)
+	public statement(): StatementContext {
+		let localctx: StatementContext = new StatementContext(this, this._ctx, this.state);
+		this.enterRule(localctx, 6, RiddleParser.RULE_statement);
+		try {
+			this.state = 43;
+			this._errHandler.sync(this);
+			switch (this._input.LA(1)) {
+			case 1:
+				this.enterOuterAlt(localctx, 1);
+				{
+				this.state = 40;
+				this.varDecl();
+				}
+				break;
+			case 9:
+				this.enterOuterAlt(localctx, 2);
+				{
+				this.state = 41;
+				this.funcDecl();
+				}
+				break;
+			case 33:
+				this.enterOuterAlt(localctx, 3);
+				{
+				this.state = 42;
+				this.block();
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
+		}
+		catch (re) {
+			if (re instanceof RecognitionException) {
+				localctx.exception = re;
+				this._errHandler.reportError(this, re);
+				this._errHandler.recover(this, re);
+			} else {
+				throw re;
+			}
+		}
+		finally {
+			this.exitRule();
+		}
+		return localctx;
+	}
+	// @RuleVersion(0)
+	public varDecl(): VarDeclContext {
+		let localctx: VarDeclContext = new VarDeclContext(this, this._ctx, this.state);
+		this.enterRule(localctx, 8, RiddleParser.RULE_varDecl);
+		try {
+			this.state = 62;
+			this._errHandler.sync(this);
+			switch ( this._interp.adaptivePredict(this._input, 5, this._ctx) ) {
+			case 1:
+				this.enterOuterAlt(localctx, 1);
+				{
+				this.state = 45;
+				this.match(RiddleParser.Var);
+				this.state = 46;
+				localctx._name = this.id();
+				this.state = 47;
+				this.match(RiddleParser.Colon);
+				this.state = 48;
+				localctx._type_ = this.expression();
+				}
+				break;
+			case 2:
+				this.enterOuterAlt(localctx, 2);
+				{
+				this.state = 50;
+				this.match(RiddleParser.Var);
+				this.state = 51;
+				localctx._name = this.id();
+				this.state = 52;
+				this.match(RiddleParser.Assign);
+				this.state = 53;
+				localctx._value = this.expression();
+				}
+				break;
+			case 3:
+				this.enterOuterAlt(localctx, 3);
+				{
+				this.state = 55;
+				this.match(RiddleParser.Var);
+				this.state = 56;
+				localctx._name = this.id();
+				this.state = 57;
+				this.match(RiddleParser.Colon);
+				this.state = 58;
+				localctx._type_ = this.expression();
+				this.state = 59;
+				this.match(RiddleParser.Assign);
+				this.state = 60;
+				localctx._value = this.expression();
+				}
+				break;
+			}
+		}
+		catch (re) {
+			if (re instanceof RecognitionException) {
+				localctx.exception = re;
+				this._errHandler.reportError(this, re);
+				this._errHandler.recover(this, re);
+			} else {
+				throw re;
+			}
+		}
+		finally {
+			this.exitRule();
+		}
+		return localctx;
+	}
+	// @RuleVersion(0)
+	public block(): BlockContext {
+		let localctx: BlockContext = new BlockContext(this, this._ctx, this.state);
+		this.enterRule(localctx, 10, RiddleParser.RULE_block);
+		let _la: number;
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 28;
+			this.state = 64;
+			this.match(RiddleParser.LeftCurly);
+			this.state = 68;
+			this._errHandler.sync(this);
+			_la = this._input.LA(1);
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 49666) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 1258291201) !== 0)) {
+				{
+				{
+				this.state = 65;
+				this.expressionEnd();
+				}
+				}
+				this.state = 70;
+				this._errHandler.sync(this);
+				_la = this._input.LA(1);
+			}
+			this.state = 71;
+			this.match(RiddleParser.RightCurly);
+			}
+		}
+		catch (re) {
+			if (re instanceof RecognitionException) {
+				localctx.exception = re;
+				this._errHandler.reportError(this, re);
+				this._errHandler.recover(this, re);
+			} else {
+				throw re;
+			}
+		}
+		finally {
+			this.exitRule();
+		}
+		return localctx;
+	}
+	// @RuleVersion(0)
+	public declArgs(): DeclArgsContext {
+		let localctx: DeclArgsContext = new DeclArgsContext(this, this._ctx, this.state);
+		this.enterRule(localctx, 12, RiddleParser.RULE_declArgs);
+		let _la: number;
+		try {
+			let _alt: number;
+			this.enterOuterAlt(localctx, 1);
+			{
+			this.state = 80;
+			this._errHandler.sync(this);
+			_alt = this._interp.adaptivePredict(this._input, 7, this._ctx);
+			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
+				if (_alt === 1) {
+					{
+					{
+					this.state = 73;
+					this.id();
+					this.state = 74;
+					this.match(RiddleParser.Colon);
+					this.state = 75;
+					this.expression();
+					this.state = 76;
+					this.match(RiddleParser.Comma);
+					}
+					}
+				}
+				this.state = 82;
+				this._errHandler.sync(this);
+				_alt = this._interp.adaptivePredict(this._input, 7, this._ctx);
+			}
+			this.state = 87;
+			this._errHandler.sync(this);
+			_la = this._input.LA(1);
+			if (_la===58) {
+				{
+				this.state = 83;
+				this.id();
+				this.state = 84;
+				this.match(RiddleParser.Colon);
+				this.state = 85;
+				this.expression();
+				}
+			}
+
+			}
+		}
+		catch (re) {
+			if (re instanceof RecognitionException) {
+				localctx.exception = re;
+				this._errHandler.reportError(this, re);
+				this._errHandler.recover(this, re);
+			} else {
+				throw re;
+			}
+		}
+		finally {
+			this.exitRule();
+		}
+		return localctx;
+	}
+	// @RuleVersion(0)
+	public funcDecl(): FuncDeclContext {
+		let localctx: FuncDeclContext = new FuncDeclContext(this, this._ctx, this.state);
+		this.enterRule(localctx, 14, RiddleParser.RULE_funcDecl);
+		try {
+			this.enterOuterAlt(localctx, 1);
+			{
+			this.state = 89;
+			this.match(RiddleParser.Func);
+			this.state = 90;
+			localctx._name = this.id();
+			this.state = 91;
+			this.match(RiddleParser.LeftBracket);
+			this.state = 92;
+			this.declArgs();
+			this.state = 93;
+			this.match(RiddleParser.RightBracket);
+			this.state = 94;
+			localctx._body = this.block();
+			}
+		}
+		catch (re) {
+			if (re instanceof RecognitionException) {
+				localctx.exception = re;
+				this._errHandler.reportError(this, re);
+				this._errHandler.recover(this, re);
+			} else {
+				throw re;
+			}
+		}
+		finally {
+			this.exitRule();
+		}
+		return localctx;
+	}
+	// @RuleVersion(0)
+	public id(): IdContext {
+		let localctx: IdContext = new IdContext(this, this._ctx, this.state);
+		this.enterRule(localctx, 16, RiddleParser.RULE_id);
+		try {
+			this.enterOuterAlt(localctx, 1);
+			{
+			this.state = 96;
 			this.match(RiddleParser.Identifier);
 			}
 		}
@@ -363,16 +657,35 @@ export default class RiddleParser extends Parser {
 		return localctx;
 	}
 
-	public static readonly _serializedATN: number[] = [4,1,73,31,2,0,7,0,2,
-	1,7,1,2,2,7,2,1,0,5,0,8,8,0,10,0,12,0,11,9,0,1,1,1,1,1,1,1,1,1,1,1,1,1,
-	1,1,1,3,1,21,8,1,1,1,1,1,3,1,25,8,1,3,1,27,8,1,1,2,1,2,1,2,0,0,3,0,2,4,
-	0,1,1,0,14,15,34,0,9,1,0,0,0,2,26,1,0,0,0,4,28,1,0,0,0,6,8,3,2,1,0,7,6,
-	1,0,0,0,8,11,1,0,0,0,9,7,1,0,0,0,9,10,1,0,0,0,10,1,1,0,0,0,11,9,1,0,0,0,
-	12,27,5,60,0,0,13,27,5,63,0,0,14,27,7,0,0,0,15,27,3,4,2,0,16,17,5,1,0,0,
-	17,20,3,4,2,0,18,19,5,35,0,0,19,21,3,2,1,0,20,18,1,0,0,0,20,21,1,0,0,0,
-	21,24,1,0,0,0,22,23,5,39,0,0,23,25,3,2,1,0,24,22,1,0,0,0,24,25,1,0,0,0,
-	25,27,1,0,0,0,26,12,1,0,0,0,26,13,1,0,0,0,26,14,1,0,0,0,26,15,1,0,0,0,26,
-	16,1,0,0,0,27,3,1,0,0,0,28,29,5,58,0,0,29,5,1,0,0,0,4,9,20,24,26];
+	public static readonly _serializedATN: number[] = [4,1,73,99,2,0,7,0,2,
+	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,1,0,5,0,20,
+	8,0,10,0,12,0,23,9,0,1,0,1,0,1,1,1,1,3,1,29,8,1,1,1,3,1,32,8,1,1,2,1,2,
+	1,2,1,2,1,2,3,2,39,8,2,1,3,1,3,1,3,3,3,44,8,3,1,4,1,4,1,4,1,4,1,4,1,4,1,
+	4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,63,8,4,1,5,1,5,5,5,67,8,5,
+	10,5,12,5,70,9,5,1,5,1,5,1,6,1,6,1,6,1,6,1,6,5,6,79,8,6,10,6,12,6,82,9,
+	6,1,6,1,6,1,6,1,6,3,6,88,8,6,1,7,1,7,1,7,1,7,1,7,1,7,1,7,1,8,1,8,1,8,0,
+	0,9,0,2,4,6,8,10,12,14,16,0,1,1,0,14,15,103,0,21,1,0,0,0,2,31,1,0,0,0,4,
+	38,1,0,0,0,6,43,1,0,0,0,8,62,1,0,0,0,10,64,1,0,0,0,12,80,1,0,0,0,14,89,
+	1,0,0,0,16,96,1,0,0,0,18,20,3,2,1,0,19,18,1,0,0,0,20,23,1,0,0,0,21,19,1,
+	0,0,0,21,22,1,0,0,0,22,24,1,0,0,0,23,21,1,0,0,0,24,25,5,0,0,1,25,1,1,0,
+	0,0,26,28,3,4,2,0,27,29,5,57,0,0,28,27,1,0,0,0,28,29,1,0,0,0,29,32,1,0,
+	0,0,30,32,5,57,0,0,31,26,1,0,0,0,31,30,1,0,0,0,32,3,1,0,0,0,33,39,5,60,
+	0,0,34,39,5,63,0,0,35,39,7,0,0,0,36,39,3,16,8,0,37,39,3,6,3,0,38,33,1,0,
+	0,0,38,34,1,0,0,0,38,35,1,0,0,0,38,36,1,0,0,0,38,37,1,0,0,0,39,5,1,0,0,
+	0,40,44,3,8,4,0,41,44,3,14,7,0,42,44,3,10,5,0,43,40,1,0,0,0,43,41,1,0,0,
+	0,43,42,1,0,0,0,44,7,1,0,0,0,45,46,5,1,0,0,46,47,3,16,8,0,47,48,5,35,0,
+	0,48,49,3,4,2,0,49,63,1,0,0,0,50,51,5,1,0,0,51,52,3,16,8,0,52,53,5,39,0,
+	0,53,54,3,4,2,0,54,63,1,0,0,0,55,56,5,1,0,0,56,57,3,16,8,0,57,58,5,35,0,
+	0,58,59,3,4,2,0,59,60,5,39,0,0,60,61,3,4,2,0,61,63,1,0,0,0,62,45,1,0,0,
+	0,62,50,1,0,0,0,62,55,1,0,0,0,63,9,1,0,0,0,64,68,5,33,0,0,65,67,3,2,1,0,
+	66,65,1,0,0,0,67,70,1,0,0,0,68,66,1,0,0,0,68,69,1,0,0,0,69,71,1,0,0,0,70,
+	68,1,0,0,0,71,72,5,34,0,0,72,11,1,0,0,0,73,74,3,16,8,0,74,75,5,35,0,0,75,
+	76,3,4,2,0,76,77,5,37,0,0,77,79,1,0,0,0,78,73,1,0,0,0,79,82,1,0,0,0,80,
+	78,1,0,0,0,80,81,1,0,0,0,81,87,1,0,0,0,82,80,1,0,0,0,83,84,3,16,8,0,84,
+	85,5,35,0,0,85,86,3,4,2,0,86,88,1,0,0,0,87,83,1,0,0,0,87,88,1,0,0,0,88,
+	13,1,0,0,0,89,90,5,9,0,0,90,91,3,16,8,0,91,92,5,29,0,0,92,93,3,12,6,0,93,
+	94,5,30,0,0,94,95,3,10,5,0,95,15,1,0,0,0,96,97,5,58,0,0,97,17,1,0,0,0,9,
+	21,28,31,38,43,62,68,80,87];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -393,11 +706,14 @@ export class ProgramContext extends ParserRuleContext {
 		super(parent, invokingState);
     	this.parser = parser;
 	}
-	public statement_list(): StatementContext[] {
-		return this.getTypedRuleContexts(StatementContext) as StatementContext[];
+	public EOF(): TerminalNode {
+		return this.getToken(RiddleParser.EOF, 0);
 	}
-	public statement(i: number): StatementContext {
-		return this.getTypedRuleContext(StatementContext, i) as StatementContext;
+	public expressionEnd_list(): ExpressionEndContext[] {
+		return this.getTypedRuleContexts(ExpressionEndContext) as ExpressionEndContext[];
+	}
+	public expressionEnd(i: number): ExpressionEndContext {
+		return this.getTypedRuleContext(ExpressionEndContext, i) as ExpressionEndContext;
 	}
     public get ruleIndex(): number {
     	return RiddleParser.RULE_program;
@@ -423,20 +739,55 @@ export class ProgramContext extends ParserRuleContext {
 }
 
 
-export class StatementContext extends ParserRuleContext {
+export class ExpressionEndContext extends ParserRuleContext {
+	constructor(parser?: RiddleParser, parent?: ParserRuleContext, invokingState?: number) {
+		super(parent, invokingState);
+    	this.parser = parser;
+	}
+	public expression(): ExpressionContext {
+		return this.getTypedRuleContext(ExpressionContext, 0) as ExpressionContext;
+	}
+	public Endl(): TerminalNode {
+		return this.getToken(RiddleParser.Endl, 0);
+	}
+    public get ruleIndex(): number {
+    	return RiddleParser.RULE_expressionEnd;
+	}
+	public enterRule(listener: RiddleParserListener): void {
+	    if(listener.enterExpressionEnd) {
+	 		listener.enterExpressionEnd(this);
+		}
+	}
+	public exitRule(listener: RiddleParserListener): void {
+	    if(listener.exitExpressionEnd) {
+	 		listener.exitExpressionEnd(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: RiddleParserVisitor<Result>): Result {
+		if (visitor.visitExpressionEnd) {
+			return visitor.visitExpressionEnd(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+
+
+export class ExpressionContext extends ParserRuleContext {
 	constructor(parser?: RiddleParser, parent?: ParserRuleContext, invokingState?: number) {
 		super(parent, invokingState);
     	this.parser = parser;
 	}
     public get ruleIndex(): number {
-    	return RiddleParser.RULE_statement;
+    	return RiddleParser.RULE_expression;
 	}
-	public override copyFrom(ctx: StatementContext): void {
+	public override copyFrom(ctx: ExpressionContext): void {
 		super.copyFrom(ctx);
 	}
 }
-export class BooleanContext extends StatementContext {
-	constructor(parser: RiddleParser, ctx: StatementContext) {
+export class BooleanContext extends ExpressionContext {
+	constructor(parser: RiddleParser, ctx: ExpressionContext) {
 		super(parser, ctx.parentCtx, ctx.invokingState);
 		super.copyFrom(ctx);
 	}
@@ -465,8 +816,8 @@ export class BooleanContext extends StatementContext {
 		}
 	}
 }
-export class IntegerContext extends StatementContext {
-	constructor(parser: RiddleParser, ctx: StatementContext) {
+export class IntegerContext extends ExpressionContext {
+	constructor(parser: RiddleParser, ctx: ExpressionContext) {
 		super(parser, ctx.parentCtx, ctx.invokingState);
 		super.copyFrom(ctx);
 	}
@@ -492,8 +843,8 @@ export class IntegerContext extends StatementContext {
 		}
 	}
 }
-export class FloatContext extends StatementContext {
-	constructor(parser: RiddleParser, ctx: StatementContext) {
+export class FloatContext extends ExpressionContext {
+	constructor(parser: RiddleParser, ctx: ExpressionContext) {
 		super(parser, ctx.parentCtx, ctx.invokingState);
 		super.copyFrom(ctx);
 	}
@@ -519,53 +870,35 @@ export class FloatContext extends StatementContext {
 		}
 	}
 }
-export class VarDeclContext extends StatementContext {
-	public _name!: IdContext;
-	public _type_!: StatementContext;
-	public _value!: StatementContext;
-	constructor(parser: RiddleParser, ctx: StatementContext) {
+export class StatementExprContext extends ExpressionContext {
+	constructor(parser: RiddleParser, ctx: ExpressionContext) {
 		super(parser, ctx.parentCtx, ctx.invokingState);
 		super.copyFrom(ctx);
 	}
-	public Var(): TerminalNode {
-		return this.getToken(RiddleParser.Var, 0);
-	}
-	public id(): IdContext {
-		return this.getTypedRuleContext(IdContext, 0) as IdContext;
-	}
-	public Colon(): TerminalNode {
-		return this.getToken(RiddleParser.Colon, 0);
-	}
-	public Assign(): TerminalNode {
-		return this.getToken(RiddleParser.Assign, 0);
-	}
-	public statement_list(): StatementContext[] {
-		return this.getTypedRuleContexts(StatementContext) as StatementContext[];
-	}
-	public statement(i: number): StatementContext {
-		return this.getTypedRuleContext(StatementContext, i) as StatementContext;
+	public statement(): StatementContext {
+		return this.getTypedRuleContext(StatementContext, 0) as StatementContext;
 	}
 	public enterRule(listener: RiddleParserListener): void {
-	    if(listener.enterVarDecl) {
-	 		listener.enterVarDecl(this);
+	    if(listener.enterStatementExpr) {
+	 		listener.enterStatementExpr(this);
 		}
 	}
 	public exitRule(listener: RiddleParserListener): void {
-	    if(listener.exitVarDecl) {
-	 		listener.exitVarDecl(this);
+	    if(listener.exitStatementExpr) {
+	 		listener.exitStatementExpr(this);
 		}
 	}
 	// @Override
 	public accept<Result>(visitor: RiddleParserVisitor<Result>): Result {
-		if (visitor.visitVarDecl) {
-			return visitor.visitVarDecl(this);
+		if (visitor.visitStatementExpr) {
+			return visitor.visitStatementExpr(this);
 		} else {
 			return visitor.visitChildren(this);
 		}
 	}
 }
-export class ObjectContext extends StatementContext {
-	constructor(parser: RiddleParser, ctx: StatementContext) {
+export class ObjectContext extends ExpressionContext {
+	constructor(parser: RiddleParser, ctx: ExpressionContext) {
 		super(parser, ctx.parentCtx, ctx.invokingState);
 		super.copyFrom(ctx);
 	}
@@ -586,6 +919,237 @@ export class ObjectContext extends StatementContext {
 	public accept<Result>(visitor: RiddleParserVisitor<Result>): Result {
 		if (visitor.visitObject) {
 			return visitor.visitObject(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+
+
+export class StatementContext extends ParserRuleContext {
+	constructor(parser?: RiddleParser, parent?: ParserRuleContext, invokingState?: number) {
+		super(parent, invokingState);
+    	this.parser = parser;
+	}
+	public varDecl(): VarDeclContext {
+		return this.getTypedRuleContext(VarDeclContext, 0) as VarDeclContext;
+	}
+	public funcDecl(): FuncDeclContext {
+		return this.getTypedRuleContext(FuncDeclContext, 0) as FuncDeclContext;
+	}
+	public block(): BlockContext {
+		return this.getTypedRuleContext(BlockContext, 0) as BlockContext;
+	}
+    public get ruleIndex(): number {
+    	return RiddleParser.RULE_statement;
+	}
+	public enterRule(listener: RiddleParserListener): void {
+	    if(listener.enterStatement) {
+	 		listener.enterStatement(this);
+		}
+	}
+	public exitRule(listener: RiddleParserListener): void {
+	    if(listener.exitStatement) {
+	 		listener.exitStatement(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: RiddleParserVisitor<Result>): Result {
+		if (visitor.visitStatement) {
+			return visitor.visitStatement(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+
+
+export class VarDeclContext extends ParserRuleContext {
+	public _name!: IdContext;
+	public _type_!: ExpressionContext;
+	public _value!: ExpressionContext;
+	constructor(parser?: RiddleParser, parent?: ParserRuleContext, invokingState?: number) {
+		super(parent, invokingState);
+    	this.parser = parser;
+	}
+	public Var(): TerminalNode {
+		return this.getToken(RiddleParser.Var, 0);
+	}
+	public Colon(): TerminalNode {
+		return this.getToken(RiddleParser.Colon, 0);
+	}
+	public id(): IdContext {
+		return this.getTypedRuleContext(IdContext, 0) as IdContext;
+	}
+	public expression_list(): ExpressionContext[] {
+		return this.getTypedRuleContexts(ExpressionContext) as ExpressionContext[];
+	}
+	public expression(i: number): ExpressionContext {
+		return this.getTypedRuleContext(ExpressionContext, i) as ExpressionContext;
+	}
+	public Assign(): TerminalNode {
+		return this.getToken(RiddleParser.Assign, 0);
+	}
+    public get ruleIndex(): number {
+    	return RiddleParser.RULE_varDecl;
+	}
+	public enterRule(listener: RiddleParserListener): void {
+	    if(listener.enterVarDecl) {
+	 		listener.enterVarDecl(this);
+		}
+	}
+	public exitRule(listener: RiddleParserListener): void {
+	    if(listener.exitVarDecl) {
+	 		listener.exitVarDecl(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: RiddleParserVisitor<Result>): Result {
+		if (visitor.visitVarDecl) {
+			return visitor.visitVarDecl(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+
+
+export class BlockContext extends ParserRuleContext {
+	constructor(parser?: RiddleParser, parent?: ParserRuleContext, invokingState?: number) {
+		super(parent, invokingState);
+    	this.parser = parser;
+	}
+	public LeftCurly(): TerminalNode {
+		return this.getToken(RiddleParser.LeftCurly, 0);
+	}
+	public RightCurly(): TerminalNode {
+		return this.getToken(RiddleParser.RightCurly, 0);
+	}
+	public expressionEnd_list(): ExpressionEndContext[] {
+		return this.getTypedRuleContexts(ExpressionEndContext) as ExpressionEndContext[];
+	}
+	public expressionEnd(i: number): ExpressionEndContext {
+		return this.getTypedRuleContext(ExpressionEndContext, i) as ExpressionEndContext;
+	}
+    public get ruleIndex(): number {
+    	return RiddleParser.RULE_block;
+	}
+	public enterRule(listener: RiddleParserListener): void {
+	    if(listener.enterBlock) {
+	 		listener.enterBlock(this);
+		}
+	}
+	public exitRule(listener: RiddleParserListener): void {
+	    if(listener.exitBlock) {
+	 		listener.exitBlock(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: RiddleParserVisitor<Result>): Result {
+		if (visitor.visitBlock) {
+			return visitor.visitBlock(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+
+
+export class DeclArgsContext extends ParserRuleContext {
+	constructor(parser?: RiddleParser, parent?: ParserRuleContext, invokingState?: number) {
+		super(parent, invokingState);
+    	this.parser = parser;
+	}
+	public id_list(): IdContext[] {
+		return this.getTypedRuleContexts(IdContext) as IdContext[];
+	}
+	public id(i: number): IdContext {
+		return this.getTypedRuleContext(IdContext, i) as IdContext;
+	}
+	public Colon_list(): TerminalNode[] {
+	    	return this.getTokens(RiddleParser.Colon);
+	}
+	public Colon(i: number): TerminalNode {
+		return this.getToken(RiddleParser.Colon, i);
+	}
+	public expression_list(): ExpressionContext[] {
+		return this.getTypedRuleContexts(ExpressionContext) as ExpressionContext[];
+	}
+	public expression(i: number): ExpressionContext {
+		return this.getTypedRuleContext(ExpressionContext, i) as ExpressionContext;
+	}
+	public Comma_list(): TerminalNode[] {
+	    	return this.getTokens(RiddleParser.Comma);
+	}
+	public Comma(i: number): TerminalNode {
+		return this.getToken(RiddleParser.Comma, i);
+	}
+    public get ruleIndex(): number {
+    	return RiddleParser.RULE_declArgs;
+	}
+	public enterRule(listener: RiddleParserListener): void {
+	    if(listener.enterDeclArgs) {
+	 		listener.enterDeclArgs(this);
+		}
+	}
+	public exitRule(listener: RiddleParserListener): void {
+	    if(listener.exitDeclArgs) {
+	 		listener.exitDeclArgs(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: RiddleParserVisitor<Result>): Result {
+		if (visitor.visitDeclArgs) {
+			return visitor.visitDeclArgs(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+
+
+export class FuncDeclContext extends ParserRuleContext {
+	public _name!: IdContext;
+	public _body!: BlockContext;
+	constructor(parser?: RiddleParser, parent?: ParserRuleContext, invokingState?: number) {
+		super(parent, invokingState);
+    	this.parser = parser;
+	}
+	public Func(): TerminalNode {
+		return this.getToken(RiddleParser.Func, 0);
+	}
+	public LeftBracket(): TerminalNode {
+		return this.getToken(RiddleParser.LeftBracket, 0);
+	}
+	public declArgs(): DeclArgsContext {
+		return this.getTypedRuleContext(DeclArgsContext, 0) as DeclArgsContext;
+	}
+	public RightBracket(): TerminalNode {
+		return this.getToken(RiddleParser.RightBracket, 0);
+	}
+	public id(): IdContext {
+		return this.getTypedRuleContext(IdContext, 0) as IdContext;
+	}
+	public block(): BlockContext {
+		return this.getTypedRuleContext(BlockContext, 0) as BlockContext;
+	}
+    public get ruleIndex(): number {
+    	return RiddleParser.RULE_funcDecl;
+	}
+	public enterRule(listener: RiddleParserListener): void {
+	    if(listener.enterFuncDecl) {
+	 		listener.enterFuncDecl(this);
+		}
+	}
+	public exitRule(listener: RiddleParserListener): void {
+	    if(listener.exitFuncDecl) {
+	 		listener.exitFuncDecl(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: RiddleParserVisitor<Result>): Result {
+		if (visitor.visitFuncDecl) {
+			return visitor.visitFuncDecl(this);
 		} else {
 			return visitor.visitChildren(this);
 		}

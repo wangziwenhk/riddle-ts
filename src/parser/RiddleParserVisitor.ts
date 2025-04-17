@@ -4,11 +4,17 @@ import {ParseTreeVisitor} from 'antlr4';
 
 
 import { ProgramContext } from "./RiddleParser.js";
+import { ExpressionEndContext } from "./RiddleParser.js";
 import { IntegerContext } from "./RiddleParser.js";
 import { FloatContext } from "./RiddleParser.js";
 import { BooleanContext } from "./RiddleParser.js";
 import { ObjectContext } from "./RiddleParser.js";
+import { StatementExprContext } from "./RiddleParser.js";
+import { StatementContext } from "./RiddleParser.js";
 import { VarDeclContext } from "./RiddleParser.js";
+import { BlockContext } from "./RiddleParser.js";
+import { DeclArgsContext } from "./RiddleParser.js";
+import { FuncDeclContext } from "./RiddleParser.js";
 import { IdContext } from "./RiddleParser.js";
 
 
@@ -27,40 +33,76 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitProgram?: (ctx: ProgramContext) => Result;
 	/**
+	 * Visit a parse tree produced by `RiddleParser.expressionEnd`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitExpressionEnd?: (ctx: ExpressionEndContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `integer`
-	 * labeled alternative in `RiddleParser.statement`.
+	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitInteger?: (ctx: IntegerContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `float`
-	 * labeled alternative in `RiddleParser.statement`.
+	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitFloat?: (ctx: FloatContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `boolean`
-	 * labeled alternative in `RiddleParser.statement`.
+	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitBoolean?: (ctx: BooleanContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `object`
-	 * labeled alternative in `RiddleParser.statement`.
+	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitObject?: (ctx: ObjectContext) => Result;
 	/**
-	 * Visit a parse tree produced by the `varDecl`
-	 * labeled alternative in `RiddleParser.statement`.
+	 * Visit a parse tree produced by the `statementExpr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitStatementExpr?: (ctx: StatementExprContext) => Result;
+	/**
+	 * Visit a parse tree produced by `RiddleParser.statement`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitStatement?: (ctx: StatementContext) => Result;
+	/**
+	 * Visit a parse tree produced by `RiddleParser.varDecl`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitVarDecl?: (ctx: VarDeclContext) => Result;
+	/**
+	 * Visit a parse tree produced by `RiddleParser.block`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitBlock?: (ctx: BlockContext) => Result;
+	/**
+	 * Visit a parse tree produced by `RiddleParser.declArgs`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDeclArgs?: (ctx: DeclArgsContext) => Result;
+	/**
+	 * Visit a parse tree produced by `RiddleParser.funcDecl`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitFuncDecl?: (ctx: FuncDeclContext) => Result;
 	/**
 	 * Visit a parse tree produced by `RiddleParser.id`.
 	 * @param ctx the parse tree
