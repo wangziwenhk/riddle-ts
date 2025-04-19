@@ -1,46 +1,84 @@
-import {Value} from "./value";
-import {PrimitiveTypeInfo, Types} from "./types";
+import {Types} from "./types";
+import {SemObject} from "./visitor";
 
-const void_type: PrimitiveTypeInfo = {
-    kind: 'primitive',
-    name: 'void',
+export abstract class SemBaseVisitor {
+    visit(node: SemNode) {
+        return node.accept(this)
+    }
+
+    visitProgram(node: ProgramNode) {
+        node.children.forEach(child => {
+            this.visit(child);
+        })
+        return;
+    }
+
+    visitConstant(_node: ConstantNode) {
+    }
+
+    visitBlock(node: BlockNode) {
+        node.children.forEach(child => {
+            this.visit(child);
+        })
+    }
+
+    visitFuncDecl(node: FuncDeclNode) {
+        this.visit(node.return_type);
+        this.visit(node.body);
+    }
+
+    visitVarDecl(node: VarDeclNode) {
+        if (node.type) {
+            this.visit(node.type);
+        }
+        if (node.value) {
+            this.visit(node.value);
+        }
+    }
+
+    visitObject(_node: ObjectNode) {
+    }
 }
 
 export abstract class SemNode {
     kind!: string;
+    obj!: SemObject;
+
+    abstract accept(visitor: SemBaseVisitor): any;
 }
 
 export class ProgramNode extends SemNode {
     children: SemNode[] = [];
-    kind: string = "program";
+    kind: string = 'program';
+
+    constructor() {
+        super();
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitProgram(this);
+    }
 }
 
 export abstract class ExprNode extends SemNode {
-    value!: Value;
-    type: Types;
-
-    protected constructor(type: Types) {
+    protected constructor() {
         super();
-        this.type = type;
     }
 }
 
 export class ConstantNode extends ExprNode {
-    kind: string = "constant";
+    kind: string = 'constant';
+    value: any;
+    type: Types;
 
-    constructor(value: Value) {
-        super(value.type);
+    constructor(value: any, type: Types) {
+        super();
         this.value = value;
+        this.type = type;
     }
-}
 
-export class FuncDeclNode extends ExprNode {
-    kind: string = "funcDecl";
-    name: string;
-
-    constructor(name: string) {
-        super(void_type);
-        this.name = name;
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitConstant(this);
     }
 }
 
@@ -48,7 +86,61 @@ export class BlockNode extends ExprNode {
     children: ExprNode[];
 
     constructor(children: ExprNode[]) {
-        super(children[children.length - 1].type);
+        super();
         this.children = children;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitBlock(this);
+    }
+}
+
+export class FuncDeclNode extends ExprNode {
+    kind: string = 'funcDecl';
+    name: string;
+    body: BlockNode;
+    return_type: ExprNode;
+
+    constructor(name: string, return_type: ExprNode, body: BlockNode) {
+        super();
+        this.name = name;
+        this.body = body;
+        this.return_type = return_type;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitFuncDecl(this);
+    }
+}
+
+export class VarDeclNode extends ExprNode {
+    kind: string = 'varDecl';
+    name: string;
+    type: ExprNode | undefined;
+    value: ExprNode | undefined;
+
+    constructor(name: string, type: ExprNode | undefined, value: ExprNode | undefined) {
+        super();
+        this.name = name;
+        this.type = type;
+        this.value = value;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitVarDecl(this)
+    }
+}
+
+export class ObjectNode extends ExprNode {
+    kind: string = 'object';
+    name: string;
+
+    constructor(name: string) {
+        super();
+        this.name = name;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitObject(this)
     }
 }

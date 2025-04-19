@@ -49,7 +49,7 @@ declArgs
     ;
 
 funcDecl
-    : Func name=id LeftBracket declArgs RightBracket body=block
+    : Func name=id LeftBracket declArgs RightBracket (Colon return_type=expression)? body=block
     ;
 
 id: Identifier;

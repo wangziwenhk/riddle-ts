@@ -2,10 +2,11 @@ import * as fs from 'fs';
 import antlr4 from 'antlr4';
 import RiddleLexer from "./parser/RiddleLexer";
 import RiddleParser from "./parser/RiddleParser";
-import {SemanticVisitor} from "./semantic/visitor";
+import {GrammarVisitor} from "./grammar/visitor";
+import {SemanticAnalysis} from "./semantic/visitor";
 
 const firstArg = process.argv[2];
-const text = fs.readFileSync(firstArg,'utf8');
+const text = fs.readFileSync(firstArg, 'utf8');
 
 const chars = new antlr4.CharStream(text);
 const lexer = new RiddleLexer(chars);
@@ -14,6 +15,10 @@ const parser = new RiddleParser(tokens);
 
 const tree = parser.program();
 
-const visitor = new SemanticVisitor();
-visitor.visit(tree);
-console.log(visitor.errors);
+const gram_visitor = new GrammarVisitor();
+const program = gram_visitor.visit(tree);
+if (gram_visitor.errors.length > 0) {
+    console.log(gram_visitor.errors);
+}
+const sem_visitor = new SemanticAnalysis()
+sem_visitor.visit(program)

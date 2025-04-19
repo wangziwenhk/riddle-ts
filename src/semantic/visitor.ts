@@ -1,149 +1,183 @@
-import RiddleParserVisitor from '../parser/RiddleParserVisitor';
 import {
-    BlockContext,
-    BooleanContext, ExpressionEndContext,
-    FloatContext, FuncDeclContext,
-    IntegerContext,
-    ProgramContext, StatementExprContext,
-} from "../parser/RiddleParser";
-import {ParserRuleContext, TerminalNode} from "antlr4";
-import {PrimitiveType, PrimitiveTypeInfo} from "./types";
-import {BlockNode, ConstantNode, ExprNode, ProgramNode} from "./nodes";
+    BlockNode,
+    ConstantNode,
+    FuncDeclNode,
+    ObjectNode,
+    ProgramNode,
+    SemBaseVisitor,
+    SemNode,
+    VarDeclNode
+} from "./nodes";
+import {PrimitiveTypeInfo, Types} from "./types";
 
-export class SemanticVisitor extends RiddleParserVisitor<any> {
-    errors: string[] = [];
-    primitive_types = new Map<string, PrimitiveTypeInfo>();
+/**
+ * 表示一个语义分析对象
+ */
+export abstract class SemObject {
+    kind!: string;
+
+    abstract getValue(): any;
+}
+
+class SemValue extends SemObject {
+    type: Types;
+    value: any;
+
+    constructor(value: any, type: Types) {
+        super();
+        this.type = type;
+        this.value = value;
+    }
+
+    getValue(): any {
+        return this.value;
+    }
+}
+
+class SemVariable extends SemValue {
+    kind = "variable";
+    name: string;
+
+    constructor(name: string, type: Types, value?: SemValue) {
+        let t = undefined
+        if (value) {
+            t = value.value;
+        }
+
+        super(t, type);
+        this.name = name;
+    }
+
+    getValue(): any {
+        return this.value.value;
+    }
+}
+
+class SemType extends SemObject {
+    kind = "type";
+    type: Types;
+
+    constructor(type: Types) {
+        super();
+        this.type = type;
+    }
+
+    getValue(): any {
+        return undefined;
+    }
+}
+
+const voidTy: PrimitiveTypeInfo = {
+    kind: "primitive",
+    name: "void",
+}
+
+const nil = new SemValue(
+    undefined,
+    voidTy,
+)
+
+export class SemanticAnalysis extends SemBaseVisitor {
+    symbolTable: Map<string, Array<SemObject>> = new Map<string, Array<SemObject>>();
+    definedTable: Array<Set<string>> = [];
 
     constructor() {
         super();
-        this.registerPrimitiveType("int")
-        this.registerPrimitiveType("float")
-        this.registerPrimitiveType("long")
-        this.registerPrimitiveType("short")
-        this.registerPrimitiveType("char")
-        this.registerPrimitiveType("void")
-        this.registerPrimitiveType("bool")
     }
 
     /**
-     * 向错误保存器中保存一个错误
-     * @param message 错误消息
-     * @param line 错误行数
+     * 提升作用域
      */
-    private log(message: string, line: Number) {
-        this.errors.push(`line: ${line}: ${message}`);
+    raiseScope() {
+        this.definedTable.push(new Set());
     }
 
-    /**
-     * 获取一个 context 节点的起始行号
-     * @param node antlr4 ParserTree节点
-     * @returns number
-     */
-    private getLineNumber(node: ParserRuleContext | TerminalNode): number {
-        if (node instanceof ParserRuleContext) {
-            return node.start.line;
+    exitScope() {
+        this.definedTable[this.definedTable.length - 1].forEach(v => {
+            const t: Array<SemObject> | undefined = this.symbolTable.get(v);
+            if (t === undefined) {
+                throw new Error("Can't find symbol table");
+            }
+            t.pop();
+        })
+    }
+
+    addGlobalObject(name: string, obj: SemObject) {
+        if (this.definedTable[this.definedTable.length - 1].has(name)) {
+            throw new Error(`Object already exists: ${name}`);
+        }
+        if (!this.symbolTable.has(name)) {
+            this.symbolTable.set(name, new Array<SemObject>());
+        }
+        this.symbolTable.get(name)?.push(obj)
+        this.definedTable[this.definedTable.length - 1].add(name);
+    }
+
+    getGlobalObject(name: string) {
+        const result = this.symbolTable.get(name);
+        if (result === undefined) {
+            throw `Object does not exist: ${name}`;
+        }
+        return result[result.length - 1];
+    }
+
+    visit(node: SemNode): SemObject {
+        return node.accept(this)
+    }
+
+    visitProgram(node: ProgramNode) {
+        this.raiseScope();
+        node.children.forEach(child => {
+            this.visit(child);
+        })
+        this.exitScope();
+    }
+
+    visitBlock(node: BlockNode) {
+        let result: SemObject = nil;
+        this.raiseScope();
+        node.children.forEach(child => {
+            result = this.visit(child);
+        })
+        this.exitScope();
+        node.obj = result;
+        return result;
+    }
+
+    visitFuncDecl(node: FuncDeclNode) {
+        this.visit(node.body)
+    }
+
+    visitConstant(node: ConstantNode) {
+        const result = new SemValue(node.value, node.type)
+        node.obj = result;
+        return result;
+    }
+
+    visitVarDecl(node: VarDeclNode) {
+        let value: SemValue | undefined;
+        if (node.value) {
+            value = <SemValue>this.visit(node.value);
+        }
+        let type: Types;
+        if (node.type) {
+            const result = this.visit(node.type)
+            if (result.kind !== 'type') {
+                throw new Error(`Unknown type for ${result}`);
+            }
+            type = (<SemType>result).type;
         } else {
-            return node.symbol.line;
+            type = value!.type;
         }
+        const obj = new SemVariable(node.name, type, value);
+        node.obj = obj;
+        this.addGlobalObject(node.name, obj);
+        return nil;
     }
 
-    /**
-     * 注册一个基本类型，保证多个基本类型的 object 是相同的
-     * @param name 基本类型的名称
-     */
-    private registerPrimitiveType(name: PrimitiveType) {
-        this.primitive_types.set(name, {
-            kind: "primitive",
-            name: name,
-        });
-    }
-
-    /**
-     * 获取一个基本类型
-     * @param name 基本类型的名称
-     */
-    private getPrimitiveType(name: PrimitiveType) {
-        const type = this.primitive_types.get(name);
-        if (this.primitive_types.has(name) && type !== undefined) {
-            return type;
-        }
-        throw new Error(`Unknown primitive type: ${name}`);
-    }
-
-    visitProgram = (ctx: ProgramContext) => {
-        const node = new ProgramNode()
-        ctx.children?.forEach(child => {
-            node.children.push(this.visit(child));
-        })
-        return node;
-    }
-
-    visitExpressionEnd = (ctx: ExpressionEndContext) => {
-        return this.visit(ctx.children![0])
-    }
-
-    visitStatementExpr = (ctx: StatementExprContext) => {
-        return this.visit(ctx.children![0])
-    }
-
-    visitInteger = (ctx: IntegerContext) => {
-        const text = ctx.getText();
-        const value = Number.parseInt(text);
-        if (isNaN(value)) {
-            this.log(`Integer type out of range`, this.getLineNumber(ctx));
-        }
-
-        // 检查是否溢出
-        const MAX_INT = 2 ** 31 - 1;
-        const MIN_INT = -(2 ** 31);
-        if (value > MAX_INT || value < MIN_INT) {
-            this.log(`Integer type out of range`, this.getLineNumber(ctx));
-        }
-
-        return new ConstantNode({
-            kind: "primitive",
-            value: value,
-            type: this.getPrimitiveType("int")
-        });
-    }
-
-    visitFloat = (ctx: FloatContext) => {
-        const text = ctx.getText();
-        const value = Number.parseFloat(text);
-
-        if (isNaN(value)) {
-            this.log(`Float type out of range`, this.getLineNumber(ctx));
-        }
-
-        return new ConstantNode({
-            kind: "primitive",
-            value: value,
-            type: this.getPrimitiveType("float")
-        });
-    }
-
-    visitBoolean = (ctx: BooleanContext) => {
-        const text = ctx.getText();
-        let value: Boolean;
-        value = text === "true";
-        return new ConstantNode({
-            kind: "primitive",
-            value: value,
-            type: this.getPrimitiveType("bool")
-        });
-    }
-
-    visitFuncDecl = (ctx: FuncDeclContext) => {
-        const name = ctx._name.getText()
-        const body = this.visitBlock(ctx._body);
-    }
-
-    visitBlock = (ctx: BlockContext) => {
-        const children: ExprNode[] = []
-        ctx.children?.forEach(child => {
-            const result = this.visit(child);
-            children.push(result);
-        })
-        return new BlockNode(children)
+    visitObject(node: ObjectNode) {
+        const result = this.getGlobalObject(node.name);
+        node.obj = result;
+        return result;
     }
 }
