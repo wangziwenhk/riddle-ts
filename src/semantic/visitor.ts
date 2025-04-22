@@ -1,6 +1,7 @@
 import {
+    AllocNode,
     BlockNode,
-    ConstantNode,
+    ConstantNode, ExprNode,
     FuncDeclNode,
     ObjectNode,
     ProgramNode,
@@ -8,37 +9,32 @@ import {
     SemNode,
     VarDeclNode
 } from "./nodes";
-import {PrimitiveTypeInfo, Types} from "./types";
+import {PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
 
 /**
  * 表示一个语义分析对象
  */
 export abstract class SemObject {
     kind!: string;
-
-    abstract getValue(): any;
 }
 
-class SemValue extends SemObject {
-    type: Types;
+export class SemValue extends SemObject {
+    type: TypeInfo;
     value: any;
 
-    constructor(value: any, type: Types) {
+    constructor(value: any, type: TypeInfo) {
         super();
         this.type = type;
         this.value = value;
     }
-
-    getValue(): any {
-        return this.value;
-    }
 }
 
-class SemVariable extends SemValue {
+export class SemVariable extends SemValue {
     kind = "variable";
     name: string;
+    alloc: AllocNode;
 
-    constructor(name: string, type: Types, value?: SemValue) {
+    constructor(name: string, type: TypeInfo, value?: SemValue) {
         let t = undefined
         if (value) {
             t = value.value;
@@ -46,24 +42,31 @@ class SemVariable extends SemValue {
 
         super(t, type);
         this.name = name;
-    }
-
-    getValue(): any {
-        return this.value.value;
+        this.alloc = new AllocNode(type)
     }
 }
 
-class SemType extends SemObject {
+export class SemType extends SemObject {
     kind = "type";
-    type: Types;
+    type: TypeInfo;
 
-    constructor(type: Types) {
+    constructor(type: TypeInfo) {
         super();
         this.type = type;
     }
+}
 
-    getValue(): any {
-        return undefined;
+export class SemFunction extends SemObject {
+    kind = "function";
+    name: string;
+    param: SemVariable[];
+    return_type: TypeInfo;
+
+    constructor(name: string, return_type: TypeInfo, param: SemVariable[] = []) {
+        super();
+        this.name = name;
+        this.return_type = return_type;
+        this.param = param;
     }
 }
 
@@ -83,6 +86,15 @@ export class SemanticAnalysis extends SemBaseVisitor {
 
     constructor() {
         super();
+    }
+
+    private registerPrimitiveType() {
+        const reg = (name: PrimitiveType) => {
+            this.addGlobalObject(name, new SemType(new PrimitiveTypeInfo(name)));
+        }
+        PRIMITIVE_TYPES.forEach(type => {
+            reg(type)
+        })
     }
 
     /**
@@ -127,6 +139,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
 
     visitProgram(node: ProgramNode) {
         this.raiseScope();
+        this.registerPrimitiveType()
         node.children.forEach(child => {
             this.visit(child);
         })
@@ -144,8 +157,36 @@ export class SemanticAnalysis extends SemBaseVisitor {
         return result;
     }
 
+    /**
+     * 提前处理 alloc 到函数开始部分
+     * @param node 被遍历的 node
+     * @param func 函数
+     */
+    private preAlloc(node: ExprNode, func: FuncDeclNode) {
+        if ('children' in node && node.children instanceof Array) {
+            node.children.forEach(child => {
+                this.preAlloc(child, func);
+            })
+        }
+        if (node instanceof VarDeclNode) {
+            if (node.obj) {
+                func.alloc_list.push(node.obj.alloc)
+            } else {
+                throw new Error("Unrecognized type");
+            }
+        }
+    }
+
     visitFuncDecl(node: FuncDeclNode) {
         this.visit(node.body)
+        this.preAlloc(node.body, node);
+        const return_type = this.visit(node.return_type);
+        if (!(return_type instanceof SemType)) {
+            throw new Error("Unrecognized type");
+        }
+        const obj = new SemFunction(node.name, return_type.type);
+        node.obj = obj;
+        return obj;
     }
 
     visitConstant(node: ConstantNode) {
@@ -159,13 +200,13 @@ export class SemanticAnalysis extends SemBaseVisitor {
         if (node.value) {
             value = <SemValue>this.visit(node.value);
         }
-        let type: Types;
+        let type: TypeInfo;
         if (node.type) {
             const result = this.visit(node.type)
-            if (result.kind !== 'type') {
+            if (!(result instanceof SemType)) {
                 throw new Error(`Unknown type for ${result}`);
             }
-            type = (<SemType>result).type;
+            type = (result).type;
         } else {
             type = value!.type;
         }

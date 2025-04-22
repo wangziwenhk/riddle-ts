@@ -2,13 +2,13 @@ import RiddleParserVisitor from '../parser/RiddleParserVisitor';
 import {
     BlockContext,
     BooleanContext, ExpressionEndContext,
-    FloatContext, FuncDeclContext,
+    FloatContext, FuncDeclContext, IdContext,
     IntegerContext, ObjectContext,
     ProgramContext, StatementContext, StatementExprContext, VarDeclContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {BlockNode, ConstantNode, ExprNode, FuncDeclNode, ObjectNode, ProgramNode, VarDeclNode} from '../semantic/nodes';
-import {PrimitiveType, PrimitiveTypeInfo} from '../semantic/types';
+import {PrimitiveType, PrimitiveTypeInfo} from '../semantic/typeInfo';
 
 export class GrammarVisitor extends RiddleParserVisitor<any> {
     errors: string[] = [];
@@ -17,13 +17,7 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
     constructor() {
         super();
         const addPrimitiveType = (name: PrimitiveType) => {
-            this.primitiveTypeMap.set(
-                name,
-                {
-                    kind: 'primitive',
-                    name: name,
-                }
-            );
+            this.primitiveTypeMap.set(name, new PrimitiveTypeInfo(name));
         };
         addPrimitiveType('int')
         addPrimitiveType('float')
@@ -56,22 +50,28 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
      * @param node antlr4 ParserTree节点
      * @returns number
      */
-    private getLineNumber(node: ParserRuleContext | TerminalNode): number {
+    private getLineNumber(node: ParserRuleContext | TerminalNode | ParseTree): number {
         if (node instanceof ParserRuleContext) {
             return node.start.line;
-        } else {
+        } else if (node instanceof TerminalNode) {
             return node.symbol.line;
         }
-    }
-
-    visit(tree: ParseTree): ExprNode {
-        return super.visit(tree);
+        return 0;
     }
 
     visitProgram = (ctx: ProgramContext) => {
         const node = new ProgramNode()
         ctx.children?.forEach(child => {
-            node.children.push(this.visit(child));
+            if (child instanceof TerminalNode) {
+                return;
+            }
+            const result = this.visit(child);
+            if (result instanceof ExprNode) {
+                node.children.push(result);
+            } else {
+                this.log("Result does not ExprNode", this.getLineNumber(child));
+                return;
+            }
         })
         return node;
     }
@@ -126,7 +126,12 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
     visitFuncDecl = (ctx: FuncDeclContext) => {
         const name = ctx._name.getText();
         const body = this.visitBlock(ctx._body);
-        const return_type: ExprNode = this.visit(ctx._return_type);
+        let return_type: ExprNode;
+        if (ctx._return_type) {
+            return_type = this.visit(ctx._return_type);
+        } else {
+            return_type = new ObjectNode('void')
+        }
         //todo 添加函数参数
         return new FuncDeclNode(name, return_type, body);
     }
@@ -134,8 +139,16 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
     visitBlock = (ctx: BlockContext) => {
         const children: ExprNode[] = [];
         ctx.children?.forEach(child => {
+            if (child instanceof TerminalNode) {
+                return;
+            }
             const result = this.visit(child);
-            children.push(result);
+            if (result instanceof ExprNode) {
+                children.push(result);
+            } else {
+                this.log("Result does not ExprNode", this.getLineNumber(child));
+                return;
+            }
         });
         return new BlockNode(children);
     }
@@ -154,5 +167,9 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             value = this.visit(ctx._value);
         }
         return new VarDeclNode(ctx._name.getText(), type, value);
+    }
+
+    visitId = (ctx: IdContext) => {
+        return ctx.getText();
     }
 }

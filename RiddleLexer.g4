@@ -47,7 +47,6 @@ Greater:        '>';
 Less:           '<';
 LeftLeft:       '<<';
 RightRight:     '>>';
-RightRightRight:'>>>';
 Add:            '+';
 Sub:            '-';
 Star:           '*';

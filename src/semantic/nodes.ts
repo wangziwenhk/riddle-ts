@@ -1,5 +1,6 @@
-import {Types} from "./types";
-import {SemObject} from "./visitor";
+import {TypeInfo} from "./typeInfo";
+import {SemFunction, SemObject, SemVariable} from "./visitor";
+import llvm from "llvm-bindings";
 
 export abstract class SemBaseVisitor {
     visit(node: SemNode) {
@@ -69,9 +70,9 @@ export abstract class ExprNode extends SemNode {
 export class ConstantNode extends ExprNode {
     kind: string = 'constant';
     value: any;
-    type: Types;
+    type: TypeInfo;
 
-    constructor(value: any, type: Types) {
+    constructor(value: any, type: TypeInfo) {
         super();
         this.value = value;
         this.type = type;
@@ -100,6 +101,8 @@ export class FuncDeclNode extends ExprNode {
     name: string;
     body: BlockNode;
     return_type: ExprNode;
+    alloc_list: Array<AllocNode> = []
+    obj!: SemFunction;
 
     constructor(name: string, return_type: ExprNode, body: BlockNode) {
         super();
@@ -113,11 +116,21 @@ export class FuncDeclNode extends ExprNode {
     }
 }
 
+export class AllocNode{
+    type: TypeInfo;
+    alloc: llvm.AllocaInst | undefined;
+
+    constructor(type: TypeInfo) {
+        this.type = type;
+    }
+}
+
 export class VarDeclNode extends ExprNode {
     kind: string = 'varDecl';
     name: string;
     type: ExprNode | undefined;
     value: ExprNode | undefined;
+    obj!: SemVariable;
 
     constructor(name: string, type: ExprNode | undefined, value: ExprNode | undefined) {
         super();

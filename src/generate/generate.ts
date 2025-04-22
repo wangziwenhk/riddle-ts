@@ -1,15 +1,76 @@
 import {
+    FuncDeclNode,
     ProgramNode,
-    SemBaseVisitor
-} from "../semantic/nodes";
-import {IRBuilder, Module} from "llvm-bindings";
-import {Config} from "./config";
+    SemBaseVisitor, VarDeclNode
+} from '../semantic/nodes';
+import llvm from 'llvm-bindings';
+import {Config} from './config';
+import * as semType from '../semantic/typeInfo';
+import {PrimitiveTypeInfo} from "../semantic/typeInfo";
 
 export class Generate extends SemBaseVisitor {
-    module = new Module("main", Config.globalContext)
-    builder = new IRBuilder(module)
+    context = Config.globalContext
+    module = new llvm.Module('main', Config.globalContext)
+    builder = new llvm.IRBuilder(Config.globalContext)
+
+    primitiveTypeMap = new Map<string, llvm.Type>();
+
+    private registerPrimitiveType() {
+        this.primitiveTypeMap.set('int', this.builder.getInt32Ty());
+        this.primitiveTypeMap.set('long', this.builder.getInt64Ty());
+        this.primitiveTypeMap.set('short', this.builder.getInt16Ty());
+        this.primitiveTypeMap.set('char', this.builder.getInt8Ty());
+        this.primitiveTypeMap.set('bool', this.builder.getInt1Ty());
+        this.primitiveTypeMap.set('float', this.builder.getFloatTy());
+        this.primitiveTypeMap.set('double', this.builder.getDoubleTy());
+        this.primitiveTypeMap.set('void', this.builder.getVoidTy());
+    }
+
+    private parseType(type: semType.TypeInfo): llvm.Type {
+        if (type instanceof semType.PrimitiveTypeInfo) {
+            const result = this.primitiveTypeMap.get(type.name);
+            if (result === undefined) {
+                throw new Error(`Unknown primitive type ${type.name}`);
+            }
+            return result;
+        }
+        return this.builder.getVoidTy();
+    }
+
+    constructor() {
+        super();
+        this.registerPrimitiveType();
+    }
 
     visitProgram(node: ProgramNode) {
         super.visitProgram(node);
+    }
+
+    visitFuncDecl(node: FuncDeclNode) {
+        const returnType = this.parseType(node.obj.return_type)
+        const funcType = llvm.FunctionType.get(returnType, false)
+        const func = llvm.Function.Create(funcType, llvm.GlobalValue.LinkageTypes.ExternalLinkage, node.name, this.module)
+        const entry = llvm.BasicBlock.Create(this.context, "entry", func);
+        this.builder.SetInsertPoint(entry);
+
+        node.alloc_list.forEach(alloc => {
+            let type = this.parseType(alloc.type);
+            if(type.isVoidTy()){
+                type = llvm.StructType.get(this.context);
+            }
+            alloc.alloc = this.builder.CreateAlloca(type);
+        })
+        this.visit(node.body)
+    }
+
+    visitVarDecl(node: VarDeclNode) {
+        const type = node.obj.type;
+        if (type === undefined) {
+            throw new Error("unknown type");
+        }
+        if(type instanceof PrimitiveTypeInfo && type.name === 'void') {
+            throw new Error("The \'void \'type cannot be used as the type of a variable");
+        }
+
     }
 }

@@ -62,36 +62,35 @@ export default class RiddleParser extends Parser {
 	public static readonly Less = 41;
 	public static readonly LeftLeft = 42;
 	public static readonly RightRight = 43;
-	public static readonly RightRightRight = 44;
-	public static readonly Add = 45;
-	public static readonly Sub = 46;
-	public static readonly Star = 47;
-	public static readonly Div = 48;
-	public static readonly Mod = 49;
-	public static readonly Not = 50;
-	public static readonly And = 51;
-	public static readonly Or = 52;
-	public static readonly Xor = 53;
-	public static readonly Dot = 54;
-	public static readonly DoubleQuotes = 55;
-	public static readonly Quotes = 56;
-	public static readonly Endl = 57;
-	public static readonly Identifier = 58;
-	public static readonly Hexadecimal = 59;
-	public static readonly Decimal = 60;
-	public static readonly Octal = 61;
-	public static readonly Binary = 62;
-	public static readonly Float = 63;
-	public static readonly IntegerSequence = 64;
-	public static readonly HEX_DIGIT = 65;
-	public static readonly OCTAL_DIGIT = 66;
-	public static readonly BINARY_DIGIT = 67;
-	public static readonly DIGIT = 68;
-	public static readonly STRING = 69;
-	public static readonly CHAR = 70;
-	public static readonly LINE_COMMENT = 71;
-	public static readonly BLOCK_COMMENT = 72;
-	public static readonly WHITESPACE = 73;
+	public static readonly Add = 44;
+	public static readonly Sub = 45;
+	public static readonly Star = 46;
+	public static readonly Div = 47;
+	public static readonly Mod = 48;
+	public static readonly Not = 49;
+	public static readonly And = 50;
+	public static readonly Or = 51;
+	public static readonly Xor = 52;
+	public static readonly Dot = 53;
+	public static readonly DoubleQuotes = 54;
+	public static readonly Quotes = 55;
+	public static readonly Endl = 56;
+	public static readonly Identifier = 57;
+	public static readonly Hexadecimal = 58;
+	public static readonly Decimal = 59;
+	public static readonly Octal = 60;
+	public static readonly Binary = 61;
+	public static readonly Float = 62;
+	public static readonly IntegerSequence = 63;
+	public static readonly HEX_DIGIT = 64;
+	public static readonly OCTAL_DIGIT = 65;
+	public static readonly BINARY_DIGIT = 66;
+	public static readonly DIGIT = 67;
+	public static readonly STRING = 68;
+	public static readonly CHAR = 69;
+	public static readonly LINE_COMMENT = 70;
+	public static readonly BLOCK_COMMENT = 71;
+	public static readonly WHITESPACE = 72;
 	public static override readonly EOF = Token.EOF;
 	public static readonly RULE_program = 0;
 	public static readonly RULE_expressionEnd = 1;
@@ -129,14 +128,13 @@ export default class RiddleParser extends Parser {
                                                             "','", "'=='", 
                                                             "'='", "'>'", 
                                                             "'<'", "'<<'", 
-                                                            "'>>'", "'>>>'", 
-                                                            "'+'", "'-'", 
-                                                            "'*'", "'/'", 
-                                                            "'%'", "'!'", 
-                                                            "'&'", "'|'", 
-                                                            "'^'", "'.'", 
-                                                            "'\"'", "'''", 
-                                                            "'\\n'" ];
+                                                            "'>>'", "'+'", 
+                                                            "'-'", "'*'", 
+                                                            "'/'", "'%'", 
+                                                            "'!'", "'&'", 
+                                                            "'|'", "'^'", 
+                                                            "'.'", "'\"'", 
+                                                            "'''", "'\\n'" ];
 	public static readonly symbolicNames: (string | null)[] = [ null, "Var", 
                                                              "Val", "For", 
                                                              "While", "Continue", 
@@ -166,7 +164,6 @@ export default class RiddleParser extends Parser {
                                                              "Assign", "Greater", 
                                                              "Less", "LeftLeft", 
                                                              "RightRight", 
-                                                             "RightRightRight", 
                                                              "Add", "Sub", 
                                                              "Star", "Div", 
                                                              "Mod", "Not", 
@@ -216,7 +213,7 @@ export default class RiddleParser extends Parser {
 			this.state = 21;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 49666) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 1258291201) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 49666) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 629145601) !== 0)) {
 				{
 				{
 				this.state = 18;
@@ -258,9 +255,9 @@ export default class RiddleParser extends Parser {
 			case 14:
 			case 15:
 			case 33:
-			case 58:
-			case 60:
-			case 63:
+			case 57:
+			case 59:
+			case 62:
 				this.enterOuterAlt(localctx, 1);
 				{
 				this.state = 26;
@@ -277,7 +274,7 @@ export default class RiddleParser extends Parser {
 				}
 				}
 				break;
-			case 57:
+			case 56:
 				this.enterOuterAlt(localctx, 2);
 				{
 				this.state = 30;
@@ -311,7 +308,7 @@ export default class RiddleParser extends Parser {
 			this.state = 38;
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
-			case 60:
+			case 59:
 				localctx = new IntegerContext(this, localctx);
 				this.enterOuterAlt(localctx, 1);
 				{
@@ -319,7 +316,7 @@ export default class RiddleParser extends Parser {
 				this.match(RiddleParser.Decimal);
 				}
 				break;
-			case 63:
+			case 62:
 				localctx = new FloatContext(this, localctx);
 				this.enterOuterAlt(localctx, 2);
 				{
@@ -343,7 +340,7 @@ export default class RiddleParser extends Parser {
 				}
 				}
 				break;
-			case 58:
+			case 57:
 				localctx = new ObjectContext(this, localctx);
 				this.enterOuterAlt(localctx, 4);
 				{
@@ -506,7 +503,7 @@ export default class RiddleParser extends Parser {
 			this.state = 68;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 49666) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 1258291201) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 49666) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 629145601) !== 0)) {
 				{
 				{
 				this.state = 65;
@@ -569,7 +566,7 @@ export default class RiddleParser extends Parser {
 			this.state = 87;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la===58) {
+			if (_la===57) {
 				{
 				this.state = 83;
 				this.id();
@@ -614,19 +611,21 @@ export default class RiddleParser extends Parser {
 			this.declArgs();
 			this.state = 93;
 			this.match(RiddleParser.RightBracket);
-			this.state = 96;
+			this.state = 97;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if (_la===35) {
+			if (_la===45) {
 				{
 				this.state = 94;
-				this.match(RiddleParser.Colon);
+				this.match(RiddleParser.Sub);
 				this.state = 95;
+				this.match(RiddleParser.Greater);
+				this.state = 96;
 				localctx._return_type = this.expression();
 				}
 			}
 
-			this.state = 98;
+			this.state = 99;
 			localctx._body = this.block();
 			}
 		}
@@ -651,7 +650,7 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 100;
+			this.state = 101;
 			this.match(RiddleParser.Identifier);
 			}
 		}
@@ -670,36 +669,36 @@ export default class RiddleParser extends Parser {
 		return localctx;
 	}
 
-	public static readonly _serializedATN: number[] = [4,1,73,103,2,0,7,0,2,
+	public static readonly _serializedATN: number[] = [4,1,72,104,2,0,7,0,2,
 	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,1,0,5,0,20,
 	8,0,10,0,12,0,23,9,0,1,0,1,0,1,1,1,1,3,1,29,8,1,1,1,3,1,32,8,1,1,2,1,2,
 	1,2,1,2,1,2,3,2,39,8,2,1,3,1,3,1,3,3,3,44,8,3,1,4,1,4,1,4,1,4,1,4,1,4,1,
 	4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,63,8,4,1,5,1,5,5,5,67,8,5,
 	10,5,12,5,70,9,5,1,5,1,5,1,6,1,6,1,6,1,6,1,6,5,6,79,8,6,10,6,12,6,82,9,
-	6,1,6,1,6,1,6,1,6,3,6,88,8,6,1,7,1,7,1,7,1,7,1,7,1,7,1,7,3,7,97,8,7,1,7,
-	1,7,1,8,1,8,1,8,0,0,9,0,2,4,6,8,10,12,14,16,0,1,1,0,14,15,108,0,21,1,0,
-	0,0,2,31,1,0,0,0,4,38,1,0,0,0,6,43,1,0,0,0,8,62,1,0,0,0,10,64,1,0,0,0,12,
-	80,1,0,0,0,14,89,1,0,0,0,16,100,1,0,0,0,18,20,3,2,1,0,19,18,1,0,0,0,20,
-	23,1,0,0,0,21,19,1,0,0,0,21,22,1,0,0,0,22,24,1,0,0,0,23,21,1,0,0,0,24,25,
-	5,0,0,1,25,1,1,0,0,0,26,28,3,4,2,0,27,29,5,57,0,0,28,27,1,0,0,0,28,29,1,
-	0,0,0,29,32,1,0,0,0,30,32,5,57,0,0,31,26,1,0,0,0,31,30,1,0,0,0,32,3,1,0,
-	0,0,33,39,5,60,0,0,34,39,5,63,0,0,35,39,7,0,0,0,36,39,3,16,8,0,37,39,3,
-	6,3,0,38,33,1,0,0,0,38,34,1,0,0,0,38,35,1,0,0,0,38,36,1,0,0,0,38,37,1,0,
-	0,0,39,5,1,0,0,0,40,44,3,8,4,0,41,44,3,14,7,0,42,44,3,10,5,0,43,40,1,0,
-	0,0,43,41,1,0,0,0,43,42,1,0,0,0,44,7,1,0,0,0,45,46,5,1,0,0,46,47,3,16,8,
-	0,47,48,5,35,0,0,48,49,3,4,2,0,49,63,1,0,0,0,50,51,5,1,0,0,51,52,3,16,8,
-	0,52,53,5,39,0,0,53,54,3,4,2,0,54,63,1,0,0,0,55,56,5,1,0,0,56,57,3,16,8,
-	0,57,58,5,35,0,0,58,59,3,4,2,0,59,60,5,39,0,0,60,61,3,4,2,0,61,63,1,0,0,
-	0,62,45,1,0,0,0,62,50,1,0,0,0,62,55,1,0,0,0,63,9,1,0,0,0,64,68,5,33,0,0,
-	65,67,3,2,1,0,66,65,1,0,0,0,67,70,1,0,0,0,68,66,1,0,0,0,68,69,1,0,0,0,69,
-	71,1,0,0,0,70,68,1,0,0,0,71,72,5,34,0,0,72,11,1,0,0,0,73,74,3,16,8,0,74,
-	75,5,35,0,0,75,76,3,4,2,0,76,77,5,37,0,0,77,79,1,0,0,0,78,73,1,0,0,0,79,
-	82,1,0,0,0,80,78,1,0,0,0,80,81,1,0,0,0,81,87,1,0,0,0,82,80,1,0,0,0,83,84,
-	3,16,8,0,84,85,5,35,0,0,85,86,3,4,2,0,86,88,1,0,0,0,87,83,1,0,0,0,87,88,
-	1,0,0,0,88,13,1,0,0,0,89,90,5,9,0,0,90,91,3,16,8,0,91,92,5,29,0,0,92,93,
-	3,12,6,0,93,96,5,30,0,0,94,95,5,35,0,0,95,97,3,4,2,0,96,94,1,0,0,0,96,97,
-	1,0,0,0,97,98,1,0,0,0,98,99,3,10,5,0,99,15,1,0,0,0,100,101,5,58,0,0,101,
-	17,1,0,0,0,10,21,28,31,38,43,62,68,80,87,96];
+	6,1,6,1,6,1,6,1,6,3,6,88,8,6,1,7,1,7,1,7,1,7,1,7,1,7,1,7,1,7,3,7,98,8,7,
+	1,7,1,7,1,8,1,8,1,8,0,0,9,0,2,4,6,8,10,12,14,16,0,1,1,0,14,15,109,0,21,
+	1,0,0,0,2,31,1,0,0,0,4,38,1,0,0,0,6,43,1,0,0,0,8,62,1,0,0,0,10,64,1,0,0,
+	0,12,80,1,0,0,0,14,89,1,0,0,0,16,101,1,0,0,0,18,20,3,2,1,0,19,18,1,0,0,
+	0,20,23,1,0,0,0,21,19,1,0,0,0,21,22,1,0,0,0,22,24,1,0,0,0,23,21,1,0,0,0,
+	24,25,5,0,0,1,25,1,1,0,0,0,26,28,3,4,2,0,27,29,5,56,0,0,28,27,1,0,0,0,28,
+	29,1,0,0,0,29,32,1,0,0,0,30,32,5,56,0,0,31,26,1,0,0,0,31,30,1,0,0,0,32,
+	3,1,0,0,0,33,39,5,59,0,0,34,39,5,62,0,0,35,39,7,0,0,0,36,39,3,16,8,0,37,
+	39,3,6,3,0,38,33,1,0,0,0,38,34,1,0,0,0,38,35,1,0,0,0,38,36,1,0,0,0,38,37,
+	1,0,0,0,39,5,1,0,0,0,40,44,3,8,4,0,41,44,3,14,7,0,42,44,3,10,5,0,43,40,
+	1,0,0,0,43,41,1,0,0,0,43,42,1,0,0,0,44,7,1,0,0,0,45,46,5,1,0,0,46,47,3,
+	16,8,0,47,48,5,35,0,0,48,49,3,4,2,0,49,63,1,0,0,0,50,51,5,1,0,0,51,52,3,
+	16,8,0,52,53,5,39,0,0,53,54,3,4,2,0,54,63,1,0,0,0,55,56,5,1,0,0,56,57,3,
+	16,8,0,57,58,5,35,0,0,58,59,3,4,2,0,59,60,5,39,0,0,60,61,3,4,2,0,61,63,
+	1,0,0,0,62,45,1,0,0,0,62,50,1,0,0,0,62,55,1,0,0,0,63,9,1,0,0,0,64,68,5,
+	33,0,0,65,67,3,2,1,0,66,65,1,0,0,0,67,70,1,0,0,0,68,66,1,0,0,0,68,69,1,
+	0,0,0,69,71,1,0,0,0,70,68,1,0,0,0,71,72,5,34,0,0,72,11,1,0,0,0,73,74,3,
+	16,8,0,74,75,5,35,0,0,75,76,3,4,2,0,76,77,5,37,0,0,77,79,1,0,0,0,78,73,
+	1,0,0,0,79,82,1,0,0,0,80,78,1,0,0,0,80,81,1,0,0,0,81,87,1,0,0,0,82,80,1,
+	0,0,0,83,84,3,16,8,0,84,85,5,35,0,0,85,86,3,4,2,0,86,88,1,0,0,0,87,83,1,
+	0,0,0,87,88,1,0,0,0,88,13,1,0,0,0,89,90,5,9,0,0,90,91,3,16,8,0,91,92,5,
+	29,0,0,92,93,3,12,6,0,93,97,5,30,0,0,94,95,5,45,0,0,95,96,5,40,0,0,96,98,
+	3,4,2,0,97,94,1,0,0,0,97,98,1,0,0,0,98,99,1,0,0,0,99,100,3,10,5,0,100,15,
+	1,0,0,0,101,102,5,57,0,0,102,17,1,0,0,0,10,21,28,31,38,43,62,68,80,87,97];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -1148,8 +1147,11 @@ export class FuncDeclContext extends ParserRuleContext {
 	public block(): BlockContext {
 		return this.getTypedRuleContext(BlockContext, 0) as BlockContext;
 	}
-	public Colon(): TerminalNode {
-		return this.getToken(RiddleParser.Colon, 0);
+	public Sub(): TerminalNode {
+		return this.getToken(RiddleParser.Sub, 0);
+	}
+	public Greater(): TerminalNode {
+		return this.getToken(RiddleParser.Greater, 0);
 	}
 	public expression(): ExpressionContext {
 		return this.getTypedRuleContext(ExpressionContext, 0) as ExpressionContext;
