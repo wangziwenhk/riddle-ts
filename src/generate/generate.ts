@@ -1,4 +1,5 @@
 import {
+    ConstantNode,
     FuncDeclNode,
     ProgramNode,
     SemBaseVisitor, VarDeclNode
@@ -46,6 +47,41 @@ export class Generate extends SemBaseVisitor {
         super.visitProgram(node);
     }
 
+    visitConstant(node: ConstantNode) {
+        if (node.type instanceof PrimitiveTypeInfo) {
+            const check = (typename:string)=>{
+                if (typeof node.value !== typename) {
+                    throw new Error('node.value Error');
+                }
+            }
+
+            switch (node.type.name) {
+                case 'int':
+                    check('number')
+                    return this.builder.getInt32(node.value);
+                case 'long':
+                    check('number')
+                    return this.builder.getInt64(node.value);
+                case 'short':
+                    check('number')
+                    return this.builder.getInt16(node.value);
+                case 'char':
+                    check('number')
+                    return this.builder.getInt8(node.value);
+                case 'bool':
+                    check('boolean')
+                    return this.builder.getInt1(node.value);
+                case 'float':
+                    check('number')
+                    return llvm.ConstantFP.get(this.builder.getFloatTy(), node.value);
+                case 'double':
+                    check('number')
+                    return llvm.ConstantFP.get(this.builder.getDoubleTy(), node.value);
+            }
+        }
+        throw new Error(`Unsupported type ${node.type.name}`);
+    }
+
     visitFuncDecl(node: FuncDeclNode) {
         const returnType = this.parseType(node.obj.return_type)
         const funcType = llvm.FunctionType.get(returnType, false)
@@ -55,8 +91,8 @@ export class Generate extends SemBaseVisitor {
 
         node.alloc_list.forEach(alloc => {
             let type = this.parseType(alloc.type);
-            if(type.isVoidTy()){
-                type = llvm.StructType.get(this.context);
+            if (type.isVoidTy()) {
+                return;
             }
             alloc.alloc = this.builder.CreateAlloca(type);
         })
@@ -68,9 +104,12 @@ export class Generate extends SemBaseVisitor {
         if (type === undefined) {
             throw new Error("unknown type");
         }
-        if(type instanceof PrimitiveTypeInfo && type.name === 'void') {
+        if (type instanceof PrimitiveTypeInfo && type.name === 'void') {
             throw new Error("The \'void \'type cannot be used as the type of a variable");
         }
-
+        if (node.value && node.obj.alloc.alloc) {
+            const value = this.visit(node.value);
+            this.builder.CreateStore(node.obj.alloc.alloc, value);
+        }
     }
 }

@@ -15,7 +15,6 @@ import {PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typ
  * 表示一个语义分析对象
  */
 export abstract class SemObject {
-    kind!: string;
 }
 
 export class SemValue extends SemObject {
@@ -30,7 +29,6 @@ export class SemValue extends SemObject {
 }
 
 export class SemVariable extends SemValue {
-    kind = "variable";
     name: string;
     alloc: AllocNode;
 
@@ -47,7 +45,6 @@ export class SemVariable extends SemValue {
 }
 
 export class SemType extends SemObject {
-    kind = "type";
     type: TypeInfo;
 
     constructor(type: TypeInfo) {
@@ -57,7 +54,6 @@ export class SemType extends SemObject {
 }
 
 export class SemFunction extends SemObject {
-    kind = "function";
     name: string;
     param: SemVariable[];
     return_type: TypeInfo;
@@ -70,10 +66,7 @@ export class SemFunction extends SemObject {
     }
 }
 
-const voidTy: PrimitiveTypeInfo = {
-    kind: "primitive",
-    name: "void",
-}
+const voidTy: PrimitiveTypeInfo = new PrimitiveTypeInfo("void");
 
 const nil = new SemValue(
     undefined,
@@ -201,6 +194,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             value = <SemValue>this.visit(node.value);
         }
         let type: TypeInfo;
+        // 保证类型存在
         if (node.type) {
             const result = this.visit(node.type)
             if (!(result instanceof SemType)) {
@@ -210,10 +204,32 @@ export class SemanticAnalysis extends SemBaseVisitor {
         } else {
             type = value!.type;
         }
+        // 检测是否为 void 类型
+        if (type instanceof PrimitiveTypeInfo && type.name == 'void') {
+            throw new Error(`void cannot be used as a variable type`);
+        }
+        // 检测 value 类型是否和 type 匹配
+        if (value) {
+            if (!this.checkType(value?.type, type)) {
+                throw new Error(`Types '${type.name}' and '${value?.type?.name}' do not match`);
+            }
+        }
         const obj = new SemVariable(node.name, type, value);
         node.obj = obj;
         this.addGlobalObject(node.name, obj);
         return nil;
+    }
+
+    private checkType(t1: TypeInfo, t2: TypeInfo) {
+        if (t1 === t2) {
+            return true;
+        }
+        // 类型提升/降低
+        if (t1 instanceof PrimitiveTypeInfo && t2 instanceof PrimitiveTypeInfo) {
+            return t1.name !== 'void' && t2.name !== 'void';
+        }
+        //todo 添加其他的 cast 解析
+        return false;
     }
 
     visitObject(node: ObjectNode) {

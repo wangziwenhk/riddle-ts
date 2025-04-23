@@ -12,21 +12,25 @@ export const PRIMITIVE_TYPES = [
 export type PrimitiveType = typeof PRIMITIVE_TYPES[number];
 
 export abstract class TypeInfo {
-    kind!: string;
+    name!: string;
+
+    abstract isFloatPointTy(): boolean;
 }
 
 export class PrimitiveTypeInfo extends TypeInfo {
-    kind = 'primitive';
     name: PrimitiveType
 
     constructor(name: PrimitiveType) {
         super();
         this.name = name;
     }
+
+    isFloatPointTy() {
+        return this.name === 'float' || this.name === 'double';
+    }
 }
 
 export class FunctionTypeInfo extends TypeInfo {
-    kind = 'function';
     returnType: TypeInfo;
     parameters: TypeInfo[];
 
@@ -34,12 +38,15 @@ export class FunctionTypeInfo extends TypeInfo {
         super();
         this.returnType = returnType;
         this.parameters = parameters;
+        this.name = "@";
+    }
+
+    isFloatPointTy(): boolean {
+        return false;
     }
 }
 
 export class ClassTypeInfo extends TypeInfo {
-    kind = 'class';
-    name: string;
     properties: Map<string, TypeInfo>;
     methods: Map<string, FunctionTypeInfo>;
     parent?: ClassTypeInfo;
@@ -51,5 +58,9 @@ export class ClassTypeInfo extends TypeInfo {
         this.properties = properties;
         this.methods = methods;
         this.parent = parent;
+    }
+
+    isFloatPointTy(): boolean {
+        return false;
     }
 }

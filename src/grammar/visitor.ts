@@ -1,13 +1,22 @@
 import RiddleParserVisitor from '../parser/RiddleParserVisitor';
 import {
     BlockContext,
-    BooleanContext, ExpressionEndContext,
+    BooleanContext, DeclArgsContext, ExpressionContext, ExpressionEndContext,
     FloatContext, FuncDeclContext, IdContext,
     IntegerContext, ObjectContext,
     ProgramContext, StatementContext, StatementExprContext, VarDeclContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
-import {BlockNode, ConstantNode, ExprNode, FuncDeclNode, ObjectNode, ProgramNode, VarDeclNode} from '../semantic/nodes';
+import {
+    BlockNode,
+    ConstantNode, DeclArgNode,
+    ExprNode,
+    FuncDeclNode,
+    ObjectNode,
+    ProgramNode,
+    SemNode,
+    VarDeclNode
+} from '../semantic/nodes';
 import {PrimitiveType, PrimitiveTypeInfo} from '../semantic/typeInfo';
 
 export class GrammarVisitor extends RiddleParserVisitor<any> {
@@ -57,6 +66,14 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             return node.symbol.line;
         }
         return 0;
+    }
+
+    visit(tree: ParseTree): any {
+        const result = super.visit(tree);
+        if (result instanceof SemNode) {
+            result.line = this.getLineNumber(tree);
+        }
+        return result;
     }
 
     visitProgram = (ctx: ProgramContext) => {
@@ -123,6 +140,29 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
         return new ConstantNode(value, this.getPrimitiveType('bool'));
     }
 
+    visitDeclArgs = (ctx: DeclArgsContext) => {
+        if (ctx.children === undefined || ctx.children === null) {
+            return [];
+        }
+        let name: string = "";
+        let type: ExprNode | undefined = undefined;
+        let list = new Array<DeclArgNode>();
+        ctx.children.forEach((child) => {
+            if (child instanceof TerminalNode) {
+                return;
+            }
+            if (child instanceof IdContext) {
+                name = child.getText();
+            } else if (child instanceof ExpressionContext) {
+                type = this.visit(child);
+            }
+            if (name != "" && type) {
+                list.push(new DeclArgNode(name, type))
+            }
+        })
+        return list;
+    }
+
     visitFuncDecl = (ctx: FuncDeclContext) => {
         const name = ctx._name.getText();
         const body = this.visitBlock(ctx._body);
@@ -132,7 +172,7 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
         } else {
             return_type = new ObjectNode('void')
         }
-        //todo 添加函数参数
+        const args = this.visitDeclArgs(ctx.declArgs());
         return new FuncDeclNode(name, return_type, body);
     }
 

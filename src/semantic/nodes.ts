@@ -37,20 +37,23 @@ export abstract class SemBaseVisitor {
         }
     }
 
+    visitDeclArg(node: DeclArgNode) {
+        this.visit(node.type)
+    }
+
     visitObject(_node: ObjectNode) {
     }
 }
 
 export abstract class SemNode {
-    kind!: string;
     obj!: SemObject;
+    line!: number;
 
     abstract accept(visitor: SemBaseVisitor): any;
 }
 
 export class ProgramNode extends SemNode {
     children: SemNode[] = [];
-    kind: string = 'program';
 
     constructor() {
         super();
@@ -68,7 +71,6 @@ export abstract class ExprNode extends SemNode {
 }
 
 export class ConstantNode extends ExprNode {
-    kind: string = 'constant';
     value: any;
     type: TypeInfo;
 
@@ -96,8 +98,22 @@ export class BlockNode extends ExprNode {
     }
 }
 
+export class DeclArgNode extends SemNode {
+    name: string;
+    type: ExprNode;
+
+    constructor(name: string, type: ExprNode) {
+        super();
+        this.name = name;
+        this.type = type;
+    }
+
+    accept(visitor: SemBaseVisitor): any {
+        return visitor.visitDeclArg(this);
+    }
+}
+
 export class FuncDeclNode extends ExprNode {
-    kind: string = 'funcDecl';
     name: string;
     body: BlockNode;
     return_type: ExprNode;
@@ -116,7 +132,7 @@ export class FuncDeclNode extends ExprNode {
     }
 }
 
-export class AllocNode{
+export class AllocNode {
     type: TypeInfo;
     alloc: llvm.AllocaInst | undefined;
 
@@ -126,7 +142,6 @@ export class AllocNode{
 }
 
 export class VarDeclNode extends ExprNode {
-    kind: string = 'varDecl';
     name: string;
     type: ExprNode | undefined;
     value: ExprNode | undefined;
@@ -145,7 +160,6 @@ export class VarDeclNode extends ExprNode {
 }
 
 export class ObjectNode extends ExprNode {
-    kind: string = 'object';
     name: string;
 
     constructor(name: string) {
