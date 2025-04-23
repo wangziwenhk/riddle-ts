@@ -3,7 +3,7 @@ import antlr4 from 'antlr4';
 import RiddleLexer from "./parser/RiddleLexer";
 import RiddleParser from "./parser/RiddleParser";
 import {GrammarVisitor} from "./grammar/visitor";
-import {SemanticAnalysis} from "./semantic/visitor";
+import {SemanticAnalysis} from "./semantic/analysis";
 import {Generate} from "./generate/generate";
 
 const firstArg = process.argv[2];

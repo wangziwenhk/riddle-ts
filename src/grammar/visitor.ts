@@ -4,7 +4,7 @@ import {
     BooleanContext, DeclArgsContext, ExpressionContext, ExpressionEndContext,
     FloatContext, FuncDeclContext, IdContext,
     IntegerContext, ObjectContext,
-    ProgramContext, StatementContext, StatementExprContext, VarDeclContext,
+    ProgramContext, ReturnStmtContext, StatementContext, StatementExprContext, VarDeclContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
@@ -13,7 +13,7 @@ import {
     ExprNode,
     FuncDeclNode,
     ObjectNode,
-    ProgramNode,
+    ProgramNode, ReturnNode,
     SemNode,
     VarDeclNode
 } from '../semantic/nodes';
@@ -211,5 +211,13 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
 
     visitId = (ctx: IdContext) => {
         return ctx.getText();
+    }
+
+    visitReturnStmt = (ctx: ReturnStmtContext) => {
+        let result: ExprNode | undefined = undefined;
+        if (ctx._result) {
+            result = this.visit(ctx._result);
+        }
+        return new ReturnNode(result);
     }
 }

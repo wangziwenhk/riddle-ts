@@ -34,6 +34,7 @@ statement
     : varDecl
     | funcDecl
     | block
+    | returnStmt
     ;
 
 varDecl
@@ -50,6 +51,10 @@ declArgs
 
 funcDecl
     : Func name=id LeftBracket declArgs RightBracket (Sub Greater return_type=expression)? body=block
+    ;
+
+returnStmt
+    : Return (result=expression)?
     ;
 
 id: Identifier;

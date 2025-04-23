@@ -1,7 +1,7 @@
 import {
     ConstantNode,
     FuncDeclNode,
-    ProgramNode,
+    ProgramNode, ReturnNode,
     SemBaseVisitor, VarDeclNode
 } from '../semantic/nodes';
 import llvm from 'llvm-bindings';
@@ -83,7 +83,7 @@ export class Generate extends SemBaseVisitor {
     }
 
     visitFuncDecl(node: FuncDeclNode) {
-        const returnType = this.parseType(node.obj.return_type)
+        const returnType = this.parseType(node.obj!.return_type)
         const funcType = llvm.FunctionType.get(returnType, false)
         const func = llvm.Function.Create(funcType, llvm.GlobalValue.LinkageTypes.ExternalLinkage, node.name, this.module)
         const entry = llvm.BasicBlock.Create(this.context, "entry", func);
@@ -100,16 +100,27 @@ export class Generate extends SemBaseVisitor {
     }
 
     visitVarDecl(node: VarDeclNode) {
-        const type = node.obj.type;
+        const type = node.obj!.type;
         if (type === undefined) {
             throw new Error("unknown type");
         }
         if (type instanceof PrimitiveTypeInfo && type.name === 'void') {
             throw new Error("The \'void \'type cannot be used as the type of a variable");
         }
-        if (node.value && node.obj.alloc.alloc) {
+        if (node.value && node.obj!.alloc.alloc) {
             const value = this.visit(node.value);
-            this.builder.CreateStore(node.obj.alloc.alloc, value);
+            this.builder.CreateStore(node.obj!.alloc.alloc, value);
         }
+    }
+
+    visitReturn(node: ReturnNode) {
+        if(node.value){
+            const result = this.visit(node.value);
+            if(!(result instanceof llvm.Value)){
+                throw new Error(`Unknown value for ${node.value}`);
+            }
+            return this.builder.CreateRet(result);
+        }
+        return this.builder.CreateRetVoid();
     }
 }

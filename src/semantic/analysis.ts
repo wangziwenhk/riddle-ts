@@ -1,70 +1,16 @@
 import {
-    AllocNode,
     BlockNode,
     ConstantNode, ExprNode,
     FuncDeclNode,
     ObjectNode,
-    ProgramNode,
+    ProgramNode, ReturnNode,
     SemBaseVisitor,
     SemNode,
     VarDeclNode
 } from "./nodes";
 import {PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
+import {SemFunction, SemObject, SemType, SemValue, SemVariable} from "./objects";
 
-/**
- * 表示一个语义分析对象
- */
-export abstract class SemObject {
-}
-
-export class SemValue extends SemObject {
-    type: TypeInfo;
-    value: any;
-
-    constructor(value: any, type: TypeInfo) {
-        super();
-        this.type = type;
-        this.value = value;
-    }
-}
-
-export class SemVariable extends SemValue {
-    name: string;
-    alloc: AllocNode;
-
-    constructor(name: string, type: TypeInfo, value?: SemValue) {
-        let t = undefined
-        if (value) {
-            t = value.value;
-        }
-
-        super(t, type);
-        this.name = name;
-        this.alloc = new AllocNode(type)
-    }
-}
-
-export class SemType extends SemObject {
-    type: TypeInfo;
-
-    constructor(type: TypeInfo) {
-        super();
-        this.type = type;
-    }
-}
-
-export class SemFunction extends SemObject {
-    name: string;
-    param: SemVariable[];
-    return_type: TypeInfo;
-
-    constructor(name: string, return_type: TypeInfo, param: SemVariable[] = []) {
-        super();
-        this.name = name;
-        this.return_type = return_type;
-        this.param = param;
-    }
-}
 
 const voidTy: PrimitiveTypeInfo = new PrimitiveTypeInfo("void");
 
@@ -76,6 +22,7 @@ const nil = new SemValue(
 export class SemanticAnalysis extends SemBaseVisitor {
     symbolTable: Map<string, Array<SemObject>> = new Map<string, Array<SemObject>>();
     definedTable: Array<Set<string>> = [];
+    funcStack = new Array<FuncDeclNode>();
 
     constructor() {
         super();
@@ -171,14 +118,18 @@ export class SemanticAnalysis extends SemBaseVisitor {
     }
 
     visitFuncDecl(node: FuncDeclNode) {
-        this.visit(node.body)
-        this.preAlloc(node.body, node);
         const return_type = this.visit(node.return_type);
         if (!(return_type instanceof SemType)) {
             throw new Error("Unrecognized type");
         }
         const obj = new SemFunction(node.name, return_type.type);
         node.obj = obj;
+
+        this.funcStack.push(node);
+        this.visit(node.body);
+        this.preAlloc(node.body, node);
+        this.funcStack.pop();
+
         return obj;
     }
 
@@ -200,7 +151,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             if (!(result instanceof SemType)) {
                 throw new Error(`Unknown type for ${result}`);
             }
-            type = (result).type;
+            type = result.type;
         } else {
             type = value!.type;
         }
@@ -236,5 +187,22 @@ export class SemanticAnalysis extends SemBaseVisitor {
         const result = this.getGlobalObject(node.name);
         node.obj = result;
         return result;
+    }
+
+    visitReturn(node: ReturnNode) {
+        const func_return_type = this.funcStack[this.funcStack.length - 1].obj!.return_type;
+        let return_type: TypeInfo = new PrimitiveTypeInfo("void");
+        if (node.value) {
+            const result = this.visit(node.value);
+            if (!(result instanceof SemValue)) {
+                throw new Error(`Result Must be a Value`);
+            }
+            return_type = result.type;
+            node.obj = result;
+        }
+        if (!this.checkType(return_type, func_return_type)) {
+            throw new Error(`Types '${return_type.name}' and '${func_return_type.name}' do not match`);
+        }
+        return node.obj;
     }
 }

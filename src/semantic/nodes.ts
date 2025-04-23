@@ -1,6 +1,6 @@
 import {TypeInfo} from "./typeInfo";
-import {SemFunction, SemObject, SemVariable} from "./visitor";
 import llvm from "llvm-bindings";
+import {SemFunction, SemObject, SemValue, SemVariable} from "./objects";
 
 export abstract class SemBaseVisitor {
     visit(node: SemNode) {
@@ -43,10 +43,13 @@ export abstract class SemBaseVisitor {
 
     visitObject(_node: ObjectNode) {
     }
+
+    visitReturn(node: ReturnNode) {
+    }
 }
 
 export abstract class SemNode {
-    obj!: SemObject;
+    obj: SemObject | undefined;
     line!: number;
 
     abstract accept(visitor: SemBaseVisitor): any;
@@ -118,7 +121,7 @@ export class FuncDeclNode extends ExprNode {
     body: BlockNode;
     return_type: ExprNode;
     alloc_list: Array<AllocNode> = []
-    obj!: SemFunction;
+    obj: SemFunction | undefined;
 
     constructor(name: string, return_type: ExprNode, body: BlockNode) {
         super();
@@ -145,7 +148,7 @@ export class VarDeclNode extends ExprNode {
     name: string;
     type: ExprNode | undefined;
     value: ExprNode | undefined;
-    obj!: SemVariable;
+    obj: SemVariable | undefined;
 
     constructor(name: string, type: ExprNode | undefined, value: ExprNode | undefined) {
         super();
@@ -169,5 +172,19 @@ export class ObjectNode extends ExprNode {
 
     accept(visitor: SemBaseVisitor) {
         return visitor.visitObject(this)
+    }
+}
+
+export class ReturnNode extends ExprNode {
+    value: ExprNode | undefined;
+    obj: SemValue | undefined;
+
+    constructor(value: ExprNode | undefined) {
+        super();
+        this.value = value;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitReturn(this);
     }
 }
