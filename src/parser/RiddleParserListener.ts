@@ -5,11 +5,12 @@ import {ParseTreeListener} from "antlr4";
 
 import { ProgramContext } from "./RiddleParser.js";
 import { ExpressionEndContext } from "./RiddleParser.js";
+import { BooleanContext } from "./RiddleParser.js";
 import { IntegerContext } from "./RiddleParser.js";
 import { FloatContext } from "./RiddleParser.js";
-import { BooleanContext } from "./RiddleParser.js";
-import { ObjectContext } from "./RiddleParser.js";
 import { StatementExprContext } from "./RiddleParser.js";
+import { CallExprContext } from "./RiddleParser.js";
+import { ObjectContext } from "./RiddleParser.js";
 import { StatementContext } from "./RiddleParser.js";
 import { VarDeclContext } from "./RiddleParser.js";
 import { BlockContext } from "./RiddleParser.js";
@@ -45,6 +46,18 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 */
 	exitExpressionEnd?: (ctx: ExpressionEndContext) => void;
 	/**
+	 * Enter a parse tree produced by the `boolean`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterBoolean?: (ctx: BooleanContext) => void;
+	/**
+	 * Exit a parse tree produced by the `boolean`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitBoolean?: (ctx: BooleanContext) => void;
+	/**
 	 * Enter a parse tree produced by the `integer`
 	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
@@ -69,17 +82,29 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 */
 	exitFloat?: (ctx: FloatContext) => void;
 	/**
-	 * Enter a parse tree produced by the `boolean`
+	 * Enter a parse tree produced by the `statementExpr`
 	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	enterBoolean?: (ctx: BooleanContext) => void;
+	enterStatementExpr?: (ctx: StatementExprContext) => void;
 	/**
-	 * Exit a parse tree produced by the `boolean`
+	 * Exit a parse tree produced by the `statementExpr`
 	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	exitBoolean?: (ctx: BooleanContext) => void;
+	exitStatementExpr?: (ctx: StatementExprContext) => void;
+	/**
+	 * Enter a parse tree produced by the `callExpr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterCallExpr?: (ctx: CallExprContext) => void;
+	/**
+	 * Exit a parse tree produced by the `callExpr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitCallExpr?: (ctx: CallExprContext) => void;
 	/**
 	 * Enter a parse tree produced by the `object`
 	 * labeled alternative in `RiddleParser.expression`.
@@ -92,18 +117,6 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitObject?: (ctx: ObjectContext) => void;
-	/**
-	 * Enter a parse tree produced by the `statementExpr`
-	 * labeled alternative in `RiddleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterStatementExpr?: (ctx: StatementExprContext) => void;
-	/**
-	 * Exit a parse tree produced by the `statementExpr`
-	 * labeled alternative in `RiddleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitStatementExpr?: (ctx: StatementExprContext) => void;
 	/**
 	 * Enter a parse tree produced by `RiddleParser.statement`.
 	 * @param ctx the parse tree

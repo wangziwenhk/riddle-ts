@@ -1,0 +1,11 @@
+package std.memory;
+
+fun malloc(size: ulong) -> void*;
+fun realloc(ptr: void*, size: ulong) -> void*;
+fun free(ptr: void*) -> void;
+fun calloc(items: ulong, size: ulong) -> void*;
+fun memset(ptr: void*, value: int, size: ulong) -> void*;
+fun memcpy(dest: void*, src: void*, size: ulong) -> void*;
+fun memmove(dest: void*, src: void*, size: ulong) -> void*;
+fun memcmp(ptr1: void*, ptr2: void*, size: ulong) -> int;
+fun aligned_alloc(alignment: ulong, size: ulong) -> void*;

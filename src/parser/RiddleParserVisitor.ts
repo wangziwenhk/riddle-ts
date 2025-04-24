@@ -5,11 +5,12 @@ import {ParseTreeVisitor} from 'antlr4';
 
 import { ProgramContext } from "./RiddleParser.js";
 import { ExpressionEndContext } from "./RiddleParser.js";
+import { BooleanContext } from "./RiddleParser.js";
 import { IntegerContext } from "./RiddleParser.js";
 import { FloatContext } from "./RiddleParser.js";
-import { BooleanContext } from "./RiddleParser.js";
-import { ObjectContext } from "./RiddleParser.js";
 import { StatementExprContext } from "./RiddleParser.js";
+import { CallExprContext } from "./RiddleParser.js";
+import { ObjectContext } from "./RiddleParser.js";
 import { StatementContext } from "./RiddleParser.js";
 import { VarDeclContext } from "./RiddleParser.js";
 import { BlockContext } from "./RiddleParser.js";
@@ -40,6 +41,13 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitExpressionEnd?: (ctx: ExpressionEndContext) => Result;
 	/**
+	 * Visit a parse tree produced by the `boolean`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitBoolean?: (ctx: BooleanContext) => Result;
+	/**
 	 * Visit a parse tree produced by the `integer`
 	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
@@ -54,12 +62,19 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitFloat?: (ctx: FloatContext) => Result;
 	/**
-	 * Visit a parse tree produced by the `boolean`
+	 * Visit a parse tree produced by the `statementExpr`
 	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitBoolean?: (ctx: BooleanContext) => Result;
+	visitStatementExpr?: (ctx: StatementExprContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `callExpr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitCallExpr?: (ctx: CallExprContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `object`
 	 * labeled alternative in `RiddleParser.expression`.
@@ -67,13 +82,6 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitObject?: (ctx: ObjectContext) => Result;
-	/**
-	 * Visit a parse tree produced by the `statementExpr`
-	 * labeled alternative in `RiddleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitStatementExpr?: (ctx: StatementExprContext) => Result;
 	/**
 	 * Visit a parse tree produced by `RiddleParser.statement`.
 	 * @param ctx the parse tree

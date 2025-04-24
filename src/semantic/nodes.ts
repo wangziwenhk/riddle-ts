@@ -1,6 +1,6 @@
 import {TypeInfo} from "./typeInfo";
 import llvm from "llvm-bindings";
-import {SemFunction, SemObject, SemValue, SemVariable} from "./objects";
+import {SemFunction, SemObject, SemVariable} from "./objects";
 
 export abstract class SemBaseVisitor {
     visit(node: SemNode) {
@@ -45,6 +45,16 @@ export abstract class SemBaseVisitor {
     }
 
     visitReturn(node: ReturnNode) {
+        if (node.value) {
+            this.visit(node.value);
+        }
+    }
+
+    visitCall(node: CallNode) {
+        this.visit(node.value);
+        node.params.forEach(param => {
+            this.visit(param);
+        })
     }
 }
 
@@ -104,6 +114,7 @@ export class BlockNode extends ExprNode {
 export class DeclArgNode extends SemNode {
     name: string;
     type: ExprNode;
+    obj: SemVariable | undefined;
 
     constructor(name: string, type: ExprNode) {
         super();
@@ -121,13 +132,16 @@ export class FuncDeclNode extends ExprNode {
     body: BlockNode;
     return_type: ExprNode;
     alloc_list: Array<AllocNode> = []
+    params: DeclArgNode[];
+
     obj: SemFunction | undefined;
 
-    constructor(name: string, return_type: ExprNode, body: BlockNode) {
+    constructor(name: string, return_type: ExprNode, params: DeclArgNode[], body: BlockNode) {
         super();
         this.name = name;
         this.body = body;
         this.return_type = return_type;
+        this.params = params;
     }
 
     accept(visitor: SemBaseVisitor) {
@@ -137,7 +151,7 @@ export class FuncDeclNode extends ExprNode {
 
 export class AllocNode {
     type: TypeInfo;
-    alloc: llvm.AllocaInst | undefined;
+    alloc: llvm.Value | undefined;
 
     constructor(type: TypeInfo) {
         this.type = type;
@@ -177,7 +191,7 @@ export class ObjectNode extends ExprNode {
 
 export class ReturnNode extends ExprNode {
     value: ExprNode | undefined;
-    obj: SemValue | undefined;
+    obj: undefined;
 
     constructor(value: ExprNode | undefined) {
         super();
@@ -186,5 +200,21 @@ export class ReturnNode extends ExprNode {
 
     accept(visitor: SemBaseVisitor) {
         return visitor.visitReturn(this);
+    }
+}
+
+export class CallNode extends ExprNode {
+    value: ExprNode;
+    params: ExprNode[];
+    obj: SemFunction | undefined;
+
+    constructor(value: ExprNode, params: ExprNode[]) {
+        super();
+        this.value = value;
+        this.params = params;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitCall(this);
     }
 }

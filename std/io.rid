@@ -1,0 +1,4 @@
+package std.io;
+
+fun putchar(ch:char)->void;
+fun getchar()->char;

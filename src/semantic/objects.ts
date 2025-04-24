@@ -1,5 +1,6 @@
 import {TypeInfo} from "./typeInfo";
 import {AllocNode} from "./nodes";
+import llvm from "llvm-bindings";
 
 /**
  * 表示一个语义分析对象
@@ -47,6 +48,7 @@ export class SemFunction extends SemObject {
     name: string;
     param: SemVariable[];
     return_type: TypeInfo;
+    llvm_func: llvm.Function | undefined;
 
     constructor(name: string, return_type: TypeInfo, param: SemVariable[] = []) {
         super();

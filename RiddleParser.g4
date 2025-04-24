@@ -23,11 +23,12 @@ expressionEnd
     ;
 
 expression
-    : Decimal                                                               #integer
-    | Float                                                                 #float
-    | (True | False)                                                        #boolean
-    | id                                                                    #object
-    | statement                                                             #statementExpr
+    : Decimal                                                                       #integer
+    | Float                                                                         #float
+    | (True | False)                                                                #boolean
+    | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket   #callExpr
+    | id                                                                            #object
+    | statement                                                                     #statementExpr
     ;
 
 statement

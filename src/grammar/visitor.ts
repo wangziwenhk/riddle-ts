@@ -1,14 +1,14 @@
 import RiddleParserVisitor from '../parser/RiddleParserVisitor';
 import {
     BlockContext,
-    BooleanContext, DeclArgsContext, ExpressionContext, ExpressionEndContext,
+    BooleanContext, CallExprContext, DeclArgsContext, ExpressionContext, ExpressionEndContext,
     FloatContext, FuncDeclContext, IdContext,
     IntegerContext, ObjectContext,
     ProgramContext, ReturnStmtContext, StatementContext, StatementExprContext, VarDeclContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
-    BlockNode,
+    BlockNode, CallNode,
     ConstantNode, DeclArgNode,
     ExprNode,
     FuncDeclNode,
@@ -173,7 +173,7 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             return_type = new ObjectNode('void')
         }
         const args = this.visitDeclArgs(ctx.declArgs());
-        return new FuncDeclNode(name, return_type, body);
+        return new FuncDeclNode(name, return_type, args, body);
     }
 
     visitBlock = (ctx: BlockContext) => {
@@ -219,5 +219,21 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             result = this.visit(ctx._result);
         }
         return new ReturnNode(result);
+    }
+
+    visitCallExpr = (ctx: CallExprContext) => {
+        const value: ExprNode = this.visit(ctx._obj)
+        let params: ExprNode[] = [];
+        for (let i = 1; i < ctx.children?.length!; i++) {
+            const child = ctx.children![i];
+            if (child instanceof TerminalNode) {
+                continue;
+            }
+            const result = this.visit(child);
+            if (result instanceof ExprNode) {
+                params.push(result);
+            }
+        }
+        return new CallNode(value, params);
     }
 }

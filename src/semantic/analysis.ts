@@ -1,6 +1,6 @@
 import {
-    BlockNode,
-    ConstantNode, ExprNode,
+    BlockNode, CallNode,
+    ConstantNode, DeclArgNode, ExprNode,
     FuncDeclNode,
     ObjectNode,
     ProgramNode, ReturnNode,
@@ -10,7 +10,6 @@ import {
 } from "./nodes";
 import {PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
 import {SemFunction, SemObject, SemType, SemValue, SemVariable} from "./objects";
-
 
 const voidTy: PrimitiveTypeInfo = new PrimitiveTypeInfo("void");
 
@@ -97,6 +96,17 @@ export class SemanticAnalysis extends SemBaseVisitor {
         return result;
     }
 
+
+    visitDeclArg(node: DeclArgNode) {
+        const type_obj = this.visit(node.type);
+        if (!(type_obj instanceof SemType)) {
+            throw new Error("The type representation of the parameter is not a type");
+        }
+        const type = type_obj.type;
+        node.obj = new SemVariable(node.name, type);
+        this.addGlobalObject(node.name, node.obj);
+    }
+
     /**
      * 提前处理 alloc 到函数开始部分
      * @param node 被遍历的 node
@@ -125,10 +135,20 @@ export class SemanticAnalysis extends SemBaseVisitor {
         const obj = new SemFunction(node.name, return_type.type);
         node.obj = obj;
 
+        this.addGlobalObject(node.name, node.obj);
+
+        this.raiseScope();
+        // 处理函数参数
+        node.params.forEach(param => {
+            this.visit(param);
+        })
+
+        // 处理函数体
         this.funcStack.push(node);
         this.visit(node.body);
         this.preAlloc(node.body, node);
         this.funcStack.pop();
+        this.exitScope();
 
         return obj;
     }
@@ -198,11 +218,26 @@ export class SemanticAnalysis extends SemBaseVisitor {
                 throw new Error(`Result Must be a Value`);
             }
             return_type = result.type;
-            node.obj = result;
+        }else{
         }
         if (!this.checkType(return_type, func_return_type)) {
             throw new Error(`Types '${return_type.name}' and '${func_return_type.name}' do not match`);
         }
-        return node.obj;
+        return undefined;
+    }
+
+    visitCall(node: CallNode) {
+        const value = this.visit(node.value);
+        if (!(value instanceof SemFunction)) {
+            throw new Error("Object must be a Function");
+        }
+        node.params.forEach(param => {
+            const result = this.visit(param);
+            if (!(result instanceof SemValue)) {
+                throw new Error(`Result Must be a Value`);
+            }
+        })
+        node.obj = value;
+        return new SemValue(node.obj, node.obj.return_type);
     }
 }

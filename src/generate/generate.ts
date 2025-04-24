@@ -1,6 +1,7 @@
 import {
+    CallNode,
     ConstantNode,
-    FuncDeclNode,
+    FuncDeclNode, ObjectNode,
     ProgramNode, ReturnNode,
     SemBaseVisitor, VarDeclNode
 } from '../semantic/nodes';
@@ -8,6 +9,7 @@ import llvm from 'llvm-bindings';
 import {Config} from './config';
 import * as semType from '../semantic/typeInfo';
 import {PrimitiveTypeInfo} from "../semantic/typeInfo";
+import {SemFunction, SemVariable} from "../semantic/objects";
 
 export class Generate extends SemBaseVisitor {
     context = Config.globalContext
@@ -49,7 +51,7 @@ export class Generate extends SemBaseVisitor {
 
     visitConstant(node: ConstantNode) {
         if (node.type instanceof PrimitiveTypeInfo) {
-            const check = (typename:string)=>{
+            const check = (typename: string) => {
                 if (typeof node.value !== typename) {
                     throw new Error('node.value Error');
                 }
@@ -83,9 +85,25 @@ export class Generate extends SemBaseVisitor {
     }
 
     visitFuncDecl(node: FuncDeclNode) {
-        const returnType = this.parseType(node.obj!.return_type)
-        const funcType = llvm.FunctionType.get(returnType, false)
-        const func = llvm.Function.Create(funcType, llvm.GlobalValue.LinkageTypes.ExternalLinkage, node.name, this.module)
+        const return_type = this.parseType(node.obj!.return_type)
+
+        let param_type: llvm.Type[] = []
+        // 处理函数参数类型来生成 func_type
+        node.params.forEach((param) => {
+            param_type.push(this.parseType(param.obj?.type!));
+        })
+
+        const func_type = llvm.FunctionType.get(return_type, param_type, false)
+        const func = llvm.Function.Create(func_type, llvm.GlobalValue.LinkageTypes.ExternalLinkage, node.name, this.module)
+        node.obj!.llvm_func = func;
+
+        // 处理参数的内存
+        let i = 0
+        node.params.forEach((param) => {
+            param.obj!.alloc.alloc = func.getArg(i);
+            i++;
+        })
+
         const entry = llvm.BasicBlock.Create(this.context, "entry", func);
         this.builder.SetInsertPoint(entry);
 
@@ -113,14 +131,36 @@ export class Generate extends SemBaseVisitor {
         }
     }
 
+    visitObject(node: ObjectNode) {
+        if (!node.obj) {
+            throw new Error("unknown obj");
+        } else if (node.obj instanceof SemVariable) {
+            return node.obj.alloc.alloc;
+        } else if (node.obj instanceof SemFunction) {
+            return node.obj;
+        }
+    }
+
     visitReturn(node: ReturnNode) {
-        if(node.value){
+        if (node.value) {
             const result = this.visit(node.value);
-            if(!(result instanceof llvm.Value)){
+            if (!(result instanceof llvm.Value)) {
                 throw new Error(`Unknown value for ${node.value}`);
             }
             return this.builder.CreateRet(result);
         }
         return this.builder.CreateRetVoid();
+    }
+
+    visitCall(node: CallNode) {
+        const value = node.obj;
+        if (value === undefined) {
+            throw new Error("unknown call");
+        }
+        const params = new Array<llvm.Value>()
+        node.params.forEach((param) => {
+            params.push(this.visit(param))
+        })
+        return this.builder.CreateCall(value.llvm_func!, params);
     }
 }
