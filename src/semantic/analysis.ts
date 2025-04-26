@@ -1,7 +1,7 @@
 import {
     BlockNode, CallNode, ClassDeclNode,
     ConstantNode, DeclArgNode, ExprNode,
-    FuncDeclNode, InitListNode,
+    FuncDeclNode, InitListNode, MemberAccessNode,
     ObjectNode,
     ProgramNode, ReturnNode,
     SemBaseVisitor,
@@ -253,6 +253,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         let class_type = new ClassTypeInfo(node.name, []);
         let obj = new SemClass(node.name, members, methods, class_type);
         node.obj = obj;
+        class_type.the_class = obj;
         this.addGlobalObject(node.name, obj);
 
         this.raiseScope();
@@ -279,5 +280,25 @@ export class SemanticAnalysis extends SemBaseVisitor {
 
         this.exitScope();
         return obj;
+    }
+
+    visitMemberAccess(node: MemberAccessNode) {
+        const lhs = this.visit(node.left);
+        if (lhs instanceof SemVariable) {
+            const type = lhs.type;
+            if (!(type instanceof ClassTypeInfo)) {
+                throw new Error("The left side of the member access operator has a non-class type");
+            }
+            const the_class = type.the_class;
+            if (the_class === undefined) {
+                throw new Error("The Class is not defined");
+            }
+            const obj = the_class.getMember(node.right);
+            node.left_type = type;
+            node.right_type = obj.type;
+            return new SemValue(obj, obj.type);
+        }
+        //todo 添加更多方法解析
+        return nil;
     }
 }

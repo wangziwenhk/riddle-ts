@@ -30,6 +30,7 @@ expression
     | (True | False)                                                                #boolean
     | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket     #callExpr
     | id                                                                            #object
+    | left=expression Dot right=expression                                          #memberAccess
     ;
 
 statement

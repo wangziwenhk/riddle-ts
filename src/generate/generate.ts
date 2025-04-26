@@ -3,7 +3,7 @@ import {
     CallNode,
     ClassDeclNode,
     ConstantNode,
-    FuncDeclNode,
+    FuncDeclNode, MemberAccessNode,
     ObjectNode,
     ProgramNode,
     ReturnNode,
@@ -13,7 +13,7 @@ import {
 import llvm from 'llvm-bindings';
 import {Config} from './config';
 import * as semType from '../semantic/typeInfo';
-import {PrimitiveTypeInfo} from '../semantic/typeInfo';
+import {ClassTypeInfo, PrimitiveTypeInfo} from '../semantic/typeInfo';
 import {SemFunction, SemVariable} from "../semantic/objects";
 
 export class Generate extends SemBaseVisitor {
@@ -194,5 +194,14 @@ export class Generate extends SemBaseVisitor {
         const type = llvm.StructType.create(this.context, member_types, node.name);
         node.obj!.type.llvm_type = type;
         return type;
+    }
+
+    visitMemberAccess(node: MemberAccessNode) {
+        const lhs: llvm.Value = this.visit(node.left);
+        if(!lhs.getType().isStructTy() && !lhs.getType().getPointerElementType().isStructTy()){
+            throw new Error("Result not a Struct Value");
+        }
+        const index = node.left_type!.the_class!.getMemberIndex(node.right);
+        return this.builder.CreateGEP(lhs.getType(),lhs,this.builder.getInt32(index));
     }
 }

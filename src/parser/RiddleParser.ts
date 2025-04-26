@@ -398,9 +398,9 @@ export default class RiddleParser extends Parser {
 				throw new NoViableAltException(this);
 			}
 			this._ctx.stop = this._input.LT(-1);
-			this.state = 64;
+			this.state = 67;
 			this._errHandler.sync(this);
-			_alt = this._interp.adaptivePredict(this._input, 6, this._ctx);
+			_alt = this._interp.adaptivePredict(this._input, 7, this._ctx);
 			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
 				if (_alt === 1) {
 					if (this._parseListeners != null) {
@@ -408,50 +408,71 @@ export default class RiddleParser extends Parser {
 					}
 					_prevctx = localctx;
 					{
-					{
-					localctx = new CallExprContext(this, new ExpressionContext(this, _parentctx, _parentState));
-					(localctx as CallExprContext)._obj = _prevctx;
-					this.pushNewRecursionContext(localctx, _startState, RiddleParser.RULE_expression);
-					this.state = 49;
-					if (!(this.precpred(this._ctx, 2))) {
-						throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
-					}
-					this.state = 50;
-					this.match(RiddleParser.LeftBracket);
-					this.state = 59;
+					this.state = 65;
 					this._errHandler.sync(this);
-					_la = this._input.LA(1);
-					if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 58882) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 620756993) !== 0)) {
+					switch ( this._interp.adaptivePredict(this._input, 6, this._ctx) ) {
+					case 1:
 						{
+						localctx = new MemberAccessContext(this, new ExpressionContext(this, _parentctx, _parentState));
+						(localctx as MemberAccessContext)._left = _prevctx;
+						this.pushNewRecursionContext(localctx, _startState, RiddleParser.RULE_expression);
+						this.state = 49;
+						if (!(this.precpred(this._ctx, 1))) {
+							throw this.createFailedPredicateException("this.precpred(this._ctx, 1)");
+						}
+						this.state = 50;
+						this.match(RiddleParser.Dot);
 						this.state = 51;
-						this.expression(0);
-						this.state = 56;
+						(localctx as MemberAccessContext)._right = this.expression(2);
+						}
+						break;
+					case 2:
+						{
+						localctx = new CallExprContext(this, new ExpressionContext(this, _parentctx, _parentState));
+						(localctx as CallExprContext)._obj = _prevctx;
+						this.pushNewRecursionContext(localctx, _startState, RiddleParser.RULE_expression);
+						this.state = 52;
+						if (!(this.precpred(this._ctx, 3))) {
+							throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
+						}
+						this.state = 53;
+						this.match(RiddleParser.LeftBracket);
+						this.state = 62;
 						this._errHandler.sync(this);
 						_la = this._input.LA(1);
-						while (_la===37) {
+						if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 58882) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 620756993) !== 0)) {
 							{
-							{
-							this.state = 52;
-							this.match(RiddleParser.Comma);
-							this.state = 53;
+							this.state = 54;
 							this.expression(0);
-							}
-							}
-							this.state = 58;
+							this.state = 59;
 							this._errHandler.sync(this);
 							_la = this._input.LA(1);
+							while (_la===37) {
+								{
+								{
+								this.state = 55;
+								this.match(RiddleParser.Comma);
+								this.state = 56;
+								this.expression(0);
+								}
+								}
+								this.state = 61;
+								this._errHandler.sync(this);
+								_la = this._input.LA(1);
+							}
+							}
 						}
-						}
-					}
 
-					this.state = 61;
-					this.match(RiddleParser.RightBracket);
+						this.state = 64;
+						this.match(RiddleParser.RightBracket);
+						}
+						break;
 					}
 					}
 				}
-				this.state = 66;
+				this.state = 69;
 				this._errHandler.sync(this);
-				_alt = this._interp.adaptivePredict(this._input, 6, this._ctx);
+				_alt = this._interp.adaptivePredict(this._input, 7, this._ctx);
 			}
 			}
 		}
@@ -474,48 +495,48 @@ export default class RiddleParser extends Parser {
 		let localctx: StatementContext = new StatementContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 6, RiddleParser.RULE_statement);
 		try {
-			this.state = 73;
+			this.state = 76;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 7, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 8, this._ctx) ) {
 			case 1:
 				this.enterOuterAlt(localctx, 1);
 				{
-				this.state = 67;
+				this.state = 70;
 				this.varDecl();
 				}
 				break;
 			case 2:
 				this.enterOuterAlt(localctx, 2);
 				{
-				this.state = 68;
+				this.state = 71;
 				this.funcDecl();
 				}
 				break;
 			case 3:
 				this.enterOuterAlt(localctx, 3);
 				{
-				this.state = 69;
+				this.state = 72;
 				this.classDecl();
 				}
 				break;
 			case 4:
 				this.enterOuterAlt(localctx, 4);
 				{
-				this.state = 70;
+				this.state = 73;
 				this.initList();
 				}
 				break;
 			case 5:
 				this.enterOuterAlt(localctx, 5);
 				{
-				this.state = 71;
+				this.state = 74;
 				this.block();
 				}
 				break;
 			case 6:
 				this.enterOuterAlt(localctx, 6);
 				{
-				this.state = 72;
+				this.state = 75;
 				this.returnStmt();
 				}
 				break;
@@ -540,49 +561,49 @@ export default class RiddleParser extends Parser {
 		let localctx: VarDeclContext = new VarDeclContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 8, RiddleParser.RULE_varDecl);
 		try {
-			this.state = 92;
+			this.state = 95;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 8, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 9, this._ctx) ) {
 			case 1:
 				this.enterOuterAlt(localctx, 1);
 				{
-				this.state = 75;
-				this.match(RiddleParser.Var);
-				this.state = 76;
-				localctx._name = this.id();
-				this.state = 77;
-				this.match(RiddleParser.Colon);
 				this.state = 78;
+				this.match(RiddleParser.Var);
+				this.state = 79;
+				localctx._name = this.id();
+				this.state = 80;
+				this.match(RiddleParser.Colon);
+				this.state = 81;
 				localctx._type_ = this.expression(0);
 				}
 				break;
 			case 2:
 				this.enterOuterAlt(localctx, 2);
 				{
-				this.state = 80;
-				this.match(RiddleParser.Var);
-				this.state = 81;
-				localctx._name = this.id();
-				this.state = 82;
-				this.match(RiddleParser.Assign);
 				this.state = 83;
+				this.match(RiddleParser.Var);
+				this.state = 84;
+				localctx._name = this.id();
+				this.state = 85;
+				this.match(RiddleParser.Assign);
+				this.state = 86;
 				localctx._value = this.expression(0);
 				}
 				break;
 			case 3:
 				this.enterOuterAlt(localctx, 3);
 				{
-				this.state = 85;
-				this.match(RiddleParser.Var);
-				this.state = 86;
-				localctx._name = this.id();
-				this.state = 87;
-				this.match(RiddleParser.Colon);
 				this.state = 88;
-				localctx._type_ = this.expression(0);
+				this.match(RiddleParser.Var);
 				this.state = 89;
-				this.match(RiddleParser.Assign);
+				localctx._name = this.id();
 				this.state = 90;
+				this.match(RiddleParser.Colon);
+				this.state = 91;
+				localctx._type_ = this.expression(0);
+				this.state = 92;
+				this.match(RiddleParser.Assign);
+				this.state = 93;
 				localctx._value = this.expression(0);
 				}
 				break;
@@ -610,23 +631,23 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 94;
+			this.state = 97;
 			this.match(RiddleParser.LeftCurly);
-			this.state = 98;
+			this.state = 101;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 58882) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 629145609) !== 0)) {
 				{
 				{
-				this.state = 95;
+				this.state = 98;
 				this.expressionEnd();
 				}
 				}
-				this.state = 100;
+				this.state = 103;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 			}
-			this.state = 101;
+			this.state = 104;
 			this.match(RiddleParser.RightCurly);
 			}
 		}
@@ -652,35 +673,35 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 103;
+			this.state = 106;
 			this.match(RiddleParser.LeftCurly);
-			this.state = 112;
+			this.state = 115;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 58882) !== 0) || ((((_la - 33)) & ~0x1F) === 0 && ((1 << (_la - 33)) & 620756993) !== 0)) {
 				{
-				this.state = 104;
+				this.state = 107;
 				this.expression(0);
-				this.state = 109;
+				this.state = 112;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 				while (_la===37) {
 					{
 					{
-					this.state = 105;
+					this.state = 108;
 					this.match(RiddleParser.Comma);
-					this.state = 106;
+					this.state = 109;
 					this.expression(0);
 					}
 					}
-					this.state = 111;
+					this.state = 114;
 					this._errHandler.sync(this);
 					_la = this._input.LA(1);
 				}
 				}
 			}
 
-			this.state = 114;
+			this.state = 117;
 			this.match(RiddleParser.RightCurly);
 			}
 		}
@@ -707,38 +728,38 @@ export default class RiddleParser extends Parser {
 			let _alt: number;
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 123;
+			this.state = 126;
 			this._errHandler.sync(this);
-			_alt = this._interp.adaptivePredict(this._input, 12, this._ctx);
+			_alt = this._interp.adaptivePredict(this._input, 13, this._ctx);
 			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
 				if (_alt === 1) {
 					{
 					{
-					this.state = 116;
-					this.id();
-					this.state = 117;
-					this.match(RiddleParser.Colon);
-					this.state = 118;
-					this.expression(0);
 					this.state = 119;
+					this.id();
+					this.state = 120;
+					this.match(RiddleParser.Colon);
+					this.state = 121;
+					this.expression(0);
+					this.state = 122;
 					this.match(RiddleParser.Comma);
 					}
 					}
 				}
-				this.state = 125;
+				this.state = 128;
 				this._errHandler.sync(this);
-				_alt = this._interp.adaptivePredict(this._input, 12, this._ctx);
+				_alt = this._interp.adaptivePredict(this._input, 13, this._ctx);
 			}
-			this.state = 130;
+			this.state = 133;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la===57) {
 				{
-				this.state = 126;
+				this.state = 129;
 				this.id();
-				this.state = 127;
+				this.state = 130;
 				this.match(RiddleParser.Colon);
-				this.state = 128;
+				this.state = 131;
 				this.expression(0);
 				}
 			}
@@ -767,31 +788,31 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 132;
-			this.match(RiddleParser.Func);
-			this.state = 133;
-			localctx._name = this.id();
-			this.state = 134;
-			this.match(RiddleParser.LeftBracket);
 			this.state = 135;
-			this.declArgs();
+			this.match(RiddleParser.Func);
 			this.state = 136;
+			localctx._name = this.id();
+			this.state = 137;
+			this.match(RiddleParser.LeftBracket);
+			this.state = 138;
+			this.declArgs();
+			this.state = 139;
 			this.match(RiddleParser.RightBracket);
-			this.state = 140;
+			this.state = 143;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la===45) {
 				{
-				this.state = 137;
+				this.state = 140;
 				this.match(RiddleParser.Sub);
-				this.state = 138;
+				this.state = 141;
 				this.match(RiddleParser.Greater);
-				this.state = 139;
+				this.state = 142;
 				localctx._return_type = this.expression(0);
 				}
 			}
 
-			this.state = 142;
+			this.state = 145;
 			localctx._body = this.block();
 			}
 		}
@@ -816,14 +837,14 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 144;
+			this.state = 147;
 			this.match(RiddleParser.Return);
-			this.state = 146;
+			this.state = 149;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 15, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 16, this._ctx) ) {
 			case 1:
 				{
-				this.state = 145;
+				this.state = 148;
 				localctx._result = this.expression(0);
 				}
 				break;
@@ -851,11 +872,11 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 148;
+			this.state = 151;
 			this.match(RiddleParser.Class);
-			this.state = 149;
+			this.state = 152;
 			localctx._name = this.id();
-			this.state = 150;
+			this.state = 153;
 			localctx._body = this.block();
 			}
 		}
@@ -880,7 +901,7 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 152;
+			this.state = 155;
 			this.match(RiddleParser.Identifier);
 			}
 		}
@@ -909,59 +930,62 @@ export default class RiddleParser extends Parser {
 	private expression_sempred(localctx: ExpressionContext, predIndex: number): boolean {
 		switch (predIndex) {
 		case 0:
-			return this.precpred(this._ctx, 2);
+			return this.precpred(this._ctx, 1);
+		case 1:
+			return this.precpred(this._ctx, 3);
 		}
 		return true;
 	}
 
-	public static readonly _serializedATN: number[] = [4,1,72,155,2,0,7,0,2,
+	public static readonly _serializedATN: number[] = [4,1,72,158,2,0,7,0,2,
 	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,
 	10,7,10,2,11,7,11,1,0,5,0,26,8,0,10,0,12,0,29,9,0,1,0,1,0,1,1,1,1,1,1,3,
 	1,36,8,1,1,1,1,1,3,1,40,8,1,1,2,1,2,1,2,1,2,1,2,1,2,3,2,48,8,2,1,2,1,2,
-	1,2,1,2,1,2,5,2,55,8,2,10,2,12,2,58,9,2,3,2,60,8,2,1,2,5,2,63,8,2,10,2,
-	12,2,66,9,2,1,3,1,3,1,3,1,3,1,3,1,3,3,3,74,8,3,1,4,1,4,1,4,1,4,1,4,1,4,
-	1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,93,8,4,1,5,1,5,5,5,97,8,
-	5,10,5,12,5,100,9,5,1,5,1,5,1,6,1,6,1,6,1,6,5,6,108,8,6,10,6,12,6,111,9,
-	6,3,6,113,8,6,1,6,1,6,1,7,1,7,1,7,1,7,1,7,5,7,122,8,7,10,7,12,7,125,9,7,
-	1,7,1,7,1,7,1,7,3,7,131,8,7,1,8,1,8,1,8,1,8,1,8,1,8,1,8,1,8,3,8,141,8,8,
-	1,8,1,8,1,9,1,9,3,9,147,8,9,1,10,1,10,1,10,1,10,1,11,1,11,1,11,0,1,4,12,
-	0,2,4,6,8,10,12,14,16,18,20,22,0,1,1,0,14,15,167,0,27,1,0,0,0,2,39,1,0,
-	0,0,4,47,1,0,0,0,6,73,1,0,0,0,8,92,1,0,0,0,10,94,1,0,0,0,12,103,1,0,0,0,
-	14,123,1,0,0,0,16,132,1,0,0,0,18,144,1,0,0,0,20,148,1,0,0,0,22,152,1,0,
-	0,0,24,26,3,2,1,0,25,24,1,0,0,0,26,29,1,0,0,0,27,25,1,0,0,0,27,28,1,0,0,
-	0,28,30,1,0,0,0,29,27,1,0,0,0,30,31,5,0,0,1,31,1,1,0,0,0,32,33,3,4,2,0,
-	33,35,5,36,0,0,34,36,5,56,0,0,35,34,1,0,0,0,35,36,1,0,0,0,36,40,1,0,0,0,
-	37,40,5,56,0,0,38,40,5,36,0,0,39,32,1,0,0,0,39,37,1,0,0,0,39,38,1,0,0,0,
-	40,3,1,0,0,0,41,42,6,2,-1,0,42,48,3,6,3,0,43,48,5,59,0,0,44,48,5,62,0,0,
-	45,48,7,0,0,0,46,48,3,22,11,0,47,41,1,0,0,0,47,43,1,0,0,0,47,44,1,0,0,0,
-	47,45,1,0,0,0,47,46,1,0,0,0,48,64,1,0,0,0,49,50,10,2,0,0,50,59,5,29,0,0,
-	51,56,3,4,2,0,52,53,5,37,0,0,53,55,3,4,2,0,54,52,1,0,0,0,55,58,1,0,0,0,
-	56,54,1,0,0,0,56,57,1,0,0,0,57,60,1,0,0,0,58,56,1,0,0,0,59,51,1,0,0,0,59,
-	60,1,0,0,0,60,61,1,0,0,0,61,63,5,30,0,0,62,49,1,0,0,0,63,66,1,0,0,0,64,
-	62,1,0,0,0,64,65,1,0,0,0,65,5,1,0,0,0,66,64,1,0,0,0,67,74,3,8,4,0,68,74,
-	3,16,8,0,69,74,3,20,10,0,70,74,3,12,6,0,71,74,3,10,5,0,72,74,3,18,9,0,73,
-	67,1,0,0,0,73,68,1,0,0,0,73,69,1,0,0,0,73,70,1,0,0,0,73,71,1,0,0,0,73,72,
-	1,0,0,0,74,7,1,0,0,0,75,76,5,1,0,0,76,77,3,22,11,0,77,78,5,35,0,0,78,79,
-	3,4,2,0,79,93,1,0,0,0,80,81,5,1,0,0,81,82,3,22,11,0,82,83,5,39,0,0,83,84,
-	3,4,2,0,84,93,1,0,0,0,85,86,5,1,0,0,86,87,3,22,11,0,87,88,5,35,0,0,88,89,
-	3,4,2,0,89,90,5,39,0,0,90,91,3,4,2,0,91,93,1,0,0,0,92,75,1,0,0,0,92,80,
-	1,0,0,0,92,85,1,0,0,0,93,9,1,0,0,0,94,98,5,33,0,0,95,97,3,2,1,0,96,95,1,
-	0,0,0,97,100,1,0,0,0,98,96,1,0,0,0,98,99,1,0,0,0,99,101,1,0,0,0,100,98,
-	1,0,0,0,101,102,5,34,0,0,102,11,1,0,0,0,103,112,5,33,0,0,104,109,3,4,2,
-	0,105,106,5,37,0,0,106,108,3,4,2,0,107,105,1,0,0,0,108,111,1,0,0,0,109,
-	107,1,0,0,0,109,110,1,0,0,0,110,113,1,0,0,0,111,109,1,0,0,0,112,104,1,0,
-	0,0,112,113,1,0,0,0,113,114,1,0,0,0,114,115,5,34,0,0,115,13,1,0,0,0,116,
-	117,3,22,11,0,117,118,5,35,0,0,118,119,3,4,2,0,119,120,5,37,0,0,120,122,
-	1,0,0,0,121,116,1,0,0,0,122,125,1,0,0,0,123,121,1,0,0,0,123,124,1,0,0,0,
-	124,130,1,0,0,0,125,123,1,0,0,0,126,127,3,22,11,0,127,128,5,35,0,0,128,
-	129,3,4,2,0,129,131,1,0,0,0,130,126,1,0,0,0,130,131,1,0,0,0,131,15,1,0,
-	0,0,132,133,5,9,0,0,133,134,3,22,11,0,134,135,5,29,0,0,135,136,3,14,7,0,
-	136,140,5,30,0,0,137,138,5,45,0,0,138,139,5,40,0,0,139,141,3,4,2,0,140,
-	137,1,0,0,0,140,141,1,0,0,0,141,142,1,0,0,0,142,143,3,10,5,0,143,17,1,0,
-	0,0,144,146,5,10,0,0,145,147,3,4,2,0,146,145,1,0,0,0,146,147,1,0,0,0,147,
-	19,1,0,0,0,148,149,5,13,0,0,149,150,3,22,11,0,150,151,3,10,5,0,151,21,1,
-	0,0,0,152,153,5,57,0,0,153,23,1,0,0,0,16,27,35,39,47,56,59,64,73,92,98,
-	109,112,123,130,140,146];
+	1,2,1,2,1,2,1,2,1,2,1,2,5,2,58,8,2,10,2,12,2,61,9,2,3,2,63,8,2,1,2,5,2,
+	66,8,2,10,2,12,2,69,9,2,1,3,1,3,1,3,1,3,1,3,1,3,3,3,77,8,3,1,4,1,4,1,4,
+	1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,96,8,4,1,5,
+	1,5,5,5,100,8,5,10,5,12,5,103,9,5,1,5,1,5,1,6,1,6,1,6,1,6,5,6,111,8,6,10,
+	6,12,6,114,9,6,3,6,116,8,6,1,6,1,6,1,7,1,7,1,7,1,7,1,7,5,7,125,8,7,10,7,
+	12,7,128,9,7,1,7,1,7,1,7,1,7,3,7,134,8,7,1,8,1,8,1,8,1,8,1,8,1,8,1,8,1,
+	8,3,8,144,8,8,1,8,1,8,1,9,1,9,3,9,150,8,9,1,10,1,10,1,10,1,10,1,11,1,11,
+	1,11,0,1,4,12,0,2,4,6,8,10,12,14,16,18,20,22,0,1,1,0,14,15,171,0,27,1,0,
+	0,0,2,39,1,0,0,0,4,47,1,0,0,0,6,76,1,0,0,0,8,95,1,0,0,0,10,97,1,0,0,0,12,
+	106,1,0,0,0,14,126,1,0,0,0,16,135,1,0,0,0,18,147,1,0,0,0,20,151,1,0,0,0,
+	22,155,1,0,0,0,24,26,3,2,1,0,25,24,1,0,0,0,26,29,1,0,0,0,27,25,1,0,0,0,
+	27,28,1,0,0,0,28,30,1,0,0,0,29,27,1,0,0,0,30,31,5,0,0,1,31,1,1,0,0,0,32,
+	33,3,4,2,0,33,35,5,36,0,0,34,36,5,56,0,0,35,34,1,0,0,0,35,36,1,0,0,0,36,
+	40,1,0,0,0,37,40,5,56,0,0,38,40,5,36,0,0,39,32,1,0,0,0,39,37,1,0,0,0,39,
+	38,1,0,0,0,40,3,1,0,0,0,41,42,6,2,-1,0,42,48,3,6,3,0,43,48,5,59,0,0,44,
+	48,5,62,0,0,45,48,7,0,0,0,46,48,3,22,11,0,47,41,1,0,0,0,47,43,1,0,0,0,47,
+	44,1,0,0,0,47,45,1,0,0,0,47,46,1,0,0,0,48,67,1,0,0,0,49,50,10,1,0,0,50,
+	51,5,53,0,0,51,66,3,4,2,2,52,53,10,3,0,0,53,62,5,29,0,0,54,59,3,4,2,0,55,
+	56,5,37,0,0,56,58,3,4,2,0,57,55,1,0,0,0,58,61,1,0,0,0,59,57,1,0,0,0,59,
+	60,1,0,0,0,60,63,1,0,0,0,61,59,1,0,0,0,62,54,1,0,0,0,62,63,1,0,0,0,63,64,
+	1,0,0,0,64,66,5,30,0,0,65,49,1,0,0,0,65,52,1,0,0,0,66,69,1,0,0,0,67,65,
+	1,0,0,0,67,68,1,0,0,0,68,5,1,0,0,0,69,67,1,0,0,0,70,77,3,8,4,0,71,77,3,
+	16,8,0,72,77,3,20,10,0,73,77,3,12,6,0,74,77,3,10,5,0,75,77,3,18,9,0,76,
+	70,1,0,0,0,76,71,1,0,0,0,76,72,1,0,0,0,76,73,1,0,0,0,76,74,1,0,0,0,76,75,
+	1,0,0,0,77,7,1,0,0,0,78,79,5,1,0,0,79,80,3,22,11,0,80,81,5,35,0,0,81,82,
+	3,4,2,0,82,96,1,0,0,0,83,84,5,1,0,0,84,85,3,22,11,0,85,86,5,39,0,0,86,87,
+	3,4,2,0,87,96,1,0,0,0,88,89,5,1,0,0,89,90,3,22,11,0,90,91,5,35,0,0,91,92,
+	3,4,2,0,92,93,5,39,0,0,93,94,3,4,2,0,94,96,1,0,0,0,95,78,1,0,0,0,95,83,
+	1,0,0,0,95,88,1,0,0,0,96,9,1,0,0,0,97,101,5,33,0,0,98,100,3,2,1,0,99,98,
+	1,0,0,0,100,103,1,0,0,0,101,99,1,0,0,0,101,102,1,0,0,0,102,104,1,0,0,0,
+	103,101,1,0,0,0,104,105,5,34,0,0,105,11,1,0,0,0,106,115,5,33,0,0,107,112,
+	3,4,2,0,108,109,5,37,0,0,109,111,3,4,2,0,110,108,1,0,0,0,111,114,1,0,0,
+	0,112,110,1,0,0,0,112,113,1,0,0,0,113,116,1,0,0,0,114,112,1,0,0,0,115,107,
+	1,0,0,0,115,116,1,0,0,0,116,117,1,0,0,0,117,118,5,34,0,0,118,13,1,0,0,0,
+	119,120,3,22,11,0,120,121,5,35,0,0,121,122,3,4,2,0,122,123,5,37,0,0,123,
+	125,1,0,0,0,124,119,1,0,0,0,125,128,1,0,0,0,126,124,1,0,0,0,126,127,1,0,
+	0,0,127,133,1,0,0,0,128,126,1,0,0,0,129,130,3,22,11,0,130,131,5,35,0,0,
+	131,132,3,4,2,0,132,134,1,0,0,0,133,129,1,0,0,0,133,134,1,0,0,0,134,15,
+	1,0,0,0,135,136,5,9,0,0,136,137,3,22,11,0,137,138,5,29,0,0,138,139,3,14,
+	7,0,139,143,5,30,0,0,140,141,5,45,0,0,141,142,5,40,0,0,142,144,3,4,2,0,
+	143,140,1,0,0,0,143,144,1,0,0,0,144,145,1,0,0,0,145,146,3,10,5,0,146,17,
+	1,0,0,0,147,149,5,10,0,0,148,150,3,4,2,0,149,148,1,0,0,0,149,150,1,0,0,
+	0,150,19,1,0,0,0,151,152,5,13,0,0,152,153,3,22,11,0,153,154,3,10,5,0,154,
+	21,1,0,0,0,155,156,5,57,0,0,156,23,1,0,0,0,17,27,35,39,47,59,62,65,67,76,
+	95,101,112,115,126,133,143,149];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -1063,6 +1087,41 @@ export class ExpressionContext extends ParserRuleContext {
 	}
 	public override copyFrom(ctx: ExpressionContext): void {
 		super.copyFrom(ctx);
+	}
+}
+export class MemberAccessContext extends ExpressionContext {
+	public _left!: ExpressionContext;
+	public _right!: ExpressionContext;
+	constructor(parser: RiddleParser, ctx: ExpressionContext) {
+		super(parser, ctx.parentCtx, ctx.invokingState);
+		super.copyFrom(ctx);
+	}
+	public Dot(): TerminalNode {
+		return this.getToken(RiddleParser.Dot, 0);
+	}
+	public expression_list(): ExpressionContext[] {
+		return this.getTypedRuleContexts(ExpressionContext) as ExpressionContext[];
+	}
+	public expression(i: number): ExpressionContext {
+		return this.getTypedRuleContext(ExpressionContext, i) as ExpressionContext;
+	}
+	public enterRule(listener: RiddleParserListener): void {
+	    if(listener.enterMemberAccess) {
+	 		listener.enterMemberAccess(this);
+		}
+	}
+	public exitRule(listener: RiddleParserListener): void {
+	    if(listener.exitMemberAccess) {
+	 		listener.exitMemberAccess(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: RiddleParserVisitor<Result>): Result {
+		if (visitor.visitMemberAccess) {
+			return visitor.visitMemberAccess(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
 	}
 }
 export class BooleanContext extends ExpressionContext {

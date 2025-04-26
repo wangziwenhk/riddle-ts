@@ -3,7 +3,7 @@ import {
     BlockContext,
     BooleanContext, CallExprContext, ClassDeclContext, DeclArgsContext, ExpressionContext, ExpressionEndContext,
     FloatContext, FuncDeclContext, IdContext, InitListContext,
-    IntegerContext, ObjectContext,
+    IntegerContext, ObjectContext, MemberAccessContext,
     ProgramContext, ReturnStmtContext, StatementContext, StatementExprContext, VarDeclContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
@@ -11,7 +11,7 @@ import {
     BlockNode, CallNode, ClassDeclNode,
     ConstantNode, DeclArgNode, DeclNode,
     ExprNode,
-    FuncDeclNode, InitListNode,
+    FuncDeclNode, InitListNode, MemberAccessNode,
     ObjectNode,
     ProgramNode, ReturnNode,
     SemNode,
@@ -235,6 +235,12 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             }
         }
         return new CallNode(value, params);
+    }
+
+    visitMemberAccess = (ctx: MemberAccessContext) => {
+        const left: ExprNode = this.visit(ctx._left);
+        const right: string = ctx._right.getText();
+        return new MemberAccessNode(left, right);
     }
 
     visitInitList = (ctx: InitListContext) => {

@@ -1,6 +1,6 @@
-import {TypeInfo} from "./typeInfo";
+import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import llvm from "llvm-bindings";
-import {SemClass, SemFunction, SemObject, SemVariable} from "./objects";
+import {SemClass, SemFunction, SemObject, SemValue, SemVariable} from "./objects";
 
 
 export abstract class SemBaseVisitor {
@@ -68,6 +68,10 @@ export abstract class SemBaseVisitor {
         node.body.forEach(child => {
             this.visit(child);
         });
+    }
+
+    visitMemberAccess(node: MemberAccessNode) {
+        this.visit(node.left);
     }
 }
 
@@ -141,6 +145,7 @@ export class DeclArgNode extends SemNode {
 }
 
 export abstract class DeclNode extends ExprNode {
+    name!: string;
 }
 
 export class FuncDeclNode extends DeclNode {
@@ -206,6 +211,16 @@ export class ClassDeclNode extends DeclNode {
     accept(visitor: SemBaseVisitor) {
         return visitor.visitClassDecl(this);
     }
+
+    getMember(name: string) {
+        let obj: DeclNode | undefined;
+        this.body.forEach(child => {
+            if (child.name === name) {
+                obj = child;
+            }
+        })
+        return obj;
+    }
 }
 
 export class ObjectNode extends ExprNode {
@@ -261,5 +276,23 @@ export class InitListNode extends ExprNode {
 
     accept(visitor: SemBaseVisitor) {
         return visitor.visitInitList(this);
+    }
+}
+
+export class MemberAccessNode extends ExprNode {
+    left: ExprNode;
+    right: string;
+    obj: undefined;
+    left_type: ClassTypeInfo | undefined;
+    right_type: TypeInfo | undefined;
+
+    constructor(left: ExprNode, right: string) {
+        super();
+        this.left = left;
+        this.right = right;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitMemberAccess(this);
     }
 }

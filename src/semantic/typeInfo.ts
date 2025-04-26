@@ -1,4 +1,5 @@
 import llvm from "llvm-bindings";
+import {SemClass} from "./objects";
 
 export const PRIMITIVE_TYPES = [
     'int',
@@ -47,6 +48,7 @@ export class ClassTypeInfo extends TypeInfo {
     name: string;
     members: Array<TypeInfo>;
     llvm_type: llvm.StructType | undefined;
+    the_class: SemClass | undefined;
 
     constructor(name: string, members: Array<TypeInfo>) {
         super();

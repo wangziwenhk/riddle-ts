@@ -71,4 +71,20 @@ export class SemClass extends SemType {
         this.members = members;
         this.methods = methods;
     }
+
+    getMember(name: string): SemVariable {
+        const member = this.members.find(m => m.name === name);
+        if (!member) {
+            throw new Error(`Member '${name}' not found in class '${this.name}'`);
+        }
+        return member;
+    }
+
+    getMemberIndex(name: string) {
+        const index = this.members.findIndex(m => m.name === name);
+        if (index === -1) {
+            throw new Error(`Member '${name}' not found in class '${this.name}'`);
+        }
+        return index;
+    }
 }
