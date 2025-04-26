@@ -1,17 +1,17 @@
 import RiddleParserVisitor from '../parser/RiddleParserVisitor';
 import {
     BlockContext,
-    BooleanContext, CallExprContext, DeclArgsContext, ExpressionContext, ExpressionEndContext,
-    FloatContext, FuncDeclContext, IdContext,
+    BooleanContext, CallExprContext, ClassDeclContext, DeclArgsContext, ExpressionContext, ExpressionEndContext,
+    FloatContext, FuncDeclContext, IdContext, InitListContext,
     IntegerContext, ObjectContext,
     ProgramContext, ReturnStmtContext, StatementContext, StatementExprContext, VarDeclContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
-    BlockNode, CallNode,
-    ConstantNode, DeclArgNode,
+    BlockNode, CallNode, ClassDeclNode,
+    ConstantNode, DeclArgNode, DeclNode,
     ExprNode,
-    FuncDeclNode,
+    FuncDeclNode, InitListNode,
     ObjectNode,
     ProgramNode, ReturnNode,
     SemNode,
@@ -235,5 +235,31 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             }
         }
         return new CallNode(value, params);
+    }
+
+    visitInitList = (ctx: InitListContext) => {
+        let children: ExprNode[] = [];
+        ctx.children?.forEach(child => {
+            const result = this.visit(child);
+            if (result instanceof ExprNode) {
+                children.push(result);
+            }
+        })
+        return new InitListNode(children);
+    }
+
+    visitClassDecl = (ctx: ClassDeclContext) => {
+        const name = ctx._name.getText();
+        //todo 添加类继承
+        const members: DeclNode[] = [];
+        const body = this.visitBlock(ctx._body);
+        body.children.forEach(child => {
+            if (child instanceof DeclNode) {
+                members.push(child);
+            } else {
+                this.log("Result is not a DeclNode", this.getLineNumber(ctx));
+            }
+        })
+        return new ClassDeclNode(name, members);
     }
 }

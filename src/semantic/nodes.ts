@@ -1,6 +1,7 @@
 import {TypeInfo} from "./typeInfo";
 import llvm from "llvm-bindings";
-import {SemFunction, SemObject, SemVariable} from "./objects";
+import {SemClass, SemFunction, SemObject, SemVariable} from "./objects";
+
 
 export abstract class SemBaseVisitor {
     visit(node: SemNode) {
@@ -55,6 +56,18 @@ export abstract class SemBaseVisitor {
         node.params.forEach(param => {
             this.visit(param);
         })
+    }
+
+    visitInitList(node: InitListNode) {
+        node.children.forEach(child => {
+            this.visit(child);
+        })
+    }
+
+    visitClassDecl(node: ClassDeclNode) {
+        node.body.forEach(child => {
+            this.visit(child);
+        });
     }
 }
 
@@ -127,7 +140,10 @@ export class DeclArgNode extends SemNode {
     }
 }
 
-export class FuncDeclNode extends ExprNode {
+export abstract class DeclNode extends ExprNode {
+}
+
+export class FuncDeclNode extends DeclNode {
     name: string;
     body: BlockNode;
     return_type: ExprNode;
@@ -158,7 +174,7 @@ export class AllocNode {
     }
 }
 
-export class VarDeclNode extends ExprNode {
+export class VarDeclNode extends DeclNode {
     name: string;
     type: ExprNode | undefined;
     value: ExprNode | undefined;
@@ -173,6 +189,22 @@ export class VarDeclNode extends ExprNode {
 
     accept(visitor: SemBaseVisitor) {
         return visitor.visitVarDecl(this)
+    }
+}
+
+export class ClassDeclNode extends DeclNode {
+    name: string;
+    body: Array<DeclNode>;
+    obj: SemClass | undefined;
+
+    constructor(name: string, body: DeclNode[] = []) {
+        super();
+        this.name = name;
+        this.body = body;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitClassDecl(this);
     }
 }
 
@@ -216,5 +248,18 @@ export class CallNode extends ExprNode {
 
     accept(visitor: SemBaseVisitor) {
         return visitor.visitCall(this);
+    }
+}
+
+export class InitListNode extends ExprNode {
+    children: ExprNode[];
+
+    constructor(children: ExprNode[] = []) {
+        super();
+        this.children = children;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitInitList(this);
     }
 }

@@ -7,16 +7,18 @@ import { ProgramContext } from "./RiddleParser.js";
 import { ExpressionEndContext } from "./RiddleParser.js";
 import { BooleanContext } from "./RiddleParser.js";
 import { IntegerContext } from "./RiddleParser.js";
-import { FloatContext } from "./RiddleParser.js";
 import { StatementExprContext } from "./RiddleParser.js";
+import { FloatContext } from "./RiddleParser.js";
 import { CallExprContext } from "./RiddleParser.js";
 import { ObjectContext } from "./RiddleParser.js";
 import { StatementContext } from "./RiddleParser.js";
 import { VarDeclContext } from "./RiddleParser.js";
 import { BlockContext } from "./RiddleParser.js";
+import { InitListContext } from "./RiddleParser.js";
 import { DeclArgsContext } from "./RiddleParser.js";
 import { FuncDeclContext } from "./RiddleParser.js";
 import { ReturnStmtContext } from "./RiddleParser.js";
+import { ClassDeclContext } from "./RiddleParser.js";
 import { IdContext } from "./RiddleParser.js";
 
 
@@ -55,19 +57,19 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitInteger?: (ctx: IntegerContext) => Result;
 	/**
-	 * Visit a parse tree produced by the `float`
-	 * labeled alternative in `RiddleParser.expression`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitFloat?: (ctx: FloatContext) => Result;
-	/**
 	 * Visit a parse tree produced by the `statementExpr`
 	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitStatementExpr?: (ctx: StatementExprContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `float`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitFloat?: (ctx: FloatContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `callExpr`
 	 * labeled alternative in `RiddleParser.expression`.
@@ -101,6 +103,12 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 */
 	visitBlock?: (ctx: BlockContext) => Result;
 	/**
+	 * Visit a parse tree produced by `RiddleParser.initList`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitInitList?: (ctx: InitListContext) => Result;
+	/**
 	 * Visit a parse tree produced by `RiddleParser.declArgs`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -118,6 +126,12 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitReturnStmt?: (ctx: ReturnStmtContext) => Result;
+	/**
+	 * Visit a parse tree produced by `RiddleParser.classDecl`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitClassDecl?: (ctx: ClassDeclContext) => Result;
 	/**
 	 * Visit a parse tree produced by `RiddleParser.id`.
 	 * @param ctx the parse tree

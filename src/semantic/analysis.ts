@@ -1,15 +1,15 @@
 import {
-    BlockNode, CallNode,
+    BlockNode, CallNode, ClassDeclNode,
     ConstantNode, DeclArgNode, ExprNode,
-    FuncDeclNode,
+    FuncDeclNode, InitListNode,
     ObjectNode,
     ProgramNode, ReturnNode,
     SemBaseVisitor,
     SemNode,
     VarDeclNode
 } from "./nodes";
-import {PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
-import {SemFunction, SemObject, SemType, SemValue, SemVariable} from "./objects";
+import {ClassTypeInfo, PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
+import {SemClass, SemFunction, SemObject, SemType, SemValue, SemVariable} from "./objects";
 
 const voidTy: PrimitiveTypeInfo = new PrimitiveTypeInfo("void");
 
@@ -51,6 +51,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             }
             t.pop();
         })
+        this.definedTable.pop();
     }
 
     addGlobalObject(name: string, obj: SemObject) {
@@ -188,7 +189,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         const obj = new SemVariable(node.name, type, value);
         node.obj = obj;
         this.addGlobalObject(node.name, obj);
-        return nil;
+        return obj;
     }
 
     private checkType(t1: TypeInfo, t2: TypeInfo) {
@@ -218,7 +219,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
                 throw new Error(`Result Must be a Value`);
             }
             return_type = result.type;
-        }else{
+        } else {
         }
         if (!this.checkType(return_type, func_return_type)) {
             throw new Error(`Types '${return_type.name}' and '${func_return_type.name}' do not match`);
@@ -239,5 +240,44 @@ export class SemanticAnalysis extends SemBaseVisitor {
         })
         node.obj = value;
         return new SemValue(node.obj, node.obj.return_type);
+    }
+
+    visitInitList(node: InitListNode) {
+        return super.visitInitList(node);
+    }
+
+
+    visitClassDecl(node: ClassDeclNode) {
+        let members = new Array<SemVariable>();
+        let methods = new Array<SemFunction>();
+        let class_type = new ClassTypeInfo(node.name, []);
+        let obj = new SemClass(node.name, members, methods, class_type);
+        node.obj = obj;
+        this.addGlobalObject(node.name, obj);
+
+        this.raiseScope();
+        node.body.forEach(child => {
+            if (child instanceof VarDeclNode) {
+                const result = this.visit(child);
+                if (!(result instanceof SemVariable)) {
+                    throw new Error("result not a Variable");
+                }
+                members.push(result);
+            } else if (child instanceof FuncDeclNode) {
+                const result = this.visit(child);
+                if (!(result instanceof SemFunction)) {
+                    throw new Error("result not a Function");
+                }
+                methods.push(result);
+                result.theClass = obj;
+            }
+        });
+
+        members.forEach(variable => {
+            class_type.members.push(variable.type);
+        })
+
+        this.exitScope();
+        return obj;
     }
 }

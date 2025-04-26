@@ -1,4 +1,4 @@
-import {TypeInfo} from "./typeInfo";
+import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import {AllocNode} from "./nodes";
 import llvm from "llvm-bindings";
 
@@ -49,11 +49,26 @@ export class SemFunction extends SemObject {
     param: SemVariable[];
     return_type: TypeInfo;
     llvm_func: llvm.Function | undefined;
+    theClass: SemClass | undefined;
 
     constructor(name: string, return_type: TypeInfo, param: SemVariable[] = []) {
         super();
         this.name = name;
         this.return_type = return_type;
         this.param = param;
+    }
+}
+
+export class SemClass extends SemType {
+    name: string;
+    members: Array<SemVariable>;
+    methods: Array<SemFunction>;
+    type!: ClassTypeInfo;
+
+    constructor(name: string, members: Array<SemVariable>, methods: Array<SemFunction>, type: ClassTypeInfo) {
+        super(type);
+        this.name = name;
+        this.members = members;
+        this.methods = methods;
     }
 }

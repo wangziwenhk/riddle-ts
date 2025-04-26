@@ -1,3 +1,5 @@
+import llvm from "llvm-bindings";
+
 export const PRIMITIVE_TYPES = [
     'int',
     'short',
@@ -14,7 +16,9 @@ export type PrimitiveType = typeof PRIMITIVE_TYPES[number];
 export abstract class TypeInfo {
     name!: string;
 
-    abstract isFloatPointTy(): boolean;
+    isFloatPointTy(): boolean {
+        return false;
+    }
 }
 
 export class PrimitiveTypeInfo extends TypeInfo {
@@ -30,37 +34,39 @@ export class PrimitiveTypeInfo extends TypeInfo {
     }
 }
 
-export class FunctionTypeInfo extends TypeInfo {
-    returnType: TypeInfo;
-    parameters: TypeInfo[];
+export class CustomTypeInfo extends TypeInfo {
+    name: string;
 
-    constructor(returnType: TypeInfo, parameters: TypeInfo[] = []) {
+    constructor(name: string) {
         super();
-        this.returnType = returnType;
-        this.parameters = parameters;
-        this.name = "@";
-    }
-
-    isFloatPointTy(): boolean {
-        return false;
+        this.name = name;
     }
 }
 
 export class ClassTypeInfo extends TypeInfo {
-    properties: Map<string, TypeInfo>;
-    methods: Map<string, FunctionTypeInfo>;
-    parent?: ClassTypeInfo;
+    name: string;
+    members: Array<TypeInfo>;
+    llvm_type: llvm.StructType | undefined;
 
-    constructor(name: string, properties: Map<string, FunctionTypeInfo> = new Map(),
-                methods: Map<string, FunctionTypeInfo> = new Map(), parent?: ClassTypeInfo) {
+    constructor(name: string, members: Array<TypeInfo>) {
         super();
         this.name = name;
-        this.properties = properties;
-        this.methods = methods;
-        this.parent = parent;
+        this.members = members;
     }
+}
 
-    isFloatPointTy(): boolean {
-        return false;
+/**
+ * 模板参数表示
+ */
+export class TemplateParamInfo {
+    /**
+     * 模板参数名
+     */
+    name: string;
+    constraints?: TypeInfo;
+
+    constructor(name: string, constraints?: TypeInfo) {
+        this.name = name;
+        this.constraints = constraints;
     }
 }

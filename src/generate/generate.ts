@@ -1,14 +1,19 @@
 import {
+    BlockNode,
     CallNode,
+    ClassDeclNode,
     ConstantNode,
-    FuncDeclNode, ObjectNode,
-    ProgramNode, ReturnNode,
-    SemBaseVisitor, VarDeclNode
+    FuncDeclNode,
+    ObjectNode,
+    ProgramNode,
+    ReturnNode,
+    SemBaseVisitor,
+    VarDeclNode
 } from '../semantic/nodes';
 import llvm from 'llvm-bindings';
 import {Config} from './config';
 import * as semType from '../semantic/typeInfo';
-import {PrimitiveTypeInfo} from "../semantic/typeInfo";
+import {PrimitiveTypeInfo} from '../semantic/typeInfo';
 import {SemFunction, SemVariable} from "../semantic/objects";
 
 export class Generate extends SemBaseVisitor {
@@ -36,6 +41,8 @@ export class Generate extends SemBaseVisitor {
                 throw new Error(`Unknown primitive type ${type.name}`);
             }
             return result;
+        } else if (type instanceof semType.ClassTypeInfo) {
+            return type.llvm_type!;
         }
         return this.builder.getVoidTy();
     }
@@ -93,8 +100,10 @@ export class Generate extends SemBaseVisitor {
             param_type.push(this.parseType(param.obj?.type!));
         })
 
+        const true_name = (node.obj?.theClass?.name ? node.obj?.theClass?.name + "." : "") + node.name;
+
         const func_type = llvm.FunctionType.get(return_type, param_type, false)
-        const func = llvm.Function.Create(func_type, llvm.GlobalValue.LinkageTypes.ExternalLinkage, node.name, this.module)
+        const func = llvm.Function.Create(func_type, llvm.GlobalValue.LinkageTypes.ExternalLinkage, true_name, this.module)
         node.obj!.llvm_func = func;
 
         // 处理参数的内存
@@ -162,5 +171,28 @@ export class Generate extends SemBaseVisitor {
             params.push(this.visit(param))
         })
         return this.builder.CreateCall(value.llvm_func!, params);
+    }
+
+    visitBlock(node: BlockNode) {
+        let result: llvm.Value = llvm.Constant.getNullValue(this.builder.getInt32Ty());
+        node.children.forEach((child) => {
+            result = this.visit(child);
+        })
+        return result;
+    }
+
+    visitClassDecl(node: ClassDeclNode) {
+        let member_types = new Array<llvm.Type>();
+        node.obj?.type.members.forEach(type => {
+            member_types.push(this.parseType(type));
+        })
+        node.body.forEach(child => {
+            if (child instanceof FuncDeclNode) {
+                this.visit(child);
+            }
+        })
+        const type = llvm.StructType.create(this.context, member_types, node.name);
+        node.obj!.type.llvm_type = type;
+        return type;
     }
 }

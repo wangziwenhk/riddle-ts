@@ -18,22 +18,25 @@ program
     ;
 
 expressionEnd
-    : expression Endl?
+    : expression Semi Endl?
     | Endl
+    | Semi
     ;
 
 expression
-    : Decimal                                                                       #integer
+    : statement                                                                     #statementExpr
+    | Decimal                                                                       #integer
     | Float                                                                         #float
     | (True | False)                                                                #boolean
-    | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket   #callExpr
+    | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket     #callExpr
     | id                                                                            #object
-    | statement                                                                     #statementExpr
     ;
 
 statement
     : varDecl
     | funcDecl
+    | classDecl
+    | initList
     | block
     | returnStmt
     ;
@@ -46,6 +49,8 @@ varDecl
 
 block: LeftCurly expressionEnd* RightCurly;
 
+initList: LeftCurly (expression (Comma expression)*)? RightCurly ;
+
 declArgs
     : (id Colon expression Comma)* (id Colon expression)?
     ;
@@ -56,6 +61,10 @@ funcDecl
 
 returnStmt
     : Return (result=expression)?
+    ;
+
+classDecl
+    : Class name=id body=block
     ;
 
 id: Identifier;
