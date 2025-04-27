@@ -13,7 +13,7 @@ import {
 import llvm from 'llvm-bindings';
 import {Config} from './config';
 import * as semType from '../semantic/typeInfo';
-import {ClassTypeInfo, PrimitiveTypeInfo} from '../semantic/typeInfo';
+import {PrimitiveTypeInfo} from '../semantic/typeInfo';
 import {SemFunction, SemVariable} from "../semantic/objects";
 
 export class Generate extends SemBaseVisitor {
@@ -58,33 +58,20 @@ export class Generate extends SemBaseVisitor {
 
     visitConstant(node: ConstantNode) {
         if (node.type instanceof PrimitiveTypeInfo) {
-            const check = (typename: string) => {
-                if (typeof node.value !== typename) {
-                    throw new Error('node.value Error');
-                }
-            }
-
             switch (node.type.name) {
                 case 'int':
-                    check('number')
                     return this.builder.getInt32(node.value);
                 case 'long':
-                    check('number')
                     return this.builder.getInt64(node.value);
                 case 'short':
-                    check('number')
                     return this.builder.getInt16(node.value);
                 case 'char':
-                    check('number')
                     return this.builder.getInt8(node.value);
                 case 'bool':
-                    check('boolean')
                     return this.builder.getInt1(node.value);
                 case 'float':
-                    check('number')
                     return llvm.ConstantFP.get(this.builder.getFloatTy(), node.value);
                 case 'double':
-                    check('number')
                     return llvm.ConstantFP.get(this.builder.getDoubleTy(), node.value);
             }
         }
@@ -96,9 +83,11 @@ export class Generate extends SemBaseVisitor {
 
         let param_type: llvm.Type[] = []
         // 处理函数参数类型来生成 func_type
-        node.params.forEach((param) => {
-            param_type.push(this.parseType(param.obj?.type!));
-        })
+        if (node.obj?.param) {
+            node.obj.param.forEach((param) => {
+                param_type.push(this.parseType(param.type));
+            });
+        }
 
         const true_name = (node.obj?.theClass?.name ? node.obj?.theClass?.name + "." : "") + node.name;
 
@@ -136,7 +125,7 @@ export class Generate extends SemBaseVisitor {
         }
         if (node.value && node.obj!.alloc.alloc) {
             const value = this.visit(node.value);
-            this.builder.CreateStore(node.obj!.alloc.alloc, value);
+            this.builder.CreateStore(value, node.obj!.alloc.alloc);
         }
     }
 
@@ -186,22 +175,26 @@ export class Generate extends SemBaseVisitor {
         node.obj?.type.members.forEach(type => {
             member_types.push(this.parseType(type));
         })
+        const type = llvm.StructType.create(this.context, member_types, node.name);
+        node.obj!.type.llvm_type = type;
         node.body.forEach(child => {
             if (child instanceof FuncDeclNode) {
                 this.visit(child);
             }
         })
-        const type = llvm.StructType.create(this.context, member_types, node.name);
-        node.obj!.type.llvm_type = type;
         return type;
     }
 
     visitMemberAccess(node: MemberAccessNode) {
         const lhs: llvm.Value = this.visit(node.left);
-        if(!lhs.getType().isStructTy() && !lhs.getType().getPointerElementType().isStructTy()){
+        const member = node.left_type!.the_class!.getMember(node.right);
+        if (member instanceof SemFunction) {
+            return member;
+        }
+        if (!lhs.getType().isStructTy() && !lhs.getType().getPointerElementType().isStructTy()) {
             throw new Error("Result not a Struct Value");
         }
         const index = node.left_type!.the_class!.getMemberIndex(node.right);
-        return this.builder.CreateGEP(lhs.getType(),lhs,this.builder.getInt32(index));
+        return this.builder.CreateGEP(lhs.getType().getPointerElementType(), lhs, this.builder.getInt32(index));
     }
 }

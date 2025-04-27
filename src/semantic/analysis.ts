@@ -188,7 +188,9 @@ export class SemanticAnalysis extends SemBaseVisitor {
         }
         const obj = new SemVariable(node.name, type, value);
         node.obj = obj;
-        this.addGlobalObject(node.name, obj);
+        if (node.isGlobal) {
+            this.addGlobalObject(node.name, obj);
+        }
         return obj;
     }
 
@@ -232,6 +234,11 @@ export class SemanticAnalysis extends SemBaseVisitor {
         if (!(value instanceof SemFunction)) {
             throw new Error("Object must be a Function");
         }
+        // 修改以支持 this 参数
+        if (value.theClass) {
+            const theThis = (<MemberAccessNode>node.value).left;
+            node.params.unshift(theThis);
+        }
         node.params.forEach(param => {
             const result = this.visit(param);
             if (!(result instanceof SemValue)) {
@@ -239,7 +246,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             }
         })
         node.obj = value;
-        return new SemValue(node.obj, node.obj.return_type);
+        return new SemVariable("", node.obj.return_type, new SemValue(value, node.obj.return_type));
     }
 
     visitInitList(node: InitListNode) {
@@ -259,6 +266,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         this.raiseScope();
         node.body.forEach(child => {
             if (child instanceof VarDeclNode) {
+                child.isGlobal = false;
                 const result = this.visit(child);
                 if (!(result instanceof SemVariable)) {
                     throw new Error("result not a Variable");
@@ -271,6 +279,8 @@ export class SemanticAnalysis extends SemBaseVisitor {
                 }
                 methods.push(result);
                 result.theClass = obj;
+                // 为函数添加 this
+                result.param.unshift(new SemVariable("this", class_type));
             }
         });
 
@@ -295,8 +305,13 @@ export class SemanticAnalysis extends SemBaseVisitor {
             }
             const obj = the_class.getMember(node.right);
             node.left_type = type;
-            node.right_type = obj.type;
-            return new SemValue(obj, obj.type);
+            if (obj instanceof SemVariable) {
+                node.right_type = obj.type;
+                return new SemVariable("", node.right_type, obj);
+            } else {
+                node.right_type = obj.return_type;
+                return obj;
+            }
         }
         //todo 添加更多方法解析
         return nil;

@@ -1,6 +1,6 @@
 import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import llvm from "llvm-bindings";
-import {SemClass, SemFunction, SemObject, SemValue, SemVariable} from "./objects";
+import {SemClass, SemFunction, SemObject, SemVariable} from "./objects";
 
 
 export abstract class SemBaseVisitor {
@@ -184,6 +184,7 @@ export class VarDeclNode extends DeclNode {
     type: ExprNode | undefined;
     value: ExprNode | undefined;
     obj: SemVariable | undefined;
+    isGlobal: boolean = true;
 
     constructor(name: string, type: ExprNode | undefined, value: ExprNode | undefined) {
         super();
@@ -210,16 +211,6 @@ export class ClassDeclNode extends DeclNode {
 
     accept(visitor: SemBaseVisitor) {
         return visitor.visitClassDecl(this);
-    }
-
-    getMember(name: string) {
-        let obj: DeclNode | undefined;
-        this.body.forEach(child => {
-            if (child.name === name) {
-                obj = child;
-            }
-        })
-        return obj;
     }
 }
 

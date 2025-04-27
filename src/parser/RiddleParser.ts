@@ -417,13 +417,13 @@ export default class RiddleParser extends Parser {
 						(localctx as MemberAccessContext)._left = _prevctx;
 						this.pushNewRecursionContext(localctx, _startState, RiddleParser.RULE_expression);
 						this.state = 49;
-						if (!(this.precpred(this._ctx, 1))) {
-							throw this.createFailedPredicateException("this.precpred(this._ctx, 1)");
+						if (!(this.precpred(this._ctx, 7))) {
+							throw this.createFailedPredicateException("this.precpred(this._ctx, 7)");
 						}
 						this.state = 50;
 						this.match(RiddleParser.Dot);
 						this.state = 51;
-						(localctx as MemberAccessContext)._right = this.expression(2);
+						(localctx as MemberAccessContext)._right = this.expression(8);
 						}
 						break;
 					case 2:
@@ -432,8 +432,8 @@ export default class RiddleParser extends Parser {
 						(localctx as CallExprContext)._obj = _prevctx;
 						this.pushNewRecursionContext(localctx, _startState, RiddleParser.RULE_expression);
 						this.state = 52;
-						if (!(this.precpred(this._ctx, 3))) {
-							throw this.createFailedPredicateException("this.precpred(this._ctx, 3)");
+						if (!(this.precpred(this._ctx, 2))) {
+							throw this.createFailedPredicateException("this.precpred(this._ctx, 2)");
 						}
 						this.state = 53;
 						this.match(RiddleParser.LeftBracket);
@@ -930,9 +930,9 @@ export default class RiddleParser extends Parser {
 	private expression_sempred(localctx: ExpressionContext, predIndex: number): boolean {
 		switch (predIndex) {
 		case 0:
-			return this.precpred(this._ctx, 1);
+			return this.precpred(this._ctx, 7);
 		case 1:
-			return this.precpred(this._ctx, 3);
+			return this.precpred(this._ctx, 2);
 		}
 		return true;
 	}
@@ -957,8 +957,8 @@ export default class RiddleParser extends Parser {
 	40,1,0,0,0,37,40,5,56,0,0,38,40,5,36,0,0,39,32,1,0,0,0,39,37,1,0,0,0,39,
 	38,1,0,0,0,40,3,1,0,0,0,41,42,6,2,-1,0,42,48,3,6,3,0,43,48,5,59,0,0,44,
 	48,5,62,0,0,45,48,7,0,0,0,46,48,3,22,11,0,47,41,1,0,0,0,47,43,1,0,0,0,47,
-	44,1,0,0,0,47,45,1,0,0,0,47,46,1,0,0,0,48,67,1,0,0,0,49,50,10,1,0,0,50,
-	51,5,53,0,0,51,66,3,4,2,2,52,53,10,3,0,0,53,62,5,29,0,0,54,59,3,4,2,0,55,
+	44,1,0,0,0,47,45,1,0,0,0,47,46,1,0,0,0,48,67,1,0,0,0,49,50,10,7,0,0,50,
+	51,5,53,0,0,51,66,3,4,2,8,52,53,10,2,0,0,53,62,5,29,0,0,54,59,3,4,2,0,55,
 	56,5,37,0,0,56,58,3,4,2,0,57,55,1,0,0,0,58,61,1,0,0,0,59,57,1,0,0,0,59,
 	60,1,0,0,0,60,63,1,0,0,0,61,59,1,0,0,0,62,54,1,0,0,0,62,63,1,0,0,0,63,64,
 	1,0,0,0,64,66,5,30,0,0,65,49,1,0,0,0,65,52,1,0,0,0,66,69,1,0,0,0,67,65,

@@ -24,13 +24,13 @@ expressionEnd
     ;
 
 expression
-    : statement                                                                     #statementExpr
+    : left=expression Dot right=expression                                          #memberAccess
+    | statement                                                                     #statementExpr
     | Decimal                                                                       #integer
     | Float                                                                         #float
     | (True | False)                                                                #boolean
     | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket     #callExpr
     | id                                                                            #object
-    | left=expression Dot right=expression                                          #memberAccess
     ;
 
 statement
