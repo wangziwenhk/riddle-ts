@@ -106,6 +106,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         const type = type_obj.type;
         node.obj = new SemVariable(node.name, type);
         this.addGlobalObject(node.name, node.obj);
+        return node.obj;
     }
 
     /**
@@ -141,7 +142,8 @@ export class SemanticAnalysis extends SemBaseVisitor {
         this.raiseScope();
         // 处理函数参数
         node.params.forEach(param => {
-            this.visit(param);
+            const result = this.visitDeclArg(param);
+            obj.param.push(result)
         })
 
         // 处理函数体
@@ -273,14 +275,14 @@ export class SemanticAnalysis extends SemBaseVisitor {
                 }
                 members.push(result);
             } else if (child instanceof FuncDeclNode) {
+                // 为函数添加 this
+                child.params.unshift(new DeclArgNode("this", new ObjectNode(node.name)));
                 const result = this.visit(child);
                 if (!(result instanceof SemFunction)) {
                     throw new Error("result not a Function");
                 }
                 methods.push(result);
                 result.theClass = obj;
-                // 为函数添加 this
-                result.param.unshift(new SemVariable("this", class_type));
             }
         });
 
