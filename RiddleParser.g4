@@ -52,6 +52,11 @@ statement
     | initList
     | block
     | returnStmt
+    | packStmt
+    ;
+
+packStmt
+    : Package id (Dot id)*
     ;
 
 varDecl

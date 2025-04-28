@@ -19,7 +19,7 @@ import {SemFunction, SemVariable} from "../semantic/objects";
 
 export class Generate extends SemBaseVisitor {
     context = Config.globalContext
-    module = new llvm.Module('main', Config.globalContext)
+    module = new llvm.Module('', Config.globalContext)
     builder = new llvm.IRBuilder(Config.globalContext)
 
     primitiveTypeMap = new Map<string, llvm.Type>();
@@ -48,13 +48,14 @@ export class Generate extends SemBaseVisitor {
         return this.builder.getVoidTy();
     }
 
-    constructor() {
+    constructor(name: string) {
         super();
         this.registerPrimitiveType();
+        this.module.setModuleIdentifier(name);
     }
 
     visitProgram(node: ProgramNode) {
-        node.children.forEach(child=>{
+        node.children.forEach(child => {
             this.visit(child);
         })
     }

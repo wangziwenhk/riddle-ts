@@ -27,6 +27,7 @@ import { CallExprContext } from "./RiddleParser.js";
 import { ObjectContext } from "./RiddleParser.js";
 import { ShiftOpContext } from "./RiddleParser.js";
 import { StatementContext } from "./RiddleParser.js";
+import { PackStmtContext } from "./RiddleParser.js";
 import { VarDeclContext } from "./RiddleParser.js";
 import { BlockContext } from "./RiddleParser.js";
 import { InitListContext } from "./RiddleParser.js";
@@ -324,6 +325,16 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitStatement?: (ctx: StatementContext) => void;
+	/**
+	 * Enter a parse tree produced by `RiddleParser.packStmt`.
+	 * @param ctx the parse tree
+	 */
+	enterPackStmt?: (ctx: PackStmtContext) => void;
+	/**
+	 * Exit a parse tree produced by `RiddleParser.packStmt`.
+	 * @param ctx the parse tree
+	 */
+	exitPackStmt?: (ctx: PackStmtContext) => void;
 	/**
 	 * Enter a parse tree produced by `RiddleParser.varDecl`.
 	 * @param ctx the parse tree

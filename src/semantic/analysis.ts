@@ -124,6 +124,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         if (node instanceof VarDeclNode) {
             if (node.obj) {
                 func.alloc_list.push(node.obj.alloc)
+                return;
             }
             throw new Error("Unrecognized type");
         }
