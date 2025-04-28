@@ -3,7 +3,8 @@ import {
     CallNode,
     ClassDeclNode,
     ConstantNode,
-    FuncDeclNode, MemberAccessNode,
+    FuncDeclNode,
+    MemberAccessNode,
     ObjectNode,
     ProgramNode,
     ReturnNode,
@@ -53,7 +54,9 @@ export class Generate extends SemBaseVisitor {
     }
 
     visitProgram(node: ProgramNode) {
-        super.visitProgram(node);
+        node.children.forEach(child=>{
+            this.visit(child);
+        })
     }
 
     visitConstant(node: ConstantNode) {

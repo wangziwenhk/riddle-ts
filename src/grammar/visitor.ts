@@ -1,13 +1,37 @@
 import RiddleParserVisitor from '../parser/RiddleParserVisitor';
 import {
     BlockContext,
-    BooleanContext, CallExprContext, ClassDeclContext, DeclArgsContext, ExpressionContext, ExpressionEndContext,
-    FloatContext, FuncDeclContext, IdContext, InitListContext,
-    IntegerContext, ObjectContext, MemberAccessContext,
-    ProgramContext, ReturnStmtContext, StatementContext, StatementExprContext, VarDeclContext,
+    BooleanContext,
+    CallExprContext,
+    ClassDeclContext,
+    DeclArgsContext,
+    ExpressionContext,
+    ExpressionEndContext,
+    FloatContext,
+    FuncDeclContext,
+    IdContext,
+    InitListContext,
+    IntegerContext,
+    ObjectContext,
+    MemberAccessContext,
+    ProgramContext,
+    ReturnStmtContext,
+    StatementContext,
+    StatementExprContext,
+    VarDeclContext,
+    BracketExprContext,
+    AddOpContext,
+    MulOpContext,
+    EqOpContext,
+    BitOrContext,
+    BitAndContext,
+    LogicOrContext,
+    LogicAndContext,
+    BitXorContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
+    BinaryOpNode,
     BlockNode, CallNode, ClassDeclNode,
     ConstantNode, DeclArgNode, DeclNode,
     ExprNode,
@@ -268,4 +292,23 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
         })
         return new ClassDeclNode(name, members);
     }
+
+    visitBracketExpr = (ctx: BracketExprContext) => {
+        return this.visit(ctx._value);
+    }
+
+    visitBinaryOp = (ctx: { _left: ExpressionContext; _right: ExpressionContext }, op: string): BinaryOpNode => {
+        const left: ExprNode = this.visit(ctx._left);
+        const right: ExprNode = this.visit(ctx._right);
+        return new BinaryOpNode(op, left, right);
+    };
+
+    visitAddOp = (ctx: AddOpContext) => this.visitBinaryOp(ctx, ctx._op.text);
+    visitMulOp = (ctx: MulOpContext) => this.visitBinaryOp(ctx, ctx._op.text);
+    visitEqOp = (ctx: EqOpContext) => this.visitBinaryOp(ctx, ctx._op.text);
+    visitBitOr = (ctx: BitOrContext) => this.visitBinaryOp(ctx, '|');
+    visitBitAnd = (ctx: BitAndContext) => this.visitBinaryOp(ctx, '&');
+    visitLogicOr = (ctx: LogicOrContext) => this.visitBinaryOp(ctx, '||');
+    visitLogicAnd = (ctx: LogicAndContext) => this.visitBinaryOp(ctx, '&&');
+    visitBitXor = (ctx: BitXorContext) => this.visitBinaryOp(ctx, '^');
 }

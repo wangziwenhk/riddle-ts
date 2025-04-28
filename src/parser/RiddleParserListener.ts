@@ -6,12 +6,26 @@ import {ParseTreeListener} from "antlr4";
 import { ProgramContext } from "./RiddleParser.js";
 import { ExpressionEndContext } from "./RiddleParser.js";
 import { MemberAccessContext } from "./RiddleParser.js";
-import { BooleanContext } from "./RiddleParser.js";
+import { EqOpContext } from "./RiddleParser.js";
+import { BracketExprContext } from "./RiddleParser.js";
+import { BitOrContext } from "./RiddleParser.js";
+import { LogicOrContext } from "./RiddleParser.js";
+import { AddOpContext } from "./RiddleParser.js";
+import { CompoundAssignOpContext } from "./RiddleParser.js";
+import { UnaryOpContext } from "./RiddleParser.js";
 import { IntegerContext } from "./RiddleParser.js";
-import { StatementExprContext } from "./RiddleParser.js";
 import { FloatContext } from "./RiddleParser.js";
+import { RelOpContext } from "./RiddleParser.js";
+import { BitAndContext } from "./RiddleParser.js";
+import { LogicAndContext } from "./RiddleParser.js";
+import { BooleanContext } from "./RiddleParser.js";
+import { MulOpContext } from "./RiddleParser.js";
+import { BitXorContext } from "./RiddleParser.js";
+import { ScopeOpContext } from "./RiddleParser.js";
+import { StatementExprContext } from "./RiddleParser.js";
 import { CallExprContext } from "./RiddleParser.js";
 import { ObjectContext } from "./RiddleParser.js";
+import { ShiftOpContext } from "./RiddleParser.js";
 import { StatementContext } from "./RiddleParser.js";
 import { VarDeclContext } from "./RiddleParser.js";
 import { BlockContext } from "./RiddleParser.js";
@@ -61,17 +75,89 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 */
 	exitMemberAccess?: (ctx: MemberAccessContext) => void;
 	/**
-	 * Enter a parse tree produced by the `boolean`
+	 * Enter a parse tree produced by the `eqOp`
 	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	enterBoolean?: (ctx: BooleanContext) => void;
+	enterEqOp?: (ctx: EqOpContext) => void;
 	/**
-	 * Exit a parse tree produced by the `boolean`
+	 * Exit a parse tree produced by the `eqOp`
 	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
 	 */
-	exitBoolean?: (ctx: BooleanContext) => void;
+	exitEqOp?: (ctx: EqOpContext) => void;
+	/**
+	 * Enter a parse tree produced by the `bracketExpr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterBracketExpr?: (ctx: BracketExprContext) => void;
+	/**
+	 * Exit a parse tree produced by the `bracketExpr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitBracketExpr?: (ctx: BracketExprContext) => void;
+	/**
+	 * Enter a parse tree produced by the `bitOr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterBitOr?: (ctx: BitOrContext) => void;
+	/**
+	 * Exit a parse tree produced by the `bitOr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitBitOr?: (ctx: BitOrContext) => void;
+	/**
+	 * Enter a parse tree produced by the `logicOr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterLogicOr?: (ctx: LogicOrContext) => void;
+	/**
+	 * Exit a parse tree produced by the `logicOr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitLogicOr?: (ctx: LogicOrContext) => void;
+	/**
+	 * Enter a parse tree produced by the `addOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterAddOp?: (ctx: AddOpContext) => void;
+	/**
+	 * Exit a parse tree produced by the `addOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitAddOp?: (ctx: AddOpContext) => void;
+	/**
+	 * Enter a parse tree produced by the `compoundAssignOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterCompoundAssignOp?: (ctx: CompoundAssignOpContext) => void;
+	/**
+	 * Exit a parse tree produced by the `compoundAssignOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitCompoundAssignOp?: (ctx: CompoundAssignOpContext) => void;
+	/**
+	 * Enter a parse tree produced by the `unaryOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterUnaryOp?: (ctx: UnaryOpContext) => void;
+	/**
+	 * Exit a parse tree produced by the `unaryOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitUnaryOp?: (ctx: UnaryOpContext) => void;
 	/**
 	 * Enter a parse tree produced by the `integer`
 	 * labeled alternative in `RiddleParser.expression`.
@@ -85,18 +171,6 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 */
 	exitInteger?: (ctx: IntegerContext) => void;
 	/**
-	 * Enter a parse tree produced by the `statementExpr`
-	 * labeled alternative in `RiddleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	enterStatementExpr?: (ctx: StatementExprContext) => void;
-	/**
-	 * Exit a parse tree produced by the `statementExpr`
-	 * labeled alternative in `RiddleParser.expression`.
-	 * @param ctx the parse tree
-	 */
-	exitStatementExpr?: (ctx: StatementExprContext) => void;
-	/**
 	 * Enter a parse tree produced by the `float`
 	 * labeled alternative in `RiddleParser.expression`.
 	 * @param ctx the parse tree
@@ -108,6 +182,102 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitFloat?: (ctx: FloatContext) => void;
+	/**
+	 * Enter a parse tree produced by the `relOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterRelOp?: (ctx: RelOpContext) => void;
+	/**
+	 * Exit a parse tree produced by the `relOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitRelOp?: (ctx: RelOpContext) => void;
+	/**
+	 * Enter a parse tree produced by the `bitAnd`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterBitAnd?: (ctx: BitAndContext) => void;
+	/**
+	 * Exit a parse tree produced by the `bitAnd`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitBitAnd?: (ctx: BitAndContext) => void;
+	/**
+	 * Enter a parse tree produced by the `logicAnd`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterLogicAnd?: (ctx: LogicAndContext) => void;
+	/**
+	 * Exit a parse tree produced by the `logicAnd`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitLogicAnd?: (ctx: LogicAndContext) => void;
+	/**
+	 * Enter a parse tree produced by the `boolean`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterBoolean?: (ctx: BooleanContext) => void;
+	/**
+	 * Exit a parse tree produced by the `boolean`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitBoolean?: (ctx: BooleanContext) => void;
+	/**
+	 * Enter a parse tree produced by the `mulOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterMulOp?: (ctx: MulOpContext) => void;
+	/**
+	 * Exit a parse tree produced by the `mulOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitMulOp?: (ctx: MulOpContext) => void;
+	/**
+	 * Enter a parse tree produced by the `bitXor`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterBitXor?: (ctx: BitXorContext) => void;
+	/**
+	 * Exit a parse tree produced by the `bitXor`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitBitXor?: (ctx: BitXorContext) => void;
+	/**
+	 * Enter a parse tree produced by the `scopeOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterScopeOp?: (ctx: ScopeOpContext) => void;
+	/**
+	 * Exit a parse tree produced by the `scopeOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitScopeOp?: (ctx: ScopeOpContext) => void;
+	/**
+	 * Enter a parse tree produced by the `statementExpr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterStatementExpr?: (ctx: StatementExprContext) => void;
+	/**
+	 * Exit a parse tree produced by the `statementExpr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitStatementExpr?: (ctx: StatementExprContext) => void;
 	/**
 	 * Enter a parse tree produced by the `callExpr`
 	 * labeled alternative in `RiddleParser.expression`.
@@ -132,6 +302,18 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitObject?: (ctx: ObjectContext) => void;
+	/**
+	 * Enter a parse tree produced by the `shiftOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterShiftOp?: (ctx: ShiftOpContext) => void;
+	/**
+	 * Exit a parse tree produced by the `shiftOp`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitShiftOp?: (ctx: ShiftOpContext) => void;
 	/**
 	 * Enter a parse tree produced by `RiddleParser.statement`.
 	 * @param ctx the parse tree

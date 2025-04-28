@@ -42,11 +42,14 @@ Colon:          ':';
 Semi:           ';';
 Comma:          ',';
 Equal:          '==';
+NotEqual:       '!=';
 Assign:         '=';
 Greater:        '>';
+GreaterEqual:   '>=';
 Less:           '<';
-LeftLeft:       '<<';
-RightRight:     '>>';
+LessEqual:      '<=';
+LeftShift:      '<<';
+RightShift:     '>>';
 Add:            '+';
 Sub:            '-';
 Star:           '*';
@@ -59,6 +62,18 @@ Xor:            '^';
 Dot:            '.';
 DoubleQuotes:   '"';
 Quotes:         '\'';
+Tilde:          '~';
+AddAssign:      '+=';
+SubAssign:      '-=';
+MulAssign:      '*=';
+DivAssign:      '/=';
+ModAssign:      '%=';
+LeftShiftAssign: '<<=';
+RightShiftAssign: '>>=';
+AndAssign:      '&=';
+OrAssign:       '|=';
+XorAssign:      '^=';
+
 
 Endl:'\n';
 //标识符

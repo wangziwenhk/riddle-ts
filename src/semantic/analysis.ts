@@ -39,11 +39,11 @@ export class SemanticAnalysis extends SemBaseVisitor {
     /**
      * 提升作用域
      */
-    raiseScope() {
+    enterScope() {
         this.definedTable.push(new Set());
     }
 
-    exitScope() {
+    leaveScope() {
         this.definedTable[this.definedTable.length - 1].forEach(v => {
             const t: Array<SemObject> | undefined = this.symbolTable.get(v);
             if (t === undefined) {
@@ -55,22 +55,23 @@ export class SemanticAnalysis extends SemBaseVisitor {
     }
 
     addGlobalObject(name: string, obj: SemObject) {
-        if (this.definedTable[this.definedTable.length - 1].has(name)) {
+        if (this.definedTable.at(-1)?.has(name)) {
             throw new Error(`Object already exists: ${name}`);
         }
         if (!this.symbolTable.has(name)) {
-            this.symbolTable.set(name, new Array<SemObject>());
+            this.symbolTable.set(name, []);
         }
-        this.symbolTable.get(name)?.push(obj)
-        this.definedTable[this.definedTable.length - 1].add(name);
+        this.symbolTable.get(name)?.push(obj);
+        this.definedTable.at(-1)?.add(name);
+
     }
 
     getGlobalObject(name: string) {
-        const result = this.symbolTable.get(name);
-        if (result === undefined) {
-            throw `Object does not exist: ${name}`;
+        const entries = this.symbolTable.get(name);
+        if (!entries || entries.length === 0) {
+            throw new Error(`Object does not exist: ${name}`);
         }
-        return result[result.length - 1];
+        return entries[entries.length - 1];
     }
 
     visit(node: SemNode): SemObject {
@@ -78,21 +79,21 @@ export class SemanticAnalysis extends SemBaseVisitor {
     }
 
     visitProgram(node: ProgramNode) {
-        this.raiseScope();
+        this.enterScope();
         this.registerPrimitiveType()
         node.children.forEach(child => {
             this.visit(child);
         })
-        this.exitScope();
+        this.leaveScope();
     }
 
     visitBlock(node: BlockNode) {
         let result: SemObject = nil;
-        this.raiseScope();
+        this.enterScope();
         node.children.forEach(child => {
             result = this.visit(child);
         })
-        this.exitScope();
+        this.leaveScope();
         node.obj = result;
         return result;
     }
@@ -123,11 +124,11 @@ export class SemanticAnalysis extends SemBaseVisitor {
         if (node instanceof VarDeclNode) {
             if (node.obj) {
                 func.alloc_list.push(node.obj.alloc)
-            } else {
-                throw new Error("Unrecognized type");
             }
+            throw new Error("Unrecognized type");
         }
     }
+
 
     visitFuncDecl(node: FuncDeclNode) {
         const return_type = this.visit(node.return_type);
@@ -139,7 +140,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
 
         this.addGlobalObject(node.name, node.obj);
 
-        this.raiseScope();
+        this.enterScope();
         // 处理函数参数
         node.params.forEach(param => {
             const result = this.visitDeclArg(param);
@@ -151,7 +152,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         this.visit(node.body);
         this.preAlloc(node.body, node);
         this.funcStack.pop();
-        this.exitScope();
+        this.leaveScope();
 
         return obj;
     }
@@ -163,39 +164,63 @@ export class SemanticAnalysis extends SemBaseVisitor {
     }
 
     visitVarDecl(node: VarDeclNode) {
-        let value: SemValue | undefined;
-        if (node.value) {
-            value = <SemValue>this.visit(node.value);
+        const semValue = node.value ? <SemValue>this.visit(node.value) : undefined;
+        const resolvedType = this.resolveType(node, semValue);
+
+        if (resolvedType instanceof PrimitiveTypeInfo && resolvedType.name === 'void') {
+            throw new Error(`void cannot be used as a variable type`);
         }
-        let type: TypeInfo;
-        // 保证类型存在
+
+        this.validateValueType(semValue, resolvedType);
+
+        const semVariable = new SemVariable(node.name, resolvedType, semValue);
+        node.obj = semVariable;
+
+        if (node.isGlobal) {
+            this.addGlobalObject(node.name, semVariable);
+        }
+
+        return semVariable;
+    }
+
+    /**
+     * 解析给定变量声明节点的类型。
+     *
+     * @param node 需要为其解析类型的变量声明节点。
+     * @param semValue 与节点关联的语义值（如果可用）。
+     * @return 变量声明节点的解析TypeInfo。
+     */
+    private resolveType(node: VarDeclNode, semValue: SemValue | undefined): TypeInfo {
         if (node.type) {
-            const result = this.visit(node.type)
+            const result = this.visit(node.type);
             if (!(result instanceof SemType)) {
                 throw new Error(`Unknown type for ${result}`);
             }
-            type = result.type;
-        } else {
-            type = value!.type;
+            return result.type;
         }
-        // 检测是否为 void 类型
-        if (type instanceof PrimitiveTypeInfo && type.name == 'void') {
-            throw new Error(`void cannot be used as a variable type`);
-        }
-        // 检测 value 类型是否和 type 匹配
-        if (value) {
-            if (!this.checkType(value?.type, type)) {
-                throw new Error(`Types '${type.name}' and '${value?.type?.name}' do not match`);
-            }
-        }
-        const obj = new SemVariable(node.name, type, value);
-        node.obj = obj;
-        if (node.isGlobal) {
-            this.addGlobalObject(node.name, obj);
-        }
-        return obj;
+        return semValue?.type ?? nil.type;
     }
 
+    /**
+     * 验证给定语义值的类型是否与解析的类型匹配。
+     *
+     * @param semValue 要验证的语义值，可能未定义。
+     * @param resolvedType 执行验证所依据的预期类型信息。
+     * @return 此方法不返回值。如果类型验证失败，则引发错误。
+     */
+    private validateValueType(semValue: SemValue | undefined, resolvedType: TypeInfo): void {
+        if (semValue && !this.checkType(semValue.type, resolvedType)) {
+            throw new Error(`Types '${resolvedType.name}' and '${semValue.type?.name}' do not match`);
+        }
+    }
+
+    /**
+     * 检查两个类型信息是否兼容。
+     *
+     * @param t1 第一个类型信息对象，用于比较的类型。
+     * @param t2 第二个类型信息对象，用于比较的类型。
+     * @return 如果两个类型兼容，则返回 true；否则返回 false。
+     */
     private checkType(t1: TypeInfo, t2: TypeInfo) {
         if (t1 === t2) {
             return true;
@@ -265,7 +290,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         class_type.the_class = obj;
         this.addGlobalObject(node.name, obj);
 
-        this.raiseScope();
+        this.enterScope();
         node.body.forEach(child => {
             if (child instanceof VarDeclNode) {
                 child.isGlobal = false;
@@ -290,7 +315,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             class_type.members.push(variable.type);
         })
 
-        this.exitScope();
+        this.leaveScope();
         return obj;
     }
 
