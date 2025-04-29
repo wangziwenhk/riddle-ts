@@ -1,5 +1,5 @@
 import {ClassTypeInfo, TypeInfo} from "./typeInfo";
-import llvm from "llvm-bindings";
+import llvm from "@wangziwenhk/llvm-bindings";
 import {SemClass, SemFunction, SemObject, SemVariable} from "./objects";
 
 
@@ -126,6 +126,23 @@ export class ProgramNode extends SemNode {
 export abstract class ExprNode extends SemNode {
     protected constructor() {
         super();
+    }
+}
+
+/**
+ * 表示一个空节点的类，继承自表达式节点类 ExprNode。
+ * 此类用于表示在语法树中不存在或无效的节点。
+ *
+ * NoneNode 类的主要目的是在语义分析或其他处理过程中充当占位符，
+ * 用于处理那些无法被解析或不应被接受的场景。
+ *
+ * 调用 accept 方法时会抛出错误，因为此类不支持访问者模式的处理逻辑。
+ */
+export class NoneNode extends ExprNode {
+    constructor() {super();}
+
+    accept(visitor: SemBaseVisitor): any {
+        throw new Error("This class cannot be accepted")
     }
 }
 

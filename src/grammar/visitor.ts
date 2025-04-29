@@ -28,6 +28,7 @@ import {
     LogicOrContext,
     LogicAndContext,
     BitXorContext,
+    UnaryOpContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
@@ -35,14 +36,31 @@ import {
     BlockNode, CallNode, ClassDeclNode,
     ConstantNode, DeclArgNode, DeclNode,
     ExprNode,
-    FuncDeclNode, InitListNode, MemberAccessNode,
+    FuncDeclNode, InitListNode, MemberAccessNode, NoneNode,
     ObjectNode,
     ProgramNode, ReturnNode,
-    SemNode,
+    SemNode, UnaryOpNode,
     VarDeclNode
 } from '../semantic/nodes';
 import {PrimitiveType, PrimitiveTypeInfo} from '../semantic/typeInfo';
 
+/**
+ * 表示一个空节点的对象，通常用于表示树形结构或链表中的空占位符。
+ * 该节点不包含任何实际数据，主要用于逻辑上的占位或作为终止标志。
+ * 在需要判断节点是否为空时，可以通过此对象进行识别。
+ */
+const noneNode = new NoneNode();
+
+/**
+ * GrammarVisitor 是一个用于遍历语法规则树的类，继承自 RiddleParserVisitor。
+ * 该类的主要功能是解析语法树节点并生成相应的语义节点，同时记录解析过程中出现的错误。
+ *
+ * 该类维护了一个基本类型映射表，用于存储和检索语言中的基本类型信息。
+ * 在遍历语法树时，会根据节点类型调用相应的方法进行处理，并生成对应的语义节点。
+ * 如果在解析过程中发现错误，会将错误信息记录到错误列表中。
+ *
+ * 注意：该类依赖于 ANTLR4 的解析器上下文对象以及自定义的语义节点类。
+ */
 export class GrammarVisitor extends RiddleParserVisitor<any> {
     errors: string[] = [];
     primitiveTypeMap: Map<PrimitiveType, PrimitiveTypeInfo> = new Map();
@@ -108,6 +126,9 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             }
             const result = this.visit(child);
             if (result instanceof ExprNode) {
+                if (result instanceof NoneNode) {
+                    return;
+                }
                 node.children.push(result);
             } else {
                 this.log("Result does not ExprNode", this.getLineNumber(child));
@@ -127,6 +148,10 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
 
     visitStatement = (ctx: StatementContext) => {
         return this.visit(ctx.children![0])
+    }
+
+    visitPackStmt = () => {
+        return noneNode;
     }
 
     visitInteger = (ctx: IntegerContext) => {
@@ -208,6 +233,9 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             }
             const result = this.visit(child);
             if (result instanceof ExprNode) {
+                if (result instanceof NoneNode) {
+                    return;
+                }
                 children.push(result);
             } else {
                 this.log("Result does not ExprNode", this.getLineNumber(child));
@@ -311,4 +339,10 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
     visitLogicOr = (ctx: LogicOrContext) => this.visitBinaryOp(ctx, '||');
     visitLogicAnd = (ctx: LogicAndContext) => this.visitBinaryOp(ctx, '&&');
     visitBitXor = (ctx: BitXorContext) => this.visitBinaryOp(ctx, '^');
+
+    visitUnaryOp = (ctx: UnaryOpContext) => {
+        const value: ExprNode = this.visit(ctx._value);
+        const op = ctx._op.text;
+        return new UnaryOpNode(op, value);
+    }
 }

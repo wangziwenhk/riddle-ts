@@ -1,4 +1,4 @@
-import llvm from "llvm-bindings";
+import llvm from "@wangziwenhk/llvm-bindings";
 import {SemClass} from "./objects";
 
 export const PRIMITIVE_TYPES = [

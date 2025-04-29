@@ -1,6 +1,6 @@
 import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import {AllocNode} from "./nodes";
-import llvm from "llvm-bindings";
+import llvm from "@wangziwenhk/llvm-bindings";
 
 /**
  * 表示一个语义分析对象

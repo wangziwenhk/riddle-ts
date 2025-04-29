@@ -8,7 +8,6 @@ yarn-error.log*
 /.pnp
 .pnp.js
 
-test/
 .npmrc
 package-lock.json
 

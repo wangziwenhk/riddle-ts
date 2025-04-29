@@ -11,7 +11,7 @@ import {
     SemBaseVisitor,
     VarDeclNode
 } from '../semantic/nodes';
-import llvm from 'llvm-bindings';
+import llvm from '@wangziwenhk/llvm-bindings';
 import {Config} from './config';
 import * as semType from '../semantic/typeInfo';
 import {PrimitiveTypeInfo} from '../semantic/typeInfo';
@@ -195,10 +195,7 @@ export class Generate extends SemBaseVisitor {
         if (member instanceof SemFunction) {
             return member;
         }
-        if (!lhs.getType().isStructTy() && !lhs.getType().getPointerElementType().isStructTy()) {
-            throw new Error("Result not a Struct Value");
-        }
         const index = node.left_type!.the_class!.getMemberIndex(node.right);
-        return this.builder.CreateGEP(lhs.getType().getPointerElementType(), lhs, this.builder.getInt32(index));
+        return this.builder.CreateGEP(node.left_type?.llvm_type!, lhs, this.builder.getInt32(index));
     }
 }
