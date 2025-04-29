@@ -18,8 +18,6 @@ export type PrimitiveType = typeof PRIMITIVE_TYPES[number];
  * 表示类型信息的抽象类，用于描述特定类型的元数据。
  * 提供了获取类型名称以及判断是否为浮点类型的功能。
  * 该类作为基类使用，具体的类型实现应继承此抽象类并提供所需的行为。
- *
- * 方法 `isFloatPointTy` 用于判断当前类型是否为浮点类型，默认实现返回 false。
  */
 export abstract class TypeInfo {
     name!: string;

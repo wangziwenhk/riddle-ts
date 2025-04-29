@@ -28,17 +28,17 @@ import {
     LogicOrContext,
     LogicAndContext,
     BitXorContext,
-    UnaryOpContext,
+    UnaryOpContext, ScopeOpContext, RelOpContext, CompoundAssignOpContext, ShiftOpContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
     BinaryOpNode,
-    BlockNode, CallNode, ClassDeclNode,
+    BlockNode, CallNode, ClassDeclNode, CompoundOpNode,
     ConstantNode, DeclArgNode, DeclNode,
     ExprNode,
     FuncDeclNode, InitListNode, MemberAccessNode, NoneNode,
     ObjectNode,
-    ProgramNode, ReturnNode,
+    ProgramNode, ReturnNode, ScopeAccessNode,
     SemNode, UnaryOpNode,
     VarDeclNode
 } from '../semantic/nodes';
@@ -339,10 +339,25 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
     visitLogicOr = (ctx: LogicOrContext) => this.visitBinaryOp(ctx, '||');
     visitLogicAnd = (ctx: LogicAndContext) => this.visitBinaryOp(ctx, '&&');
     visitBitXor = (ctx: BitXorContext) => this.visitBinaryOp(ctx, '^');
+    visitShiftOp = (ctx: ShiftOpContext) => this.visitBinaryOp(ctx, ctx._op.text);
+    visitRelOp = (ctx: RelOpContext) => this.visitBinaryOp(ctx, ctx._op.text);
 
     visitUnaryOp = (ctx: UnaryOpContext) => {
         const value: ExprNode = this.visit(ctx._value);
         const op = ctx._op.text;
         return new UnaryOpNode(op, value);
+    }
+
+    visitScopeOp = (ctx: ScopeOpContext) => {
+        const left: ExprNode = this.visit(ctx._left);
+        const right = ctx._right.getText();
+        return new ScopeAccessNode(left, right);
+    }
+
+    visitCompoundAssignOp = (ctx: CompoundAssignOpContext) => {
+        const left = this.visit(ctx._left);
+        const right = this.visit(ctx._right);
+        const op = ctx._op.text;
+        return new CompoundOpNode(op, left, right);
     }
 }

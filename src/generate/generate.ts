@@ -1,4 +1,5 @@
 import {
+    BinaryOpNode,
     BlockNode,
     CallNode,
     ClassDeclNode,
@@ -16,6 +17,7 @@ import {Config} from './config';
 import * as semType from '../semantic/typeInfo';
 import {PrimitiveTypeInfo} from '../semantic/typeInfo';
 import {SemFunction, SemVariable} from "../semantic/objects";
+import {ok} from "node:assert";
 
 export class Generate extends SemBaseVisitor {
     context = Config.globalContext
@@ -197,5 +199,13 @@ export class Generate extends SemBaseVisitor {
         }
         const index = node.left_type!.the_class!.getMemberIndex(node.right);
         return this.builder.CreateGEP(node.left_type?.llvm_type!, lhs, this.builder.getInt32(index));
+    }
+
+    visitBinaryOp(node: BinaryOpNode) {
+        const left = this.visit(node.left);
+        const right = this.visit(node.right);
+        ok(left instanceof llvm.Value, "Expected 'left' to be an instance of llvm.Value");
+        ok(right instanceof llvm.Value, "Expected 'right' to be an instance of llvm.Value");
+        return node.func!(left, right, this.builder);
     }
 }

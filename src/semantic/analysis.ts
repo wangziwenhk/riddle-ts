@@ -1,4 +1,5 @@
 import {
+    BinaryOpNode,
     BlockNode, CallNode, ClassDeclNode,
     ConstantNode, DeclArgNode, ExprNode,
     FuncDeclNode, InitListNode, MemberAccessNode,
@@ -10,6 +11,7 @@ import {
 } from "./nodes";
 import {ClassTypeInfo, PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
 import {SemClass, SemFunction, SemObject, SemType, SemValue, SemVariable} from "./objects";
+import llvm from "@wangziwenhk/llvm-bindings";
 
 const voidTy: PrimitiveTypeInfo = new PrimitiveTypeInfo("void");
 
@@ -18,13 +20,91 @@ const nil = new SemValue(
     voidTy,
 )
 
+class OpKey {
+    constructor(
+        public readonly op: string,
+        public readonly t1: TypeInfo,
+        public readonly t2: TypeInfo
+    ) {}
+
+    toString(): string {
+        return `${this.op}_${this.t1.name}_${this.t2.name}`;
+    }
+
+    equals(other: OpKey): boolean {
+        return this.op === other.op &&
+            this.t1.name === other.t1.name &&
+            this.t2.name === other.t2.name;
+    }
+}
+
 export class SemanticAnalysis extends SemBaseVisitor {
     symbolTable: Map<string, Array<SemObject>> = new Map<string, Array<SemObject>>();
     definedTable: Array<Set<string>> = [];
     funcStack = new Array<FuncDeclNode>();
+    opFunction = new Map<string, (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => llvm.Value>();
 
     constructor() {
         super();
+        this.registerOpFunction("+", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateAdd(left, right);
+        });
+        this.registerOpFunction("-", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateSub(left, right);
+        });
+        this.registerOpFunction("*", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateMul(left, right);
+        });
+        this.registerOpFunction("/", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateSDiv(left, right);
+        });
+        this.registerOpFunction("%", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateSRem(left, right);
+        });
+        this.registerOpFunction("==", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateICmpEQ(left, right);
+        });
+        this.registerOpFunction("!=", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateICmpNE(left, right);
+        });
+        this.registerOpFunction("<", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateICmpSLT(left, right);
+        });
+        this.registerOpFunction("<=", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateICmpSLE(left, right);
+        });
+        this.registerOpFunction(">", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateICmpSGT(left, right);
+        });
+        this.registerOpFunction(">=", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            return builder.CreateICmpSGE(left, right);
+        });
+        this.registerOpFunction("&&", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            const lhs = builder.CreateICmpNE(left, builder.getFalse());
+            const rhs = builder.CreateICmpNE(right, builder.getFalse());
+            return builder.CreateAnd(lhs, rhs);
+        });
+        this.registerOpFunction("||", (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => {
+            const lhs = builder.CreateICmpNE(left, builder.getFalse());
+            const rhs = builder.CreateICmpNE(right, builder.getFalse());
+            return builder.CreateOr(lhs, rhs);
+        });
+    }
+
+    private registerOpFunction(op: string, func: (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => llvm.Value) {
+        PRIMITIVE_TYPES.forEach(i => {
+            if (i === 'void') {
+                return;
+            }
+            const iT = new PrimitiveTypeInfo(i);
+            PRIMITIVE_TYPES.forEach(j => {
+                if (j === 'void') {
+                    return;
+                }
+                const jT = new PrimitiveTypeInfo(j);
+                this.opFunction.set(new OpKey(op, iT, jT).toString(), func);
+            })
+        })
     }
 
     private registerPrimitiveType() {
@@ -343,5 +423,55 @@ export class SemanticAnalysis extends SemBaseVisitor {
         }
         //todo 添加更多方法解析
         return nil;
+    }
+
+    visitBinaryOp(node: BinaryOpNode) {
+        const left = this.visit(node.left);
+        const right = this.visit(node.right);
+
+        if (!(left instanceof SemValue) || !(right instanceof SemValue)) {
+            throw new Error("Both operands must be values");
+        }
+
+        // todo 检查是否有运算符重载
+        if (!this.checkType(left.type, right.type)) {
+            throw new Error(`Operand types '${left.type.name}' '${node.operator}' '${right.type.name}' are incompatible`);
+        }
+
+        const opFunc = this.opFunction.get(new OpKey(node.operator, left.type, right.type).toString());
+        if (opFunc === undefined) {
+            throw new Error(`Operand types '${left.type.name}' '${node.operator}' '${right.type.name}' are incompatible`);
+        }
+        node.func = opFunc;
+
+        const resultType = this.inferBinaryOpResultType(node.operator, left.type, right.type);
+        const obj = new SemValue(undefined, resultType);
+        node.obj = obj;
+        return obj;
+    }
+
+    /**
+     * 推断二元操作符的结果类型。
+     * 根据操作符和两个操作数的类型信息，返回操作结果的类型信息。
+     * 如果操作符或操作数类型不受支持，则抛出错误。
+     *
+     * @param operator 二元操作符，例如 "+"、"-"、"==" 等。
+     * @param t1 第一个操作数的类型信息。
+     * @param t2 第二个操作数的类型信息。
+     * @return 推断出的二元操作结果的类型信息。
+     */
+    private inferBinaryOpResultType(operator: string, t1: TypeInfo, t2: TypeInfo): TypeInfo {
+        if (t1 instanceof PrimitiveTypeInfo && t2 instanceof PrimitiveTypeInfo) {
+            if (["+", "-", "*", "/", "%"].includes(operator)) {
+                return t1.name === "float" || t2.name === "float" ? new PrimitiveTypeInfo("float") : t1;
+            } else if (["<", ">", "<=", ">="].includes(operator)) {
+                return new PrimitiveTypeInfo("bool");
+            } else if (["==", "!="].includes(operator)) {
+                return new PrimitiveTypeInfo("bool");
+            } else if (["&&", "||"].includes(operator)) {
+                return new PrimitiveTypeInfo("bool");
+            }
+        }
+        throw new Error(`Unsupported binary operation '${operator}' for types '${t1.name}' and '${t2.name}'`);
     }
 }

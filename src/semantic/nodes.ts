@@ -1,6 +1,6 @@
 import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import llvm from "@wangziwenhk/llvm-bindings";
-import {SemClass, SemFunction, SemObject, SemVariable} from "./objects";
+import {SemClass, SemFunction, SemObject, SemValue, SemVariable} from "./objects";
 
 
 export abstract class SemBaseVisitor {
@@ -83,9 +83,13 @@ export abstract class SemBaseVisitor {
         this.visit(node.operand);
     }
 
-    visitComparisonOp(node: ComparisonOpNode) {
+    visitComparisonOp(node: CompoundOpNode) {
         this.visit(node.left);
         this.visit(node.right);
+    }
+
+    visitScopeAccess(node: ScopeAccessNode) {
+        this.visit(node.left);
     }
 }
 
@@ -94,7 +98,7 @@ export abstract class SemBaseVisitor {
  * 每个语义节点可以包含与其关联的语义对象以及在源代码中的行号信息。
  */
 export abstract class SemNode {
-    obj: SemObject | undefined;
+    obj?: SemObject;
     line!: number;
 
     abstract accept(visitor: SemBaseVisitor): any;
@@ -141,7 +145,7 @@ export abstract class ExprNode extends SemNode {
 export class NoneNode extends ExprNode {
     constructor() {super();}
 
-    accept(visitor: SemBaseVisitor): any {
+    accept(_visitor: SemBaseVisitor): any {
         throw new Error("This class cannot be accepted")
     }
 }
@@ -154,6 +158,8 @@ export class BinaryOpNode extends OperatorNode {
     operator: string;
     left: ExprNode;
     right: ExprNode;
+    obj?: SemValue;
+    func?: ((left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => llvm.Value);
 
     constructor(operator: string, left: ExprNode, right: ExprNode) {
         super();
@@ -182,7 +188,7 @@ export class UnaryOpNode extends OperatorNode {
     }
 }
 
-export class ComparisonOpNode extends OperatorNode {
+export class CompoundOpNode extends OperatorNode {
     operator: string;
     left: ExprNode;
     right: ExprNode;
@@ -243,7 +249,7 @@ export class BlockNode extends ExprNode {
 export class DeclArgNode extends SemNode {
     name: string;
     type: ExprNode;
-    obj: SemVariable | undefined;
+    obj?: SemVariable;
 
     constructor(name: string, type: ExprNode) {
         super();
@@ -277,7 +283,7 @@ export class FuncDeclNode extends DeclNode {
     alloc_list: Array<AllocNode> = []
     params: DeclArgNode[];
 
-    obj: SemFunction | undefined;
+    obj?: SemFunction;
 
     constructor(name: string, return_type: ExprNode, params: DeclArgNode[], body: BlockNode) {
         super();
@@ -300,7 +306,7 @@ export class FuncDeclNode extends DeclNode {
  */
 export class AllocNode {
     type: TypeInfo;
-    alloc: llvm.Value | undefined;
+    alloc?: llvm.Value;
 
     constructor(type: TypeInfo) {
         this.type = type;
@@ -316,9 +322,9 @@ export class AllocNode {
  */
 export class VarDeclNode extends DeclNode {
     name: string;
-    type: ExprNode | undefined;
-    value: ExprNode | undefined;
-    obj: SemVariable | undefined;
+    type?: ExprNode;
+    value?: ExprNode;
+    obj?: SemVariable;
     isGlobal: boolean = true;
 
     constructor(name: string, type: ExprNode | undefined, value: ExprNode | undefined) {
@@ -341,7 +347,7 @@ export class VarDeclNode extends DeclNode {
 export class ClassDeclNode extends DeclNode {
     name: string;
     body: Array<DeclNode>;
-    obj: SemClass | undefined;
+    obj?: SemClass;
 
     constructor(name: string, body: DeclNode[] = []) {
         super();
@@ -379,10 +385,10 @@ export class ObjectNode extends ExprNode {
  * 该类主要用于语言解析和语义分析过程中对返回语句的处理。
  */
 export class ReturnNode extends ExprNode {
-    value: ExprNode | undefined;
+    value?: ExprNode;
     obj: undefined;
 
-    constructor(value: ExprNode | undefined) {
+    constructor(value?: ExprNode) {
         super();
         this.value = value;
     }
@@ -402,7 +408,7 @@ export class ReturnNode extends ExprNode {
 export class CallNode extends ExprNode {
     value: ExprNode;
     params: ExprNode[];
-    obj: SemFunction | undefined;
+    obj?: SemFunction;
 
     constructor(value: ExprNode, params: ExprNode[]) {
         super();
@@ -444,8 +450,8 @@ export class MemberAccessNode extends ExprNode {
     left: ExprNode;
     right: string;
     obj: undefined;
-    left_type: ClassTypeInfo | undefined;
-    right_type: TypeInfo | undefined;
+    left_type?: ClassTypeInfo;
+    right_type?: TypeInfo;
 
     constructor(left: ExprNode, right: string) {
         super();
@@ -458,3 +464,25 @@ export class MemberAccessNode extends ExprNode {
     }
 }
 
+/**
+ * 表示作用域访问节点的类，用于描述在表达式中对某个作用域成员的访问操作。
+ * 该节点包含左侧表达式和右侧标识符，分别表示作用域对象和被访问的成员名称。
+ * 在语义分析过程中，可以通过访问者模式处理此节点以解析其类型或执行其他操作。
+ * 左侧表达式的类型信息和右侧成员的类型信息可以进一步用于静态检查和代码生成。
+ */
+export class ScopeAccessNode extends ExprNode {
+    left: ExprNode;
+    right: string;
+    left_type?: ClassTypeInfo;
+    right_type?: TypeInfo;
+
+    constructor(left: ExprNode, right: string) {
+        super();
+        this.left = left;
+        this.right = right;
+    }
+
+    accept(visitor: SemBaseVisitor): any {
+        return visitor.visitScopeAccess(this);
+    }
+}
