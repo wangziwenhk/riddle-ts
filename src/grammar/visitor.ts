@@ -207,6 +207,8 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             }
             if (name != "" && type) {
                 list.push(new DeclArgNode(name, type))
+                name = "";
+                type = undefined;
             }
         })
         return list;

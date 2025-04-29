@@ -20,7 +20,8 @@ expressionEnd
     ;
 
 expression
-    : left=expression Colon Colon right=expression                                      #scopeOp
+    : statement                                                                         #statementExpr
+    | left=expression Colon Colon right=expression                                      #scopeOp
     | left=expression Dot right=expression                                              #memberAccess
     | op=(Not | Add | Sub | Tilde) value=expression                                     #unaryOp
     | left=expression op=(Star | Div | Mod) right=expression                            #mulOp
@@ -36,12 +37,11 @@ expression
     | left=expression op=(Assign | AddAssign | SubAssign | MulAssign 
         | DivAssign | ModAssign | LeftShiftAssign | RightShiftAssign 
         | AndAssign | XorAssign | OrAssign) right=expression                            #compoundAssignOp
-    | statement                                                                         #statementExpr
     | Decimal                                                                           #integer
     | Float                                                                             #float
     | (True | False)                                                                    #boolean
-    | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket         #callExpr
     | id                                                                                #object
+    | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket         #callExpr
     | LeftBracket value=expression RightBracket                                         #bracketExpr
     ;
 
@@ -60,9 +60,9 @@ packStmt
     ;
 
 varDecl
-    : Var name=id Colon type=expression
+    : Var name=id Colon type=expression Assign value=expression
     | Var name=id Assign value=expression
-    | Var name=id Colon type=expression Assign value=expression
+    | Var name=id Colon type=expression
     ;
 
 block
