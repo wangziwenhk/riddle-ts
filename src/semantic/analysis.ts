@@ -279,8 +279,11 @@ export class SemanticAnalysis extends SemBaseVisitor {
             }
             return result.type;
         }
-        return semValue?.type ?? nil.type;
+
+        // 如果没有显式类型，尝试从 semValue 获取类型，否则返回一个默认类型
+        return semValue?.type ?? new PrimitiveTypeInfo("void"); // 替换 "default" 为合适的默认类型
     }
+
 
     /**
      * 验证给定语义值的类型是否与解析的类型匹配。

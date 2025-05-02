@@ -9,10 +9,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "@wangziwenhk/llvm-bindings": "^0.5.0",
     "antlr4": "^4.13.2",
     "cmake-js": "^7.3.0",
-    "zlib": "^1.0.5"
+    "zlib": "^1.0.5",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

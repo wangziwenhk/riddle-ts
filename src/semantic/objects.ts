@@ -63,12 +63,14 @@ export class SemClass extends SemType {
     name: string;
     members: Array<SemVariable>;
     methods: Array<SemFunction>;
+    type: ClassTypeInfo;
 
     constructor(name: string, members: Array<SemVariable>, methods: Array<SemFunction>, type: ClassTypeInfo) {
         super(type);
         this.name = name;
         this.members = members;
         this.methods = methods;
+        this.type = type;
     }
 
     getMember(name: string): SemVariable | SemFunction {
