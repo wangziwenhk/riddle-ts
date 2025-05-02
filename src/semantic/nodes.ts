@@ -91,6 +91,10 @@ export abstract class SemBaseVisitor {
     visitScopeAccess(node: ScopeAccessNode) {
         this.visit(node.left);
     }
+
+    visitPointerTo(node:PointerToNode){
+        return this.visit(node.value);
+    }
 }
 
 /**
@@ -484,5 +488,18 @@ export class ScopeAccessNode extends ExprNode {
 
     accept(visitor: SemBaseVisitor): any {
         return visitor.visitScopeAccess(this);
+    }
+}
+
+export class PointerToNode extends ExprNode {
+    value: ExprNode;
+
+    constructor(value: ExprNode) {
+        super();
+        this.value = value;
+    }
+    
+    accept(visitor: SemBaseVisitor): any {
+        return visitor.visitPointerTo(this);
     }
 }

@@ -16,6 +16,7 @@ import { UnaryOpContext } from "./RiddleParser.js";
 import { IntegerContext } from "./RiddleParser.js";
 import { FloatContext } from "./RiddleParser.js";
 import { RelOpContext } from "./RiddleParser.js";
+import { PointerToContext } from "./RiddleParser.js";
 import { BitAndContext } from "./RiddleParser.js";
 import { LogicAndContext } from "./RiddleParser.js";
 import { BooleanContext } from "./RiddleParser.js";
@@ -195,6 +196,18 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitRelOp?: (ctx: RelOpContext) => void;
+	/**
+	 * Enter a parse tree produced by the `pointerTo`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	enterPointerTo?: (ctx: PointerToContext) => void;
+	/**
+	 * Exit a parse tree produced by the `pointerTo`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 */
+	exitPointerTo?: (ctx: PointerToContext) => void;
 	/**
 	 * Enter a parse tree produced by the `bitAnd`
 	 * labeled alternative in `RiddleParser.expression`.

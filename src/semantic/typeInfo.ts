@@ -25,6 +25,10 @@ export abstract class TypeInfo {
     isFloatPointTy(): boolean {
         return false;
     }
+
+    equal(type: TypeInfo) {
+        return this.name === type.name;
+    }
 }
 
 /**
@@ -46,19 +50,6 @@ export class PrimitiveTypeInfo extends TypeInfo {
 }
 
 /**
- * 表示自定义类型的信息，继承自 TypeInfo 类。
- * 此类用于描述特定的自定义类型，并提供其名称信息。
- */
-export class CustomTypeInfo extends TypeInfo {
-    name: string;
-
-    constructor(name: string) {
-        super();
-        this.name = name;
-    }
-}
-
-/**
  * 表示类类型的详细信息，继承自 TypeInfo。
  * 该类用于描述类的名称、成员类型以及与 LLVM 和语义分析相关的类型信息。
  * 它主要用于在编译器或解释器中存储和管理类的元数据。
@@ -73,5 +64,31 @@ export class ClassTypeInfo extends TypeInfo {
         super();
         this.name = name;
         this.members = members;
+    }
+
+    equal(type: TypeInfo): boolean {
+        if (type.name !== this.name) return false;
+        return type instanceof ClassTypeInfo;
+    }
+}
+
+export class PointerTypeInfo extends TypeInfo {
+    type: TypeInfo;
+    size: number;
+
+    constructor(type: TypeInfo) {
+        super();
+        this.type = type;
+        this.name = type.name;
+        if (type instanceof PointerTypeInfo) {
+            this.size = type.size + 1;
+        } else {
+            this.size = 1;
+        }
+    }
+
+    equal(type: TypeInfo): boolean {
+        if (type.name !== this.name) return false;
+        return type instanceof PointerTypeInfo && type.size == this.size;
     }
 }

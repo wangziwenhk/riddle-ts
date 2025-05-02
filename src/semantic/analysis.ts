@@ -3,13 +3,13 @@ import {
     BlockNode, CallNode, ClassDeclNode,
     ConstantNode, DeclArgNode, ExprNode,
     FuncDeclNode, InitListNode, MemberAccessNode,
-    ObjectNode,
+    ObjectNode, PointerToNode,
     ProgramNode, ReturnNode,
     SemBaseVisitor,
     SemNode,
     VarDeclNode
 } from "./nodes";
-import {ClassTypeInfo, PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
+import {ClassTypeInfo, PointerTypeInfo, PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
 import {SemClass, SemFunction, SemObject, SemType, SemValue, SemVariable} from "./objects";
 import llvm from "@wangziwenhk/llvm-bindings";
 
@@ -306,7 +306,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
      * @return 如果两个类型兼容，则返回 true；否则返回 false。
      */
     private checkType(t1: TypeInfo, t2: TypeInfo) {
-        if (t1 === t2) {
+        if (t1.equal(t2)) {
             return true;
         }
         // 类型提升/降低
@@ -385,7 +385,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
                 members.push(result);
             } else if (child instanceof FuncDeclNode) {
                 // 为函数添加 this
-                child.params.unshift(new DeclArgNode("this", new ObjectNode(node.name)));
+                child.params.unshift(new DeclArgNode("this", new PointerToNode(new ObjectNode(node.name))));
                 const result = this.visit(child);
                 if (!(result instanceof SemFunction)) {
                     throw new Error("result not a Function");
@@ -476,5 +476,15 @@ export class SemanticAnalysis extends SemBaseVisitor {
             }
         }
         throw new Error(`Unsupported binary operation '${operator}' for types '${t1.name}' and '${t2.name}'`);
+    }
+
+    visitPointerTo(node: PointerToNode): any {
+        const obj = this.visit(node.value);
+        if (!(obj instanceof SemType)) {
+            throw new Error("Pointer Must be a Type");
+        }
+        const new_obj: SemType = new SemType(obj.type);
+        new_obj.type = new PointerTypeInfo(new_obj.type);
+        return new_obj;
     }
 }

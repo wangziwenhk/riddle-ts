@@ -38,7 +38,10 @@ export class Generate extends SemBaseVisitor {
     }
 
     private parseType(type: semType.TypeInfo): llvm.Type {
-        if (type instanceof semType.PrimitiveTypeInfo) {
+        if (type instanceof semType.PointerTypeInfo) {
+            const result = this.parseType(type.type);
+            return result.getPointerTo();
+        } else if (type instanceof semType.PrimitiveTypeInfo) {
             const result = this.primitiveTypeMap.get(type.name);
             if (result === undefined) {
                 throw new Error(`Unknown primitive type ${type.name}`);

@@ -23,6 +23,8 @@ expression
     : statement                                                                         #statementExpr
     | left=expression Colon Colon right=expression                                      #scopeOp
     | left=expression Dot right=expression                                              #memberAccess
+    | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket         #callExpr
+    | obj=expression Star                                                               #pointerTo
     | op=(Not | Add | Sub | Tilde) value=expression                                     #unaryOp
     | left=expression op=(Star | Div | Mod) right=expression                            #mulOp
     | left=expression op=(Add | Sub) right=expression                                   #addOp
@@ -41,7 +43,6 @@ expression
     | Float                                                                             #float
     | (True | False)                                                                    #boolean
     | id                                                                                #object
-    | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket         #callExpr
     | LeftBracket value=expression RightBracket                                         #bracketExpr
     ;
 
