@@ -290,7 +290,9 @@ export class FuncDeclNode extends DeclNode {
     return_type: ExprNode;
     alloc_list: Array<AllocNode> = []
     params: DeclArgNode[];
+    isGlobal: boolean = true;
     hasClass: boolean = false;
+    isLazy: boolean = false;
 
     obj?: SemFunction;
 

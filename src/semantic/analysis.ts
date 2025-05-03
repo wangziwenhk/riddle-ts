@@ -234,9 +234,11 @@ export class SemanticAnalysis extends SemBaseVisitor {
         const obj = new SemFunction(node.name, return_type.type);
         node.obj = obj;
 
-        if (!node.hasClass) {
+        if (!node.isGlobal) {
             this.addGlobalObject(node.name, node.obj);
-        } else {
+        }
+
+        if(node.hasClass){
             return obj;
         }
 
@@ -383,22 +385,6 @@ export class SemanticAnalysis extends SemBaseVisitor {
 
         this.enterScope();
         let methodList: FuncDeclNode[] = [];
-        // 预先声明
-        node.body.forEach(child => {
-            if (child instanceof FuncDeclNode) {
-                // 为函数添加 this
-                child.params.unshift(new DeclArgNode("this", new PointerToNode(new ObjectNode(node.name))));
-                child.hasClass = true;
-                const result = this.visit(child);
-                if (!(result instanceof SemFunction)) {
-                    throw new Error("result not a Function");
-                }
-                methods.push(result);
-                result.theClass = obj;
-                methodList.push(child);
-            }
-        });
-
         // 构建
         node.body.forEach(child => {
             if (child instanceof VarDeclNode) {
@@ -410,6 +396,24 @@ export class SemanticAnalysis extends SemBaseVisitor {
                 members.push(result);
             }
         });
+
+        // 预先声明
+        node.body.forEach(child => {
+            if (child instanceof FuncDeclNode) {
+                // 为函数添加 this
+                child.params.unshift(new DeclArgNode("this", new PointerToNode(new ObjectNode(node.name))));
+                child.isGlobal = false;
+                child.hasClass = true;
+                const result = this.visit(child);
+                if (!(result instanceof SemFunction)) {
+                    throw new Error("result not a Function");
+                }
+                methods.push(result);
+                result.theClass = obj;
+                methodList.push(child);
+            }
+        });
+
         members.forEach(variable => {
             class_type.members.push(variable.type);
         })

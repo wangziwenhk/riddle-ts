@@ -4,7 +4,8 @@ import {
     CallNode,
     ClassDeclNode,
     ConstantNode,
-    FuncDeclNode, LoadExprNode,
+    FuncDeclNode,
+    LoadExprNode,
     MemberAccessNode,
     ObjectNode,
     ProgramNode,
@@ -99,29 +100,33 @@ export class Generate extends SemBaseVisitor {
         }
 
         const true_name = (node.obj?.theClass?.name ? node.obj?.theClass?.name + "." : "") + node.name;
+        if (node.obj?.llvm_func == undefined) {
+            const func_type = llvm.FunctionType.get(return_type, param_type, false)
+            node.obj!.llvm_func = llvm.Function.Create(func_type, llvm.GlobalValue.LinkageTypes.ExternalLinkage, true_name, this.module);
+        }
 
-        const func_type = llvm.FunctionType.get(return_type, param_type, false)
-        const func = llvm.Function.Create(func_type, llvm.GlobalValue.LinkageTypes.ExternalLinkage, true_name, this.module)
-        node.obj!.llvm_func = func;
 
         // 处理参数的内存
         let i = 0
         node.params.forEach((param) => {
-            param.obj!.alloc.alloc = func.getArg(i);
+            param.obj!.alloc.alloc = node.obj?.llvm_func?.getArg(i);
             i++;
         })
 
-        const entry = llvm.BasicBlock.Create(this.context, "entry", func);
-        this.builder.SetInsertPoint(entry);
+        //lazy 处理
+        if(!node.isLazy){
+            const entry = llvm.BasicBlock.Create(this.context, "entry", node.obj?.llvm_func);
+            this.builder.SetInsertPoint(entry);
 
-        node.alloc_list.forEach(alloc => {
-            let type = this.parseType(alloc.type);
-            if (type.isVoidTy()) {
-                return;
-            }
-            alloc.alloc = this.builder.CreateAlloca(type);
-        })
-        this.visit(node.body)
+            node.alloc_list.forEach(alloc => {
+                let type = this.parseType(alloc.type);
+                if (type.isVoidTy()) {
+                    return;
+                }
+                alloc.alloc = this.builder.CreateAlloca(type);
+            })
+            this.visit(node.body)
+        }
     }
 
     visitVarDecl(node: VarDeclNode) {
@@ -186,8 +191,16 @@ export class Generate extends SemBaseVisitor {
         })
         const type = llvm.StructType.create(this.context, member_types, node.name);
         node.obj!.type.llvm_type = type;
+        // 预先声明
         node.body.forEach(child => {
             if (child instanceof FuncDeclNode) {
+                child.isLazy = true;
+                this.visit(child);
+            }
+        })
+        node.body.forEach(child => {
+            if (child instanceof FuncDeclNode) {
+                child.isLazy = false;
                 this.visit(child);
             }
         })
