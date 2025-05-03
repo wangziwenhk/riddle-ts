@@ -2,7 +2,7 @@ import {
     BinaryOpNode,
     BlockNode, CallNode, ClassDeclNode,
     ConstantNode, DeclArgNode, ExprNode,
-    FuncDeclNode, InitListNode, MemberAccessNode,
+    FuncDeclNode, InitListNode, LoadExprNode, MemberAccessNode,
     ObjectNode, PointerToNode,
     ProgramNode, ReturnNode,
     SemBaseVisitor,
@@ -406,7 +406,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
     visitMemberAccess(node: MemberAccessNode) {
         const lhs = this.visit(node.left);
         if (lhs instanceof SemVariable) {
-            const type = lhs.type;
+            const type = lhs.type.getTrueType();
             if (!(type instanceof ClassTypeInfo)) {
                 throw new Error("The left side of the member access operator has a non-class type");
             }
@@ -478,13 +478,28 @@ export class SemanticAnalysis extends SemBaseVisitor {
         throw new Error(`Unsupported binary operation '${operator}' for types '${t1.name}' and '${t2.name}'`);
     }
 
-    visitPointerTo(node: PointerToNode): any {
+    visitPointerTo(node: PointerToNode) {
         const obj = this.visit(node.value);
         if (!(obj instanceof SemType)) {
             throw new Error("Pointer Must be a Type");
         }
-        const new_obj: SemType = new SemType(obj.type);
+        const new_obj: SemType = obj.clone();
         new_obj.type = new PointerTypeInfo(new_obj.type);
+        return new_obj;
+    }
+
+    visitLoad(node: LoadExprNode) {
+        const obj = this.visit(node.value);
+        if(!(obj instanceof SemValue)){
+            throw new Error("Object must be a Value");
+        }
+        if(!(obj.type instanceof PointerTypeInfo)){
+            throw new Error("Object Type must be a pointer");
+        }
+        const truth = obj.type.getTrueType();
+        const new_obj = obj.clone();
+        new_obj.type = truth;
+        node.obj = new_obj;
         return new_obj;
     }
 }

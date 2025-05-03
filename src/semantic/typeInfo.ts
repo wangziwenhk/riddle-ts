@@ -29,6 +29,10 @@ export abstract class TypeInfo {
     equal(type: TypeInfo) {
         return this.name === type.name;
     }
+
+    getTrueType(): TypeInfo {
+        return this;
+    }
 }
 
 /**
@@ -90,5 +94,9 @@ export class PointerTypeInfo extends TypeInfo {
     equal(type: TypeInfo): boolean {
         if (type.name !== this.name) return false;
         return type instanceof PointerTypeInfo && type.size == this.size;
+    }
+
+    getTrueType() {
+        return this.type.getTrueType();
     }
 }

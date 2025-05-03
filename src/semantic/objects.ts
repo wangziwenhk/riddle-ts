@@ -1,11 +1,13 @@
 import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import {AllocNode} from "./nodes";
 import llvm from "@wangziwenhk/llvm-bindings";
+import {undefined} from "zod";
 
 /**
  * 表示一个语义分析对象
  */
 export abstract class SemObject {
+    abstract clone(): SemObject;
 }
 
 export class SemValue extends SemObject {
@@ -16,6 +18,10 @@ export class SemValue extends SemObject {
         super();
         this.type = type;
         this.value = value;
+    }
+
+    clone(): SemValue {
+        return new SemValue(this.value, this.type);
     }
 }
 
@@ -33,6 +39,12 @@ export class SemVariable extends SemValue {
         this.name = name;
         this.alloc = new AllocNode(type)
     }
+
+    clone(): SemVariable {
+        const obj = new SemVariable(this.name, this.type, this.value);
+        obj.alloc = this.alloc;
+        return obj;
+    }
 }
 
 export class SemType extends SemObject {
@@ -41,6 +53,10 @@ export class SemType extends SemObject {
     constructor(type: TypeInfo) {
         super();
         this.type = type;
+    }
+
+    clone(): SemType {
+        return new SemType(this.type);
     }
 }
 
@@ -56,6 +72,13 @@ export class SemFunction extends SemObject {
         this.name = name;
         this.return_type = return_type;
         this.param = param;
+    }
+
+    clone(): SemFunction {
+        const obj = new SemFunction(this.name, this.return_type, this.param);
+        obj.theClass = this.theClass;
+        obj.llvm_func = this.llvm_func;
+        return obj;
     }
 }
 
@@ -93,5 +116,9 @@ export class SemClass extends SemType {
             throw new Error(`Member '${name}' not found in class '${this.name}'`);
         }
         return index;
+    }
+
+    clone(): SemClass {
+        return new SemClass(this.name, this.members, this.methods, this.type);
     }
 }

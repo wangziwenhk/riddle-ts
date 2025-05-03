@@ -4,7 +4,7 @@ import {
     CallNode,
     ClassDeclNode,
     ConstantNode,
-    FuncDeclNode,
+    FuncDeclNode, LoadExprNode,
     MemberAccessNode,
     ObjectNode,
     ProgramNode,
@@ -210,5 +210,12 @@ export class Generate extends SemBaseVisitor {
         ok(left instanceof llvm.Value, "Expected 'left' to be an instance of llvm.Value");
         ok(right instanceof llvm.Value, "Expected 'right' to be an instance of llvm.Value");
         return node.func!(left, right, this.builder);
+    }
+
+    visitLoad(node: LoadExprNode) {
+        const value = this.visit(node.value);
+        const t = node.obj!;
+        this.builder.CreateLoad(this.parseType(t.type), value);
+        return value;
     }
 }

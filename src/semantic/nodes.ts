@@ -92,8 +92,12 @@ export abstract class SemBaseVisitor {
         this.visit(node.left);
     }
 
-    visitPointerTo(node:PointerToNode){
+    visitPointerTo(node: PointerToNode) {
         return this.visit(node.value);
+    }
+
+    visitLoad(node: LoadExprNode){
+        this.visit(node.value);
     }
 }
 
@@ -498,8 +502,22 @@ export class PointerToNode extends ExprNode {
         super();
         this.value = value;
     }
-    
+
     accept(visitor: SemBaseVisitor): any {
         return visitor.visitPointerTo(this);
+    }
+}
+
+export class LoadExprNode extends ExprNode {
+    value: ExprNode;
+    obj?: SemValue;
+
+    constructor(value: ExprNode) {
+        super();
+        this.value = value;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitLoad(this);
     }
 }

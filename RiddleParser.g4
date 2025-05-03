@@ -25,6 +25,7 @@ expression
     | left=expression Dot right=expression                                              #memberAccess
     | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket         #callExpr
     | obj=expression Star                                                               #pointerTo
+    | Star obj=expression                                                               #loadExpr
     | op=(Not | Add | Sub | Tilde) value=expression                                     #unaryOp
     | left=expression op=(Star | Div | Mod) right=expression                            #mulOp
     | left=expression op=(Add | Sub) right=expression                                   #addOp

@@ -28,7 +28,13 @@ import {
     LogicOrContext,
     LogicAndContext,
     BitXorContext,
-    UnaryOpContext, ScopeOpContext, RelOpContext, CompoundAssignOpContext, ShiftOpContext, PointerToContext,
+    UnaryOpContext,
+    ScopeOpContext,
+    RelOpContext,
+    CompoundAssignOpContext,
+    ShiftOpContext,
+    PointerToContext,
+    LoadExprContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
@@ -36,7 +42,7 @@ import {
     BlockNode, CallNode, ClassDeclNode, CompoundOpNode,
     ConstantNode, DeclArgNode, DeclNode,
     ExprNode,
-    FuncDeclNode, InitListNode, MemberAccessNode, NoneNode,
+    FuncDeclNode, InitListNode, LoadExprNode, MemberAccessNode, NoneNode,
     ObjectNode, PointerToNode,
     ProgramNode, ReturnNode, ScopeAccessNode,
     SemNode, UnaryOpNode,
@@ -365,9 +371,14 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
 
     visitPointerTo = (ctx: PointerToContext) => {
         const value: ExprNode = this.visit(ctx._obj);
-        if(!(value instanceof ObjectNode)){
+        if (!(value instanceof ObjectNode)) {
             throw new Error("Value Must be a ObjectNode");
         }
         return new PointerToNode(value);
+    }
+
+    visitLoadExpr = (ctx: LoadExprContext) => {
+        const value: ExprNode = this.visit(ctx._obj);
+        return new LoadExprNode(value);
     }
 }

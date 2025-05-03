@@ -5,6 +5,7 @@ import {ParseTreeVisitor} from 'antlr4';
 
 import { ProgramContext } from "./RiddleParser.js";
 import { ExpressionEndContext } from "./RiddleParser.js";
+import { LoadExprContext } from "./RiddleParser.js";
 import { MemberAccessContext } from "./RiddleParser.js";
 import { EqOpContext } from "./RiddleParser.js";
 import { BracketExprContext } from "./RiddleParser.js";
@@ -59,6 +60,13 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitExpressionEnd?: (ctx: ExpressionEndContext) => Result;
+	/**
+	 * Visit a parse tree produced by the `loadExpr`
+	 * labeled alternative in `RiddleParser.expression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitLoadExpr?: (ctx: LoadExprContext) => Result;
 	/**
 	 * Visit a parse tree produced by the `memberAccess`
 	 * labeled alternative in `RiddleParser.expression`.
