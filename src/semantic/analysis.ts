@@ -210,17 +210,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         }
     }
 
-
-    visitFuncDecl(node: FuncDeclNode) {
-        const return_type = this.visit(node.return_type);
-        if (!(return_type instanceof SemType)) {
-            throw new Error("Unrecognized type");
-        }
-        const obj = new SemFunction(node.name, return_type.type);
-        node.obj = obj;
-
-        this.addGlobalObject(node.name, node.obj);
-
+    buildFuncBody(node: FuncDeclNode, obj: SemFunction) {
         this.enterScope();
         // 处理函数参数
         node.params.forEach(param => {
@@ -234,6 +224,23 @@ export class SemanticAnalysis extends SemBaseVisitor {
         this.preAlloc(node.body, node);
         this.funcStack.pop();
         this.leaveScope();
+    }
+
+    visitFuncDecl(node: FuncDeclNode) {
+        const return_type = this.visit(node.return_type);
+        if (!(return_type instanceof SemType)) {
+            throw new Error("Unrecognized type");
+        }
+        const obj = new SemFunction(node.name, return_type.type);
+        node.obj = obj;
+
+        if (!node.hasClass) {
+            this.addGlobalObject(node.name, node.obj);
+        } else {
+            return obj;
+        }
+
+        this.buildFuncBody(node, obj);
 
         return obj;
     }
@@ -375,6 +382,24 @@ export class SemanticAnalysis extends SemBaseVisitor {
         this.addGlobalObject(node.name, obj);
 
         this.enterScope();
+        let methodList: FuncDeclNode[] = [];
+        // 预先声明
+        node.body.forEach(child => {
+            if (child instanceof FuncDeclNode) {
+                // 为函数添加 this
+                child.params.unshift(new DeclArgNode("this", new PointerToNode(new ObjectNode(node.name))));
+                child.hasClass = true;
+                const result = this.visit(child);
+                if (!(result instanceof SemFunction)) {
+                    throw new Error("result not a Function");
+                }
+                methods.push(result);
+                result.theClass = obj;
+                methodList.push(child);
+            }
+        });
+
+        // 构建
         node.body.forEach(child => {
             if (child instanceof VarDeclNode) {
                 child.isGlobal = false;
@@ -383,21 +408,15 @@ export class SemanticAnalysis extends SemBaseVisitor {
                     throw new Error("result not a Variable");
                 }
                 members.push(result);
-            } else if (child instanceof FuncDeclNode) {
-                // 为函数添加 this
-                child.params.unshift(new DeclArgNode("this", new PointerToNode(new ObjectNode(node.name))));
-                const result = this.visit(child);
-                if (!(result instanceof SemFunction)) {
-                    throw new Error("result not a Function");
-                }
-                methods.push(result);
-                result.theClass = obj;
             }
         });
-
         members.forEach(variable => {
             class_type.members.push(variable.type);
         })
+
+        for (let i = 0; i < methodList.length; i++) {
+            this.buildFuncBody(methodList[i], obj.methods[i]);
+        }
 
         this.leaveScope();
         return obj;
@@ -490,10 +509,10 @@ export class SemanticAnalysis extends SemBaseVisitor {
 
     visitLoad(node: LoadExprNode) {
         const obj = this.visit(node.value);
-        if(!(obj instanceof SemValue)){
+        if (!(obj instanceof SemValue)) {
             throw new Error("Object must be a Value");
         }
-        if(!(obj.type instanceof PointerTypeInfo)){
+        if (!(obj.type instanceof PointerTypeInfo)) {
             throw new Error("Object Type must be a pointer");
         }
         const truth = obj.type.getTrueType();

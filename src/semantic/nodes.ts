@@ -96,7 +96,7 @@ export abstract class SemBaseVisitor {
         return this.visit(node.value);
     }
 
-    visitLoad(node: LoadExprNode){
+    visitLoad(node: LoadExprNode) {
         this.visit(node.value);
     }
 }
@@ -290,6 +290,7 @@ export class FuncDeclNode extends DeclNode {
     return_type: ExprNode;
     alloc_list: Array<AllocNode> = []
     params: DeclArgNode[];
+    hasClass: boolean = false;
 
     obj?: SemFunction;
 
