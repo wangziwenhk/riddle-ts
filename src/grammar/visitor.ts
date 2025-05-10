@@ -29,12 +29,11 @@ import {
     LogicAndContext,
     BitXorContext,
     UnaryOpContext,
-    ScopeOpContext,
     RelOpContext,
     CompoundAssignOpContext,
     ShiftOpContext,
     PointerToContext,
-    LoadExprContext,
+    LoadExprContext, ScopeAccessContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
@@ -49,6 +48,7 @@ import {
     VarDeclNode
 } from '../semantic/nodes';
 import {PrimitiveType, PrimitiveTypeInfo} from '../semantic/typeInfo';
+import {ModifierList, ModifierType} from "../semantic/modifier";
 
 /**
  * 表示一个空节点的对象，通常用于表示树形结构或链表中的空占位符。
@@ -222,7 +222,16 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
 
     visitFuncDecl = (ctx: FuncDeclContext) => {
         const name = ctx._name.getText();
-        const body = this.visitBlock(ctx._body);
+        let body: BlockNode | undefined;
+        let modifiers = new ModifierList();
+        if (ctx.modifier_list().length) {
+            ctx.modifier_list().forEach(child => {
+                modifiers.add(child.getText());
+            })
+        }
+        if (ctx._body) {
+            body = this.visitBlock(ctx._body);
+        }
         let return_type: ExprNode;
         if (ctx._return_type) {
             return_type = this.visit(ctx._return_type);
@@ -230,7 +239,7 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             return_type = new ObjectNode('void')
         }
         const args = this.visitDeclArgs(ctx.declArgs());
-        return new FuncDeclNode(name, return_type, args, body);
+        return new FuncDeclNode(name, return_type, args, modifiers, body);
     }
 
     visitBlock = (ctx: BlockContext) => {
@@ -303,6 +312,12 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
         return new MemberAccessNode(left, right);
     }
 
+    visitScopeAccess = (ctx: ScopeAccessContext): any => {
+        const left: ExprNode = this.visit(ctx._left);
+        const right: string = ctx._right.getText();
+        return new ScopeAccessNode(left, right);
+    }
+
     visitInitList = (ctx: InitListContext) => {
         let children: ExprNode[] = [];
         ctx.children?.forEach(child => {
@@ -354,12 +369,6 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
         const value: ExprNode = this.visit(ctx._value);
         const op = ctx._op.text;
         return new UnaryOpNode(op, value);
-    }
-
-    visitScopeOp = (ctx: ScopeOpContext) => {
-        const left: ExprNode = this.visit(ctx._left);
-        const right = ctx._right.getText();
-        return new ScopeAccessNode(left, right);
     }
 
     visitCompoundAssignOp = (ctx: CompoundAssignOpContext) => {

@@ -2,6 +2,7 @@ import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import {AllocNode} from "./nodes";
 import llvm from "@wangziwenhk/llvm-bindings";
 import {undefined} from "zod";
+import {ModifierList, ModifierType} from "./modifier";
 
 /**
  * 表示一个语义分析对象
@@ -66,16 +67,18 @@ export class SemFunction extends SemObject {
     return_type: TypeInfo;
     llvm_func: llvm.Function | undefined;
     theClass: SemClass | undefined;
+    modifiers: ModifierList;
 
-    constructor(name: string, return_type: TypeInfo, param: SemVariable[] = []) {
+    constructor(name: string, return_type: TypeInfo, param: SemVariable[] = [], modifiers = new ModifierList()) {
         super();
         this.name = name;
         this.return_type = return_type;
         this.param = param;
+        this.modifiers = modifiers;
     }
 
     clone(): SemFunction {
-        const obj = new SemFunction(this.name, this.return_type, this.param);
+        const obj = new SemFunction(this.name, this.return_type, this.param, this.modifiers);
         obj.theClass = this.theClass;
         obj.llvm_func = this.llvm_func;
         return obj;

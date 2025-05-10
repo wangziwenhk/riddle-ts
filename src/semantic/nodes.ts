@@ -1,6 +1,7 @@
 import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import llvm from "@wangziwenhk/llvm-bindings";
 import {SemClass, SemFunction, SemObject, SemValue, SemVariable} from "./objects";
+import {ModifierList, ModifierType} from "./modifier";
 
 
 export abstract class SemBaseVisitor {
@@ -26,7 +27,9 @@ export abstract class SemBaseVisitor {
 
     visitFuncDecl(node: FuncDeclNode) {
         this.visit(node.return_type);
-        this.visit(node.body);
+        if (node.body) {
+            this.visit(node.body);
+        }
     }
 
     visitVarDecl(node: VarDeclNode) {
@@ -286,22 +289,26 @@ export abstract class DeclNode extends ExprNode {
  */
 export class FuncDeclNode extends DeclNode {
     name: string;
-    body: BlockNode;
+    body?: BlockNode;
     return_type: ExprNode;
     alloc_list: Array<AllocNode> = []
     params: DeclArgNode[];
+    modifier: ModifierList = new ModifierList();
     isGlobal: boolean = true;
     hasClass: boolean = false;
     isLazy: boolean = false;
 
     obj?: SemFunction;
 
-    constructor(name: string, return_type: ExprNode, params: DeclArgNode[], body: BlockNode) {
+    constructor(name: string, return_type: ExprNode, params: DeclArgNode[], modifier: ModifierList | undefined, body: BlockNode | undefined) {
         super();
         this.name = name;
         this.body = body;
         this.return_type = return_type;
         this.params = params;
+        if(modifier){
+            this.modifier = modifier
+        }
     }
 
     accept(visitor: SemBaseVisitor) {
@@ -419,7 +426,7 @@ export class ReturnNode extends ExprNode {
 export class CallNode extends ExprNode {
     value: ExprNode;
     params: ExprNode[];
-    obj?: SemFunction;
+    obj?: SemFunction | SemClass;
 
     constructor(value: ExprNode, params: ExprNode[]) {
         super();

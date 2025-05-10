@@ -27,9 +27,6 @@ Protected: 'protected';
 Private: 'private';
 Virtual: 'virtual';
 Operator: 'operator';
-// 模板
-Template: 'template';
-TypeName: 'typename';
 //可见字符
 //基本运算符
 LeftBracket:    '(';

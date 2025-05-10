@@ -21,7 +21,7 @@ expressionEnd
 
 expression
     : statement                                                                         #statementExpr
-    | left=expression Colon Colon right=expression                                      #scopeOp
+    | left=expression Colon Colon right=expression                                      #scopeAccess
     | left=expression Dot right=expression                                              #memberAccess
     | obj=expression LeftBracket (expression (Comma expression)*)? RightBracket         #callExpr
     | obj=expression Star                                                               #pointerTo
@@ -79,9 +79,17 @@ declArgs
     : (id Colon expression Comma)* (id Colon expression)?
     ;
 
+modifier
+    : Static
+    | Public
+    | Protected
+    | Private
+    | Override
+    ;
+
 funcDecl
-    : Func name=id LeftBracket declArgs RightBracket 
-      (Sub Greater return_type=expression)? body=block
+    : (modifier)* Func name=id LeftBracket declArgs RightBracket (Sub Greater return_type=expression)? body=block
+    | (modifier)* Func name=id LeftBracket declArgs RightBracket Sub Greater return_type=expression
     ;
 
 returnStmt

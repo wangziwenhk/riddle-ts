@@ -30,7 +30,7 @@ export abstract class TypeInfo {
         return this.name === type.name;
     }
 
-    getTrueType(): TypeInfo {
+    getElementType(): TypeInfo {
         return this;
     }
 }
@@ -96,7 +96,7 @@ export class PointerTypeInfo extends TypeInfo {
         return type instanceof PointerTypeInfo && type.size == this.size;
     }
 
-    getTrueType() {
-        return this.type.getTrueType();
+    getElementType() {
+        return this.type.getElementType();
     }
 }

@@ -4,7 +4,7 @@ import {
     ConstantNode, DeclArgNode, ExprNode,
     FuncDeclNode, InitListNode, LoadExprNode, MemberAccessNode,
     ObjectNode, PointerToNode,
-    ProgramNode, ReturnNode,
+    ProgramNode, ReturnNode, ScopeAccessNode,
     SemBaseVisitor,
     SemNode,
     VarDeclNode
@@ -186,7 +186,6 @@ export class SemanticAnalysis extends SemBaseVisitor {
         }
         const type = type_obj.type;
         node.obj = new SemVariable(node.name, type);
-        this.addGlobalObject(node.name, node.obj);
         return node.obj;
     }
 
@@ -210,18 +209,20 @@ export class SemanticAnalysis extends SemBaseVisitor {
         }
     }
 
-    buildFuncBody(node: FuncDeclNode, obj: SemFunction) {
+    // 延迟build
+    private buildFuncBody(node: FuncDeclNode, obj: SemFunction) {
         this.enterScope();
         // 处理函数参数
-        node.params.forEach(param => {
-            const result = this.visitDeclArg(param);
-            obj.param.push(result)
+        obj.param.forEach(param => {
+            this.addGlobalObject(param.name, param);
         })
 
         // 处理函数体
         this.funcStack.push(node);
-        this.visit(node.body);
-        this.preAlloc(node.body, node);
+        if (node.body) {
+            this.visit(node.body);
+            this.preAlloc(node.body, node);
+        }
         this.funcStack.pop();
         this.leaveScope();
     }
@@ -231,14 +232,20 @@ export class SemanticAnalysis extends SemBaseVisitor {
         if (!(return_type instanceof SemType)) {
             throw new Error("Unrecognized type");
         }
-        const obj = new SemFunction(node.name, return_type.type);
+        const obj = new SemFunction(node.name, return_type.type, [], node.modifier);
         node.obj = obj;
+
+        node.params.forEach(param => {
+            const result = this.visitDeclArg(param);
+            obj.param.push(result)
+        })
 
         if (!node.isGlobal) {
             this.addGlobalObject(node.name, node.obj);
         }
 
-        if(node.hasClass){
+        // 由 class 延迟调用
+        if (node.hasClass || !node.body) {
             return obj;
         }
 
@@ -350,15 +357,22 @@ export class SemanticAnalysis extends SemBaseVisitor {
     }
 
     visitCall(node: CallNode) {
-        const value = this.visit(node.value);
+        let value = this.visit(node.value);
         if (!(value instanceof SemFunction)) {
-            throw new Error("Object must be a Function");
+            if (!(value instanceof SemClass)) {
+                throw new Error("Object must be a Function");
+            }
+            value = value.getMember(value.name);
+            if (!(value instanceof SemFunction)) {
+                throw new Error("Object must be a Function");
+            }
         }
         // 修改以支持 this 参数
-        if (value.theClass) {
+        if (value.theClass && !value.modifiers.has('static')) {
             const theThis = (<MemberAccessNode>node.value).left;
             node.params.unshift(theThis);
         }
+
         node.params.forEach(param => {
             const result = this.visit(param);
             if (!(result instanceof SemValue)) {
@@ -401,7 +415,9 @@ export class SemanticAnalysis extends SemBaseVisitor {
         node.body.forEach(child => {
             if (child instanceof FuncDeclNode) {
                 // 为函数添加 this
-                child.params.unshift(new DeclArgNode("this", new PointerToNode(new ObjectNode(node.name))));
+                if (!child.modifier.has('static')) {
+                    child.params.unshift(new DeclArgNode("this", new PointerToNode(new ObjectNode(node.name))));
+                }
                 child.isGlobal = false;
                 child.hasClass = true;
                 const result = this.visit(child);
@@ -429,7 +445,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
     visitMemberAccess(node: MemberAccessNode) {
         const lhs = this.visit(node.left);
         if (lhs instanceof SemVariable) {
-            const type = lhs.type.getTrueType();
+            const type = lhs.type.getElementType();
             if (!(type instanceof ClassTypeInfo)) {
                 throw new Error("The left side of the member access operator has a non-class type");
             }
@@ -446,9 +462,27 @@ export class SemanticAnalysis extends SemBaseVisitor {
                 node.right_type = obj.return_type;
                 return obj;
             }
+        } else if (lhs instanceof SemClass) {
+            throw new Error(`Static member access requires the "::" symbol`);
         }
         //todo 添加更多方法解析
         return nil;
+    }
+
+    visitScopeAccess(node: ScopeAccessNode) {
+        const lhs = this.visit(node.left);
+        if (!(lhs instanceof SemClass)) {
+            throw new Error("The left operand must be a class");
+        }
+        node.left_type = lhs.type;
+        const obj = lhs.getMember(node.right);
+        if (obj instanceof SemVariable) {
+            // todo 支持静态成员变量
+            throw new Error("Left Must be A function")
+        } else {
+            node.right_type = obj.return_type;
+            return obj;
+        }
     }
 
     visitBinaryOp(node: BinaryOpNode) {
@@ -519,7 +553,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         if (!(obj.type instanceof PointerTypeInfo)) {
             throw new Error("Object Type must be a pointer");
         }
-        const truth = obj.type.getTrueType();
+        const truth = obj.type.getElementType();
         const new_obj = obj.clone();
         new_obj.type = truth;
         node.obj = new_obj;

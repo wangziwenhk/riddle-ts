@@ -17,7 +17,7 @@ import llvm from '@wangziwenhk/llvm-bindings';
 import {Config} from './config';
 import * as semType from '../semantic/typeInfo';
 import {PrimitiveTypeInfo} from '../semantic/typeInfo';
-import {SemFunction, SemVariable} from "../semantic/objects";
+import {SemClass, SemFunction, SemVariable} from "../semantic/objects";
 import {ok} from "node:assert";
 
 export class Generate extends SemBaseVisitor {
@@ -114,7 +114,7 @@ export class Generate extends SemBaseVisitor {
         })
 
         //lazy 处理
-        if(!node.isLazy){
+        if (!node.isLazy && node.body) {
             const entry = llvm.BasicBlock.Create(this.context, "entry", node.obj?.llvm_func);
             this.builder.SetInsertPoint(entry);
 
@@ -173,7 +173,12 @@ export class Generate extends SemBaseVisitor {
         node.params.forEach((param) => {
             params.push(this.visit(param))
         })
-        return this.builder.CreateCall(value.llvm_func!, params);
+        if (value instanceof SemFunction) {
+            return this.builder.CreateCall(value.llvm_func!, params);
+        } else {
+            const func = <SemFunction>value.getMember(value.name)
+            return this.builder.CreateCall(func.llvm_func!, params);
+        }
     }
 
     visitBlock(node: BlockNode) {
