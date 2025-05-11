@@ -33,7 +33,7 @@ import {
     CompoundAssignOpContext,
     ShiftOpContext,
     PointerToContext,
-    LoadExprContext, ScopeAccessContext,
+    LoadExprContext, ScopeAccessContext, ModifierContext, IfStmtContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
@@ -41,7 +41,7 @@ import {
     BlockNode, CallNode, ClassDeclNode, CompoundOpNode,
     ConstantNode, DeclArgNode, DeclNode,
     ExprNode,
-    FuncDeclNode, InitListNode, LoadExprNode, MemberAccessNode, NoneNode,
+    FuncDeclNode, IfNode, InitListNode, LoadExprNode, MemberAccessNode, NoneNode,
     ObjectNode, PointerToNode,
     ProgramNode, ReturnNode, ScopeAccessNode,
     SemNode, UnaryOpNode,
@@ -390,5 +390,19 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
     visitLoadExpr = (ctx: LoadExprContext) => {
         const value: ExprNode = this.visit(ctx._obj);
         return new LoadExprNode(value);
+    }
+
+    visitModifier = (ctx: ModifierContext) => {
+        return ctx.getText();
+    }
+
+    visitIfStmt = (ctx: IfStmtContext) => {
+        const cond: ExprNode = this.visit(ctx._cond);
+        const then: ExprNode = this.visit(ctx._then);
+        let else_: ExprNode | undefined = undefined;
+        if (ctx._else_) {
+            else_ = this.visit(ctx._else_);
+        }
+        return new IfNode(cond, then, else_);
     }
 }

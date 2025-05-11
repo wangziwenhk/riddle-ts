@@ -55,6 +55,7 @@ statement
     | block
     | returnStmt
     | packStmt
+    | ifStmt
     ;
 
 packStmt
@@ -90,6 +91,10 @@ modifier
 funcDecl
     : (modifier)* Func name=id LeftBracket declArgs RightBracket (Sub Greater return_type=expression)? body=block
     | (modifier)* Func name=id LeftBracket declArgs RightBracket Sub Greater return_type=expression
+    ;
+
+ifStmt
+    : If LeftBracket cond=expression RightBracket then=block (Else else=block)?
     ;
 
 returnStmt

@@ -36,6 +36,7 @@ import { InitListContext } from "./RiddleParser.js";
 import { DeclArgsContext } from "./RiddleParser.js";
 import { ModifierContext } from "./RiddleParser.js";
 import { FuncDeclContext } from "./RiddleParser.js";
+import { IfStmtContext } from "./RiddleParser.js";
 import { ReturnStmtContext } from "./RiddleParser.js";
 import { ClassDeclContext } from "./RiddleParser.js";
 import { IdContext } from "./RiddleParser.js";
@@ -270,6 +271,12 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitFuncDecl?: (ctx: FuncDeclContext) => Result;
+	/**
+	 * Visit a parse tree produced by `RiddleParser.ifStmt`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitIfStmt?: (ctx: IfStmtContext) => Result;
 	/**
 	 * Visit a parse tree produced by `RiddleParser.returnStmt`.
 	 * @param ctx the parse tree

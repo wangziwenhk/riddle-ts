@@ -2,7 +2,7 @@ import {
     BinaryOpNode,
     BlockNode, CallNode, ClassDeclNode, CompoundOpNode,
     ConstantNode, DeclArgNode, ExprNode,
-    FuncDeclNode, InitListNode, LoadExprNode, MemberAccessNode,
+    FuncDeclNode, IfNode, InitListNode, LoadExprNode, MemberAccessNode,
     ObjectNode, PointerToNode,
     ProgramNode, ReturnNode, ScopeAccessNode,
     SemBaseVisitor,
@@ -12,7 +12,9 @@ import {
 import {ClassTypeInfo, PointerTypeInfo, PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
 import {SemClass, SemFunction, SemObject, SemType, SemValue, SemVariable} from "./objects";
 import llvm from "@wangziwenhk/llvm-bindings";
+import {ok} from "node:assert";
 
+const boolTy: PrimitiveTypeInfo = new PrimitiveTypeInfo("bool");
 const voidTy: PrimitiveTypeInfo = new PrimitiveTypeInfo("void");
 
 const nil = new SemValue(
@@ -83,7 +85,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             const rhs = builder.CreateICmpNE(right, builder.getFalse());
             return builder.CreateOr(lhs, rhs);
         });
-        
+
     }
 
     private registerOpFunction(op: string, func: (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => llvm.Value) {
@@ -235,7 +237,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             obj.param.push(result)
         })
 
-        if (!node.isGlobal) {
+        if (node.isGlobal) {
             this.addGlobalObject(node.name, node.obj);
         }
 
@@ -533,21 +535,17 @@ export class SemanticAnalysis extends SemBaseVisitor {
     visitComparisonOp(node: CompoundOpNode) {
         const left = this.visit(node.left);
         const right = this.visit(node.right);
-        if (!(left instanceof SemVariable)) {
-            throw new Error("Left operand must be a Variable");
-        }
-        if(!(right instanceof SemValue)){
-            throw new Error("Right operand must be a Variable");
-        }
+        ok(left instanceof SemVariable, "Left operand must be a Variable");
+        ok(right instanceof SemValue, "Right operand must be a Variable");
         if (left.isConst) {
             throw new Error("The left operand is immutable");
         }
-        if(node.operator !== '=') {
+        if (node.operator !== '=') {
             const opFunc = this.opFunction.get(new OpKey(node.operator.slice(0, -1), left.type, right.type).toString());
-            if (opFunc === undefined) {
-                throw new Error(`Operand types '${left.type.name}' '${node.operator}' '${right.type.name}' are incompatible`);
-            }
+            ok(opFunc === undefined, `Operand types '${left.type.name}' '${node.operator}' '${right.type.name}' are incompatible`);
             node.func = opFunc;
+        } else {
+            ok(left.type.equal(right.type), "The assignment operator requires that both sides be of the same type");
         }
         node.obj = left;
         return left;
@@ -576,5 +574,21 @@ export class SemanticAnalysis extends SemBaseVisitor {
         new_obj.type = truth;
         node.obj = new_obj;
         return new_obj;
+    }
+
+    visitIf(node: IfNode) {
+        this.enterScope();
+        const cond = this.visit(node.cond);
+        ok(cond instanceof SemValue, "Condition must be of type bool")
+        ok(cond.type.equal(boolTy), "Condition must be of type bool")
+        this.enterScope();
+        this.visit(node.then);
+        this.leaveScope();
+        if (node.else_) {
+            this.enterScope();
+            this.visit(node.else_);
+            this.leaveScope();
+        }
+        this.leaveScope();
     }
 }

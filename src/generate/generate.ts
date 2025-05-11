@@ -4,7 +4,7 @@ import {
     CallNode,
     ClassDeclNode, CompoundOpNode,
     ConstantNode,
-    FuncDeclNode,
+    FuncDeclNode, IfNode,
     LoadExprNode,
     MemberAccessNode,
     ObjectNode,
@@ -17,7 +17,7 @@ import llvm from '@wangziwenhk/llvm-bindings';
 import {Config} from './config';
 import * as semType from '../semantic/typeInfo';
 import {PrimitiveTypeInfo} from '../semantic/typeInfo';
-import {SemClass, SemFunction, SemVariable} from "../semantic/objects";
+import {SemFunction, SemVariable} from "../semantic/objects";
 import {ok} from "node:assert";
 
 export class Generate extends SemBaseVisitor {
@@ -247,5 +247,37 @@ export class Generate extends SemBaseVisitor {
         const t = node.obj!;
         this.builder.CreateLoad(this.parseType(t.type), value);
         return value;
+    }
+
+    visitIf(node: IfNode) {
+        const parent = this.builder.GetInsertBlock()?.getParent()!;
+        const condBlock = llvm.BasicBlock.Create(this.context, "", parent);
+        const hasElse = node.else_ !== undefined;
+        this.builder.SetInsertPoint(condBlock);
+        const cond = this.visit(node.cond);
+        ok(cond instanceof llvm.Value, "Expected condition to be an instance of llvm.Value");
+        ok(cond.getType().isIntegerTy(1), "Condition must be of type bool");
+        const thenBlock = llvm.BasicBlock.Create(this.context, "", parent);
+        let elseBlock: llvm.BasicBlock | undefined;
+        const exitBlock = llvm.BasicBlock.Create(this.context, "", parent);
+        if (hasElse) {
+            elseBlock = llvm.BasicBlock.Create(this.context, "", parent, exitBlock);
+            this.builder.CreateCondBr(cond, thenBlock, elseBlock);
+        } else {
+            this.builder.CreateCondBr(cond, thenBlock, exitBlock);
+        }
+
+        this.builder.SetInsertPoint(thenBlock);
+        this.visit(node.then);
+        if(hasElse){
+            this.builder.CreateBr(exitBlock);
+        }
+
+        if(hasElse){
+            this.builder.SetInsertPoint(elseBlock!);
+            this.visit(node.else_!);
+        }
+
+        this.builder.SetInsertPoint(exitBlock);
     }
 }

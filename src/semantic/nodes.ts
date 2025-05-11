@@ -1,7 +1,7 @@
 import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import llvm from "@wangziwenhk/llvm-bindings";
 import {SemClass, SemFunction, SemObject, SemValue, SemVariable} from "./objects";
-import {ModifierList, ModifierType} from "./modifier";
+import {ModifierList} from "./modifier";
 
 
 export abstract class SemBaseVisitor {
@@ -101,6 +101,12 @@ export abstract class SemBaseVisitor {
 
     visitLoad(node: LoadExprNode) {
         this.visit(node.value);
+    }
+
+    visitIf(node: IfNode) {
+        this.visit(node.cond);
+        this.visit(node.then);
+        if (node.else_) this.visit(node.else_);
     }
 }
 
@@ -533,5 +539,22 @@ export class LoadExprNode extends ExprNode {
 
     accept(visitor: SemBaseVisitor) {
         return visitor.visitLoad(this);
+    }
+}
+
+export class IfNode extends ExprNode {
+    cond: ExprNode;
+    then: ExprNode;
+    else_?: ExprNode;
+
+    constructor(cond: ExprNode, then: ExprNode, else_: ExprNode | undefined) {
+        super();
+        this.cond = cond;
+        this.then = then;
+        this.else_ = else_;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitIf(this);
     }
 }
