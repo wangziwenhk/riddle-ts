@@ -86,6 +86,10 @@ export class BuildGraph {
         }
         this.dependencies.get(to)?.add(from);
     }
+    
+    getDependencies(id: string) {
+        return this.dependencies.get(id);
+    }
 
     /**
      * 使用拓扑排序生成构建顺序。
@@ -122,11 +126,18 @@ export class BuildGraph {
      */
     async executeBuild(): Promise<void> {
         const buildOrder = this.generateBuildOrder();
+        const executionPromises: Map<string, Promise<void>> = new Map();
+
         for (const nodeId of buildOrder) {
             const node = this.nodes.get(nodeId);
             if (node) {
                 try {
-                    await node.execute();
+                    const deps = this.getDependencies(node.id);
+                    const dependencyPromises = Array.from(deps || []).map(dep => executionPromises.get(dep));
+                    await Promise.all(dependencyPromises);
+                    const executionPromise = node.execute();
+                    executionPromises.set(node.id, executionPromise);
+                    await executionPromise;
                 } catch (error) {
                     console.error(`Error executing node '${nodeId}':`, error);
                 }

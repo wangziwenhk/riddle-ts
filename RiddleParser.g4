@@ -56,6 +56,7 @@ statement
     | returnStmt
     | packStmt
     | ifStmt
+    | whileStmt
     ;
 
 packStmt
@@ -76,8 +77,10 @@ initList
     : LeftCurly (expression (Comma expression)*)? RightCurly
     ;
 
-declArgs
-    : (id Colon expression Comma)* (id Colon expression)?
+declArgs returns [boolean isVar = false]
+    : (id Colon expression Comma)* (id Colon expression)? {$isVar=false;}
+    | (id Colon expression Comma)+ Dot Dot Dot {$isVar=true;}
+    | Dot Dot Dot {$isVar=true;}
     ;
 
 modifier
@@ -95,6 +98,10 @@ funcDecl
 
 ifStmt
     : If LeftBracket cond=expression RightBracket then=block (Else else=block)?
+    ;
+
+whileStmt
+    : While LeftBracket cond=expression RightBracket body=block
     ;
 
 returnStmt

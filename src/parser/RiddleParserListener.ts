@@ -37,6 +37,7 @@ import { DeclArgsContext } from "./RiddleParser.js";
 import { ModifierContext } from "./RiddleParser.js";
 import { FuncDeclContext } from "./RiddleParser.js";
 import { IfStmtContext } from "./RiddleParser.js";
+import { WhileStmtContext } from "./RiddleParser.js";
 import { ReturnStmtContext } from "./RiddleParser.js";
 import { ClassDeclContext } from "./RiddleParser.js";
 import { IdContext } from "./RiddleParser.js";
@@ -433,6 +434,16 @@ export default class RiddleParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitIfStmt?: (ctx: IfStmtContext) => void;
+	/**
+	 * Enter a parse tree produced by `RiddleParser.whileStmt`.
+	 * @param ctx the parse tree
+	 */
+	enterWhileStmt?: (ctx: WhileStmtContext) => void;
+	/**
+	 * Exit a parse tree produced by `RiddleParser.whileStmt`.
+	 * @param ctx the parse tree
+	 */
+	exitWhileStmt?: (ctx: WhileStmtContext) => void;
 	/**
 	 * Enter a parse tree produced by `RiddleParser.returnStmt`.
 	 * @param ctx the parse tree

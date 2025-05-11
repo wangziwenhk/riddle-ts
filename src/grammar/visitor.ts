@@ -239,7 +239,7 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             return_type = new ObjectNode('void')
         }
         const args = this.visitDeclArgs(ctx.declArgs());
-        return new FuncDeclNode(name, return_type, args, modifiers, body);
+        return new FuncDeclNode(name, return_type, args, ctx.declArgs().isVar, modifiers, body);
     }
 
     visitBlock = (ctx: BlockContext) => {

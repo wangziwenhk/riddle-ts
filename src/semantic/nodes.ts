@@ -305,15 +305,17 @@ export class FuncDeclNode extends DeclNode {
     isGlobal: boolean = true;
     hasClass: boolean = false;
     isLazy: boolean = false;
+    isVarArg: boolean;
 
     obj?: SemFunction;
 
-    constructor(name: string, return_type: ExprNode, params: DeclArgNode[], modifier: ModifierList | undefined, body: BlockNode | undefined) {
+    constructor(name: string, return_type: ExprNode, params: DeclArgNode[], isVarArg: boolean, modifier: ModifierList | undefined, body: BlockNode | undefined) {
         super();
         this.name = name;
         this.body = body;
         this.return_type = return_type;
         this.params = params;
+        this.isVarArg = isVarArg;
         if (modifier) {
             this.modifier = modifier
         }

@@ -41,7 +41,7 @@ export class Generate extends SemBaseVisitor {
     private parseType(type: semType.TypeInfo): llvm.Type {
         if (type instanceof semType.PointerTypeInfo) {
             const result = this.parseType(type.type);
-            return result.getPointerTo();
+            return llvm.PointerType.get(result, 0);
         } else if (type instanceof semType.PrimitiveTypeInfo) {
             const result = this.primitiveTypeMap.get(type.name);
             if (result === undefined) {
@@ -89,43 +89,47 @@ export class Generate extends SemBaseVisitor {
     }
 
     visitFuncDecl(node: FuncDeclNode) {
-        const return_type = this.parseType(node.obj!.return_type)
+        const returnType = this.parseType(node.obj!.return_type)
 
-        let param_type: llvm.Type[] = []
-        // 处理函数参数类型来生成 func_type
-        if (node.obj?.param) {
-            node.obj.param.forEach((param) => {
-                param_type.push(this.parseType(param.type));
-            });
+        let paramTypes = node.obj?.param.map(param=>{return this.parseType(param.type)}) || []
+
+        // 构造函数的全名（包括类名）
+        const functionName = node.obj?.theClass?.name
+            ? `${node.obj.theClass.name}.${node.name}`
+            : node.name;
+
+        // 如果函数尚未定义，则创建 LLVM 函数
+        if (!node.obj?.llvm_func) {
+            const functionType = llvm.FunctionType.get(returnType, paramTypes, node.isVarArg);
+            node.obj!.llvm_func = llvm.Function.Create(
+                functionType,
+                llvm.GlobalValue.LinkageTypes.ExternalLinkage,
+                functionName,
+                this.module
+            );
         }
 
-        const true_name = (node.obj?.theClass?.name ? node.obj?.theClass?.name + "." : "") + node.name;
-        if (node.obj?.llvm_func == undefined) {
-            const func_type = llvm.FunctionType.get(return_type, param_type, false)
-            node.obj!.llvm_func = llvm.Function.Create(func_type, llvm.GlobalValue.LinkageTypes.ExternalLinkage, true_name, this.module);
-        }
+        // 绑定函数参数到 LLVM 参数
+        node.params.forEach((param, index) => {
+            param.obj!.alloc.alloc = node.obj?.llvm_func?.getArg(index);
+        });
 
-
-        // 处理参数的内存
-        let i = 0
-        node.params.forEach((param) => {
-            param.obj!.alloc.alloc = node.obj?.llvm_func?.getArg(i);
-            i++;
-        })
-
-        //lazy 处理
+        // 非懒加载函数的处理
         if (!node.isLazy && node.body) {
-            const entry = llvm.BasicBlock.Create(this.context, "entry", node.obj?.llvm_func);
-            this.builder.SetInsertPoint(entry);
+            const entryBlock = llvm.BasicBlock.Create(this.context, "entry", node.obj?.llvm_func);
+            this.builder.SetInsertPoint(entryBlock);
 
+            // 为每个分配节点创建内存分配
             node.alloc_list.forEach(alloc => {
-                let type = this.parseType(alloc.type);
-                if (type.isVoidTy()) {
-                    return;
+                const type = this.parseType(alloc.type);
+                if (!type.isVoidTy()) {
+                    alloc.alloc = this.builder.CreateAlloca(type);
                 }
-                alloc.alloc = this.builder.CreateAlloca(type);
-            })
-            this.visit(node.body)
+            });
+
+            // 访问函数体并验证函数
+            this.visit(node.body);
+            llvm.verifyFunction(node.obj?.llvm_func!);
         }
     }
 
@@ -147,7 +151,7 @@ export class Generate extends SemBaseVisitor {
         if (!node.obj) {
             throw new Error("unknown obj");
         } else if (node.obj instanceof SemVariable) {
-            return node.obj.alloc.alloc;
+            return this.builder.CreateLoad(this.parseType(node.obj.type), node.obj.alloc.alloc!);
         } else if (node.obj instanceof SemFunction) {
             return node.obj;
         }
@@ -251,17 +255,20 @@ export class Generate extends SemBaseVisitor {
 
     visitIf(node: IfNode) {
         const parent = this.builder.GetInsertBlock()?.getParent()!;
-        const condBlock = llvm.BasicBlock.Create(this.context, "", parent);
+        const condBlock = llvm.BasicBlock.Create(this.context, "b", parent);
         const hasElse = node.else_ !== undefined;
+
+        this.builder.CreateBr(condBlock);
         this.builder.SetInsertPoint(condBlock);
         const cond = this.visit(node.cond);
         ok(cond instanceof llvm.Value, "Expected condition to be an instance of llvm.Value");
         ok(cond.getType().isIntegerTy(1), "Condition must be of type bool");
-        const thenBlock = llvm.BasicBlock.Create(this.context, "", parent);
+
+        const thenBlock = llvm.BasicBlock.Create(this.context, "b", parent);
         let elseBlock: llvm.BasicBlock | undefined;
-        const exitBlock = llvm.BasicBlock.Create(this.context, "", parent);
+        const exitBlock = llvm.BasicBlock.Create(this.context, "b", parent);
         if (hasElse) {
-            elseBlock = llvm.BasicBlock.Create(this.context, "", parent, exitBlock);
+            elseBlock = llvm.BasicBlock.Create(this.context, "b", parent, exitBlock);
             this.builder.CreateCondBr(cond, thenBlock, elseBlock);
         } else {
             this.builder.CreateCondBr(cond, thenBlock, exitBlock);
@@ -269,13 +276,13 @@ export class Generate extends SemBaseVisitor {
 
         this.builder.SetInsertPoint(thenBlock);
         this.visit(node.then);
-        if(hasElse){
-            this.builder.CreateBr(exitBlock);
-        }
+        this.builder.CreateBr(exitBlock);
 
-        if(hasElse){
+
+        if (hasElse) {
             this.builder.SetInsertPoint(elseBlock!);
             this.visit(node.else_!);
+            this.builder.CreateBr(exitBlock);
         }
 
         this.builder.SetInsertPoint(exitBlock);
