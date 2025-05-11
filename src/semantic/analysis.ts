@@ -1,6 +1,6 @@
 import {
     BinaryOpNode,
-    BlockNode, CallNode, ClassDeclNode,
+    BlockNode, CallNode, ClassDeclNode, CompoundOpNode,
     ConstantNode, DeclArgNode, ExprNode,
     FuncDeclNode, InitListNode, LoadExprNode, MemberAccessNode,
     ObjectNode, PointerToNode,
@@ -29,12 +29,6 @@ class OpKey {
 
     toString(): string {
         return `${this.op}_${this.t1.name}_${this.t2.name}`;
-    }
-
-    equals(other: OpKey): boolean {
-        return this.op === other.op &&
-            this.t1.name === other.t1.name &&
-            this.t2.name === other.t2.name;
     }
 }
 
@@ -89,6 +83,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             const rhs = builder.CreateICmpNE(right, builder.getFalse());
             return builder.CreateOr(lhs, rhs);
         });
+        
     }
 
     private registerOpFunction(op: string, func: (left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => llvm.Value) {
@@ -185,7 +180,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             throw new Error("The type representation of the parameter is not a type");
         }
         const type = type_obj.type;
-        node.obj = new SemVariable(node.name, type);
+        node.obj = new SemVariable(node.name, type, undefined, false);
         return node.obj;
     }
 
@@ -270,7 +265,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
 
         this.validateValueType(semValue, resolvedType);
 
-        const semVariable = new SemVariable(node.name, resolvedType, semValue);
+        const semVariable = new SemVariable(node.name, resolvedType, semValue, node.isConst);
         node.obj = semVariable;
 
         if (node.isGlobal) {
@@ -380,7 +375,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             }
         })
         node.obj = value;
-        return new SemVariable("", node.obj.return_type, new SemValue(value, node.obj.return_type));
+        return new SemVariable("", node.obj.return_type, new SemValue(value, node.obj.return_type), false);
     }
 
     visitInitList(node: InitListNode) {
@@ -457,7 +452,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
             node.left_type = type;
             if (obj instanceof SemVariable) {
                 node.right_type = obj.type;
-                return new SemVariable("", node.right_type, obj);
+                return obj;
             } else {
                 node.right_type = obj.return_type;
                 return obj;
@@ -505,7 +500,7 @@ export class SemanticAnalysis extends SemBaseVisitor {
         node.func = opFunc;
 
         const resultType = this.inferBinaryOpResultType(node.operator, left.type, right.type);
-        const obj = new SemValue(undefined, resultType);
+        const obj = new SemVariable("", resultType, undefined, false);
         node.obj = obj;
         return obj;
     }
@@ -533,6 +528,29 @@ export class SemanticAnalysis extends SemBaseVisitor {
             }
         }
         throw new Error(`Unsupported binary operation '${operator}' for types '${t1.name}' and '${t2.name}'`);
+    }
+
+    visitComparisonOp(node: CompoundOpNode) {
+        const left = this.visit(node.left);
+        const right = this.visit(node.right);
+        if (!(left instanceof SemVariable)) {
+            throw new Error("Left operand must be a Variable");
+        }
+        if(!(right instanceof SemValue)){
+            throw new Error("Right operand must be a Variable");
+        }
+        if (left.isConst) {
+            throw new Error("The left operand is immutable");
+        }
+        if(node.operator !== '=') {
+            const opFunc = this.opFunction.get(new OpKey(node.operator.slice(0, -1), left.type, right.type).toString());
+            if (opFunc === undefined) {
+                throw new Error(`Operand types '${left.type.name}' '${node.operator}' '${right.type.name}' are incompatible`);
+            }
+            node.func = opFunc;
+        }
+        node.obj = left;
+        return left;
     }
 
     visitPointerTo(node: PointerToNode) {

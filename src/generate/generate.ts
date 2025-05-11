@@ -2,7 +2,7 @@ import {
     BinaryOpNode,
     BlockNode,
     CallNode,
-    ClassDeclNode,
+    ClassDeclNode, CompoundOpNode,
     ConstantNode,
     FuncDeclNode,
     LoadExprNode,
@@ -228,6 +228,18 @@ export class Generate extends SemBaseVisitor {
         ok(left instanceof llvm.Value, "Expected 'left' to be an instance of llvm.Value");
         ok(right instanceof llvm.Value, "Expected 'right' to be an instance of llvm.Value");
         return node.func!(left, right, this.builder);
+    }
+
+    visitComparisonOp(node: CompoundOpNode) {
+        const left = this.visit(node.left);
+        const right = this.visit(node.right);
+        ok(left instanceof llvm.Value, "Expected 'left' to be an instance of llvm.Value");
+        ok(right instanceof llvm.Value, "Expected 'right' to be an instance of llvm.Value");
+        let result = right;
+        if (node.func) {
+            result = node.func(left, right, this.builder);
+        }
+        return this.builder.CreateStore(left, result);
     }
 
     visitLoad(node: LoadExprNode) {

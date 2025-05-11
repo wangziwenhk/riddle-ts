@@ -1,8 +1,7 @@
 import {ClassTypeInfo, TypeInfo} from "./typeInfo";
 import {AllocNode} from "./nodes";
 import llvm from "@wangziwenhk/llvm-bindings";
-import {undefined} from "zod";
-import {ModifierList, ModifierType} from "./modifier";
+import {ModifierList} from "./modifier";
 
 /**
  * 表示一个语义分析对象
@@ -29,20 +28,17 @@ export class SemValue extends SemObject {
 export class SemVariable extends SemValue {
     name: string;
     alloc: AllocNode;
+    isConst: boolean;
 
-    constructor(name: string, type: TypeInfo, value?: SemValue) {
-        let t = undefined
-        if (value) {
-            t = value.value;
-        }
-
-        super(t, type);
+    constructor(name: string, type: TypeInfo, value: SemValue | undefined, isConst: boolean) {
+        super(value, type);
         this.name = name;
         this.alloc = new AllocNode(type)
+        this.isConst = isConst;
     }
 
     clone(): SemVariable {
-        const obj = new SemVariable(this.name, this.type, this.value);
+        const obj = new SemVariable(this.name, this.type, this.value, this.isConst);
         obj.alloc = this.alloc;
         return obj;
     }

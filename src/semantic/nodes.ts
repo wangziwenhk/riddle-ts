@@ -203,6 +203,8 @@ export class CompoundOpNode extends OperatorNode {
     operator: string;
     left: ExprNode;
     right: ExprNode;
+    obj?: SemValue;
+    func?: ((left: llvm.Value, right: llvm.Value, builder: llvm.IRBuilder) => llvm.Value);
 
     constructor(operator: string, left: ExprNode, right: ExprNode) {
         super();
@@ -306,7 +308,7 @@ export class FuncDeclNode extends DeclNode {
         this.body = body;
         this.return_type = return_type;
         this.params = params;
-        if(modifier){
+        if (modifier) {
             this.modifier = modifier
         }
     }
@@ -344,12 +346,14 @@ export class VarDeclNode extends DeclNode {
     value?: ExprNode;
     obj?: SemVariable;
     isGlobal: boolean = true;
+    isConst: boolean;
 
-    constructor(name: string, type: ExprNode | undefined, value: ExprNode | undefined) {
+    constructor(name: string, type: ExprNode | undefined, value: ExprNode | undefined, isConst: boolean) {
         super();
         this.name = name;
         this.type = type;
         this.value = value;
+        this.isConst = isConst;
     }
 
     accept(visitor: SemBaseVisitor) {

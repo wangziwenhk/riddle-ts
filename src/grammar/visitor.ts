@@ -48,7 +48,7 @@ import {
     VarDeclNode
 } from '../semantic/nodes';
 import {PrimitiveType, PrimitiveTypeInfo} from '../semantic/typeInfo';
-import {ModifierList, ModifierType} from "../semantic/modifier";
+import {ModifierList} from "../semantic/modifier";
 
 /**
  * 表示一个空节点的对象，通常用于表示树形结构或链表中的空占位符。
@@ -269,13 +269,14 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
     visitVarDecl = (ctx: VarDeclContext) => {
         let type: ExprNode | undefined = undefined
         let value: ExprNode | undefined = undefined;
+        const isConst = ctx._varType.text === 'val';
         if (ctx._type_) {
             type = this.visit(ctx._type_);
         }
         if (ctx._value) {
             value = this.visit(ctx._value);
         }
-        return new VarDeclNode(ctx._name.getText(), type, value);
+        return new VarDeclNode(ctx._name.getText(), type, value, isConst);
     }
 
     visitId = (ctx: IdContext) => {

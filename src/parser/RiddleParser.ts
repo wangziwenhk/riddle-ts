@@ -247,7 +247,7 @@ export default class RiddleParser extends Parser {
 			this.state = 31;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2312697346) !== 0) || ((((_la - 34)) & ~0x1F) === 0 && ((1 << (_la - 34)) & 8468481) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 75) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2312697350) !== 0) || ((((_la - 34)) & ~0x1F) === 0 && ((1 << (_la - 34)) & 8468481) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 75) !== 0)) {
 				{
 				{
 				this.state = 28;
@@ -285,6 +285,7 @@ export default class RiddleParser extends Parser {
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
 			case 1:
+			case 2:
 			case 9:
 			case 10:
 			case 12:
@@ -380,6 +381,7 @@ export default class RiddleParser extends Parser {
 			this._errHandler.sync(this);
 			switch (this._input.LA(1)) {
 			case 1:
+			case 2:
 			case 9:
 			case 10:
 			case 12:
@@ -769,7 +771,7 @@ export default class RiddleParser extends Parser {
 						this.state = 113;
 						this._errHandler.sync(this);
 						_la = this._input.LA(1);
-						if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2312697346) !== 0) || ((((_la - 45)) & ~0x1F) === 0 && ((1 << (_la - 45)) & 620761127) !== 0)) {
+						if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2312697350) !== 0) || ((((_la - 45)) & ~0x1F) === 0 && ((1 << (_la - 45)) & 620761127) !== 0)) {
 							{
 							this.state = 105;
 							this.expression(0);
@@ -955,50 +957,117 @@ export default class RiddleParser extends Parser {
 	public varDecl(): VarDeclContext {
 		let localctx: VarDeclContext = new VarDeclContext(this, this._ctx, this.state);
 		this.enterRule(localctx, 10, RiddleParser.RULE_varDecl);
+		let _la: number;
 		try {
-			this.state = 158;
+			this.state = 176;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 10, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 13, this._ctx) ) {
 			case 1:
 				this.enterOuterAlt(localctx, 1);
 				{
-				this.state = 141;
-				this.match(RiddleParser.Var);
-				this.state = 142;
-				localctx._name = this.id();
-				this.state = 143;
-				this.match(RiddleParser.Colon);
 				this.state = 144;
+				this._errHandler.sync(this);
+				_la = this._input.LA(1);
+				while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 30932992) !== 0)) {
+					{
+					{
+					this.state = 141;
+					this.modifier();
+					}
+					}
+					this.state = 146;
+					this._errHandler.sync(this);
+					_la = this._input.LA(1);
+				}
+				this.state = 147;
+				localctx._varType = this._input.LT(1);
+				_la = this._input.LA(1);
+				if(!(_la===1 || _la===2)) {
+				    localctx._varType = this._errHandler.recoverInline(this);
+				}
+				else {
+					this._errHandler.reportMatch(this);
+				    this.consume();
+				}
+				this.state = 148;
+				localctx._name = this.id();
+				this.state = 149;
+				this.match(RiddleParser.Colon);
+				this.state = 150;
 				localctx._type_ = this.expression(0);
-				this.state = 145;
+				this.state = 151;
 				this.match(RiddleParser.Assign);
-				this.state = 146;
+				this.state = 152;
 				localctx._value = this.expression(0);
 				}
 				break;
 			case 2:
 				this.enterOuterAlt(localctx, 2);
 				{
-				this.state = 148;
-				this.match(RiddleParser.Var);
-				this.state = 149;
+				this.state = 157;
+				this._errHandler.sync(this);
+				_la = this._input.LA(1);
+				while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 30932992) !== 0)) {
+					{
+					{
+					this.state = 154;
+					this.modifier();
+					}
+					}
+					this.state = 159;
+					this._errHandler.sync(this);
+					_la = this._input.LA(1);
+				}
+				this.state = 160;
+				localctx._varType = this._input.LT(1);
+				_la = this._input.LA(1);
+				if(!(_la===1 || _la===2)) {
+				    localctx._varType = this._errHandler.recoverInline(this);
+				}
+				else {
+					this._errHandler.reportMatch(this);
+				    this.consume();
+				}
+				this.state = 161;
 				localctx._name = this.id();
-				this.state = 150;
+				this.state = 162;
 				this.match(RiddleParser.Assign);
-				this.state = 151;
+				this.state = 163;
 				localctx._value = this.expression(0);
 				}
 				break;
 			case 3:
 				this.enterOuterAlt(localctx, 3);
 				{
-				this.state = 153;
-				this.match(RiddleParser.Var);
-				this.state = 154;
+				this.state = 168;
+				this._errHandler.sync(this);
+				_la = this._input.LA(1);
+				while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 30932992) !== 0)) {
+					{
+					{
+					this.state = 165;
+					this.modifier();
+					}
+					}
+					this.state = 170;
+					this._errHandler.sync(this);
+					_la = this._input.LA(1);
+				}
+				this.state = 171;
+				localctx._varType = this._input.LT(1);
+				_la = this._input.LA(1);
+				if(!(_la===1 || _la===2)) {
+				    localctx._varType = this._errHandler.recoverInline(this);
+				}
+				else {
+					this._errHandler.reportMatch(this);
+				    this.consume();
+				}
+				this.state = 172;
 				localctx._name = this.id();
-				this.state = 155;
+				this.state = 173;
 				this.match(RiddleParser.Colon);
-				this.state = 156;
+				this.state = 174;
 				localctx._type_ = this.expression(0);
 				}
 				break;
@@ -1026,23 +1095,23 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 160;
+			this.state = 178;
 			this.match(RiddleParser.LeftCurly);
-			this.state = 164;
+			this.state = 182;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2312697346) !== 0) || ((((_la - 34)) & ~0x1F) === 0 && ((1 << (_la - 34)) & 8468481) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 75) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2312697350) !== 0) || ((((_la - 34)) & ~0x1F) === 0 && ((1 << (_la - 34)) & 8468481) !== 0) || ((((_la - 68)) & ~0x1F) === 0 && ((1 << (_la - 68)) & 75) !== 0)) {
 				{
 				{
-				this.state = 161;
+				this.state = 179;
 				this.expressionEnd();
 				}
 				}
-				this.state = 166;
+				this.state = 184;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 			}
-			this.state = 167;
+			this.state = 185;
 			this.match(RiddleParser.RightCurly);
 			}
 		}
@@ -1068,35 +1137,35 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 169;
+			this.state = 187;
 			this.match(RiddleParser.LeftCurly);
-			this.state = 178;
+			this.state = 196;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2312697346) !== 0) || ((((_la - 45)) & ~0x1F) === 0 && ((1 << (_la - 45)) & 620761127) !== 0)) {
+			if ((((_la) & ~0x1F) === 0 && ((1 << _la) & 2312697350) !== 0) || ((((_la - 45)) & ~0x1F) === 0 && ((1 << (_la - 45)) & 620761127) !== 0)) {
 				{
-				this.state = 170;
+				this.state = 188;
 				this.expression(0);
-				this.state = 175;
+				this.state = 193;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 				while (_la===35) {
 					{
 					{
-					this.state = 171;
+					this.state = 189;
 					this.match(RiddleParser.Comma);
-					this.state = 172;
+					this.state = 190;
 					this.expression(0);
 					}
 					}
-					this.state = 177;
+					this.state = 195;
 					this._errHandler.sync(this);
 					_la = this._input.LA(1);
 				}
 				}
 			}
 
-			this.state = 180;
+			this.state = 198;
 			this.match(RiddleParser.RightCurly);
 			}
 		}
@@ -1123,38 +1192,38 @@ export default class RiddleParser extends Parser {
 			let _alt: number;
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 189;
+			this.state = 207;
 			this._errHandler.sync(this);
-			_alt = this._interp.adaptivePredict(this._input, 14, this._ctx);
+			_alt = this._interp.adaptivePredict(this._input, 17, this._ctx);
 			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
 				if (_alt === 1) {
 					{
 					{
-					this.state = 182;
+					this.state = 200;
 					this.id();
-					this.state = 183;
+					this.state = 201;
 					this.match(RiddleParser.Colon);
-					this.state = 184;
+					this.state = 202;
 					this.expression(0);
-					this.state = 185;
+					this.state = 203;
 					this.match(RiddleParser.Comma);
 					}
 					}
 				}
-				this.state = 191;
+				this.state = 209;
 				this._errHandler.sync(this);
-				_alt = this._interp.adaptivePredict(this._input, 14, this._ctx);
+				_alt = this._interp.adaptivePredict(this._input, 17, this._ctx);
 			}
-			this.state = 196;
+			this.state = 214;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la===69) {
 				{
-				this.state = 192;
+				this.state = 210;
 				this.id();
-				this.state = 193;
+				this.state = 211;
 				this.match(RiddleParser.Colon);
-				this.state = 194;
+				this.state = 212;
 				this.expression(0);
 				}
 			}
@@ -1183,7 +1252,7 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 198;
+			this.state = 216;
 			_la = this._input.LA(1);
 			if(!((((_la) & ~0x1F) === 0 && ((1 << _la) & 30932992) !== 0))) {
 			this._errHandler.recoverInline(this);
@@ -1214,56 +1283,11 @@ export default class RiddleParser extends Parser {
 		this.enterRule(localctx, 20, RiddleParser.RULE_funcDecl);
 		let _la: number;
 		try {
-			this.state = 233;
+			this.state = 251;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 19, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 22, this._ctx) ) {
 			case 1:
 				this.enterOuterAlt(localctx, 1);
-				{
-				this.state = 203;
-				this._errHandler.sync(this);
-				_la = this._input.LA(1);
-				while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 30932992) !== 0)) {
-					{
-					{
-					this.state = 200;
-					this.modifier();
-					}
-					}
-					this.state = 205;
-					this._errHandler.sync(this);
-					_la = this._input.LA(1);
-				}
-				this.state = 206;
-				this.match(RiddleParser.Func);
-				this.state = 207;
-				localctx._name = this.id();
-				this.state = 208;
-				this.match(RiddleParser.LeftBracket);
-				this.state = 209;
-				this.declArgs();
-				this.state = 210;
-				this.match(RiddleParser.RightBracket);
-				this.state = 214;
-				this._errHandler.sync(this);
-				_la = this._input.LA(1);
-				if (_la===46) {
-					{
-					this.state = 211;
-					this.match(RiddleParser.Sub);
-					this.state = 212;
-					this.match(RiddleParser.Greater);
-					this.state = 213;
-					localctx._return_type = this.expression(0);
-					}
-				}
-
-				this.state = 216;
-				localctx._body = this.block();
-				}
-				break;
-			case 2:
-				this.enterOuterAlt(localctx, 2);
 				{
 				this.state = 221;
 				this._errHandler.sync(this);
@@ -1289,11 +1313,56 @@ export default class RiddleParser extends Parser {
 				this.declArgs();
 				this.state = 228;
 				this.match(RiddleParser.RightBracket);
-				this.state = 229;
+				this.state = 232;
+				this._errHandler.sync(this);
+				_la = this._input.LA(1);
+				if (_la===46) {
+					{
+					this.state = 229;
+					this.match(RiddleParser.Sub);
+					this.state = 230;
+					this.match(RiddleParser.Greater);
+					this.state = 231;
+					localctx._return_type = this.expression(0);
+					}
+				}
+
+				this.state = 234;
+				localctx._body = this.block();
+				}
+				break;
+			case 2:
+				this.enterOuterAlt(localctx, 2);
+				{
+				this.state = 239;
+				this._errHandler.sync(this);
+				_la = this._input.LA(1);
+				while ((((_la) & ~0x1F) === 0 && ((1 << _la) & 30932992) !== 0)) {
+					{
+					{
+					this.state = 236;
+					this.modifier();
+					}
+					}
+					this.state = 241;
+					this._errHandler.sync(this);
+					_la = this._input.LA(1);
+				}
+				this.state = 242;
+				this.match(RiddleParser.Func);
+				this.state = 243;
+				localctx._name = this.id();
+				this.state = 244;
+				this.match(RiddleParser.LeftBracket);
+				this.state = 245;
+				this.declArgs();
+				this.state = 246;
+				this.match(RiddleParser.RightBracket);
+				this.state = 247;
 				this.match(RiddleParser.Sub);
-				this.state = 230;
+				this.state = 248;
 				this.match(RiddleParser.Greater);
-				this.state = 231;
+				this.state = 249;
 				localctx._return_type = this.expression(0);
 				}
 				break;
@@ -1320,14 +1389,14 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 235;
+			this.state = 253;
 			this.match(RiddleParser.Return);
-			this.state = 237;
+			this.state = 255;
 			this._errHandler.sync(this);
-			switch ( this._interp.adaptivePredict(this._input, 20, this._ctx) ) {
+			switch ( this._interp.adaptivePredict(this._input, 23, this._ctx) ) {
 			case 1:
 				{
-				this.state = 236;
+				this.state = 254;
 				localctx._result = this.expression(0);
 				}
 				break;
@@ -1355,11 +1424,11 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 239;
+			this.state = 257;
 			this.match(RiddleParser.Class);
-			this.state = 240;
+			this.state = 258;
 			localctx._name = this.id();
-			this.state = 241;
+			this.state = 259;
 			localctx._body = this.block();
 			}
 		}
@@ -1384,7 +1453,7 @@ export default class RiddleParser extends Parser {
 		try {
 			this.enterOuterAlt(localctx, 1);
 			{
-			this.state = 243;
+			this.state = 261;
 			this.match(RiddleParser.Identifier);
 			}
 		}
@@ -1446,7 +1515,7 @@ export default class RiddleParser extends Parser {
 		return true;
 	}
 
-	public static readonly _serializedATN: number[] = [4,1,84,246,2,0,7,0,2,
+	public static readonly _serializedATN: number[] = [4,1,84,264,2,0,7,0,2,
 	1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,
 	10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,1,0,5,0,30,8,0,10,0,12,0,33,9,0,1,
 	0,1,0,1,1,1,1,1,1,3,1,40,8,1,1,1,1,1,3,1,44,8,1,1,2,1,2,1,2,1,2,1,2,1,2,
@@ -1455,79 +1524,85 @@ export default class RiddleParser extends Parser {
 	1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,1,2,
 	1,2,1,2,1,2,1,2,5,2,109,8,2,10,2,12,2,112,9,2,3,2,114,8,2,1,2,1,2,1,2,5,
 	2,119,8,2,10,2,12,2,122,9,2,1,3,1,3,1,3,1,3,1,3,1,3,1,3,3,3,131,8,3,1,4,
-	1,4,1,4,1,4,5,4,137,8,4,10,4,12,4,140,9,4,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,
-	5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,159,8,5,1,6,1,6,5,6,163,8,6,10,
-	6,12,6,166,9,6,1,6,1,6,1,7,1,7,1,7,1,7,5,7,174,8,7,10,7,12,7,177,9,7,3,
-	7,179,8,7,1,7,1,7,1,8,1,8,1,8,1,8,1,8,5,8,188,8,8,10,8,12,8,191,9,8,1,8,
-	1,8,1,8,1,8,3,8,197,8,8,1,9,1,9,1,10,5,10,202,8,10,10,10,12,10,205,9,10,
-	1,10,1,10,1,10,1,10,1,10,1,10,1,10,1,10,3,10,215,8,10,1,10,1,10,1,10,5,
-	10,220,8,10,10,10,12,10,223,9,10,1,10,1,10,1,10,1,10,1,10,1,10,1,10,1,10,
-	1,10,3,10,234,8,10,1,11,1,11,3,11,238,8,11,1,12,1,12,1,12,1,12,1,13,1,13,
-	1,13,0,1,4,14,0,2,4,6,8,10,12,14,16,18,20,22,24,26,0,9,3,0,45,46,50,50,
-	57,57,1,0,14,15,1,0,47,49,1,0,45,46,1,0,43,44,1,0,39,42,1,0,36,37,2,0,38,
-	38,58,67,2,0,19,20,22,24,278,0,31,1,0,0,0,2,43,1,0,0,0,4,59,1,0,0,0,6,130,
-	1,0,0,0,8,132,1,0,0,0,10,158,1,0,0,0,12,160,1,0,0,0,14,169,1,0,0,0,16,189,
-	1,0,0,0,18,198,1,0,0,0,20,233,1,0,0,0,22,235,1,0,0,0,24,239,1,0,0,0,26,
-	243,1,0,0,0,28,30,3,2,1,0,29,28,1,0,0,0,30,33,1,0,0,0,31,29,1,0,0,0,31,
-	32,1,0,0,0,32,34,1,0,0,0,33,31,1,0,0,0,34,35,5,0,0,1,35,1,1,0,0,0,36,37,
-	3,4,2,0,37,39,5,34,0,0,38,40,5,68,0,0,39,38,1,0,0,0,39,40,1,0,0,0,40,44,
-	1,0,0,0,41,44,5,68,0,0,42,44,5,34,0,0,43,36,1,0,0,0,43,41,1,0,0,0,43,42,
-	1,0,0,0,44,3,1,0,0,0,45,46,6,2,-1,0,46,60,3,6,3,0,47,48,5,47,0,0,48,60,
-	3,4,2,18,49,50,7,0,0,0,50,60,3,4,2,17,51,60,5,71,0,0,52,60,5,74,0,0,53,
-	60,7,1,0,0,54,60,3,26,13,0,55,56,5,27,0,0,56,57,3,4,2,0,57,58,5,28,0,0,
-	58,60,1,0,0,0,59,45,1,0,0,0,59,47,1,0,0,0,59,49,1,0,0,0,59,51,1,0,0,0,59,
-	52,1,0,0,0,59,53,1,0,0,0,59,54,1,0,0,0,59,55,1,0,0,0,60,120,1,0,0,0,61,
-	62,10,22,0,0,62,63,5,33,0,0,63,64,5,33,0,0,64,119,3,4,2,23,65,66,10,21,
-	0,0,66,67,5,54,0,0,67,119,3,4,2,22,68,69,10,16,0,0,69,70,7,2,0,0,70,119,
-	3,4,2,17,71,72,10,15,0,0,72,73,7,3,0,0,73,119,3,4,2,16,74,75,10,14,0,0,
-	75,76,7,4,0,0,76,119,3,4,2,15,77,78,10,13,0,0,78,79,7,5,0,0,79,119,3,4,
-	2,14,80,81,10,12,0,0,81,82,7,6,0,0,82,119,3,4,2,13,83,84,10,11,0,0,84,85,
-	5,51,0,0,85,119,3,4,2,12,86,87,10,10,0,0,87,88,5,53,0,0,88,119,3,4,2,11,
-	89,90,10,9,0,0,90,91,5,52,0,0,91,119,3,4,2,10,92,93,10,8,0,0,93,94,5,51,
-	0,0,94,95,5,51,0,0,95,119,3,4,2,9,96,97,10,7,0,0,97,98,5,52,0,0,98,99,5,
-	52,0,0,99,119,3,4,2,8,100,101,10,6,0,0,101,102,7,7,0,0,102,119,3,4,2,7,
-	103,104,10,20,0,0,104,113,5,27,0,0,105,110,3,4,2,0,106,107,5,35,0,0,107,
-	109,3,4,2,0,108,106,1,0,0,0,109,112,1,0,0,0,110,108,1,0,0,0,110,111,1,0,
-	0,0,111,114,1,0,0,0,112,110,1,0,0,0,113,105,1,0,0,0,113,114,1,0,0,0,114,
-	115,1,0,0,0,115,119,5,28,0,0,116,117,10,19,0,0,117,119,5,47,0,0,118,61,
-	1,0,0,0,118,65,1,0,0,0,118,68,1,0,0,0,118,71,1,0,0,0,118,74,1,0,0,0,118,
-	77,1,0,0,0,118,80,1,0,0,0,118,83,1,0,0,0,118,86,1,0,0,0,118,89,1,0,0,0,
-	118,92,1,0,0,0,118,96,1,0,0,0,118,100,1,0,0,0,118,103,1,0,0,0,118,116,1,
-	0,0,0,119,122,1,0,0,0,120,118,1,0,0,0,120,121,1,0,0,0,121,5,1,0,0,0,122,
-	120,1,0,0,0,123,131,3,10,5,0,124,131,3,20,10,0,125,131,3,24,12,0,126,131,
-	3,14,7,0,127,131,3,12,6,0,128,131,3,22,11,0,129,131,3,8,4,0,130,123,1,0,
-	0,0,130,124,1,0,0,0,130,125,1,0,0,0,130,126,1,0,0,0,130,127,1,0,0,0,130,
-	128,1,0,0,0,130,129,1,0,0,0,131,7,1,0,0,0,132,133,5,12,0,0,133,138,3,26,
-	13,0,134,135,5,54,0,0,135,137,3,26,13,0,136,134,1,0,0,0,137,140,1,0,0,0,
-	138,136,1,0,0,0,138,139,1,0,0,0,139,9,1,0,0,0,140,138,1,0,0,0,141,142,5,
-	1,0,0,142,143,3,26,13,0,143,144,5,33,0,0,144,145,3,4,2,0,145,146,5,38,0,
-	0,146,147,3,4,2,0,147,159,1,0,0,0,148,149,5,1,0,0,149,150,3,26,13,0,150,
-	151,5,38,0,0,151,152,3,4,2,0,152,159,1,0,0,0,153,154,5,1,0,0,154,155,3,
-	26,13,0,155,156,5,33,0,0,156,157,3,4,2,0,157,159,1,0,0,0,158,141,1,0,0,
-	0,158,148,1,0,0,0,158,153,1,0,0,0,159,11,1,0,0,0,160,164,5,31,0,0,161,163,
-	3,2,1,0,162,161,1,0,0,0,163,166,1,0,0,0,164,162,1,0,0,0,164,165,1,0,0,0,
-	165,167,1,0,0,0,166,164,1,0,0,0,167,168,5,32,0,0,168,13,1,0,0,0,169,178,
-	5,31,0,0,170,175,3,4,2,0,171,172,5,35,0,0,172,174,3,4,2,0,173,171,1,0,0,
-	0,174,177,1,0,0,0,175,173,1,0,0,0,175,176,1,0,0,0,176,179,1,0,0,0,177,175,
-	1,0,0,0,178,170,1,0,0,0,178,179,1,0,0,0,179,180,1,0,0,0,180,181,5,32,0,
-	0,181,15,1,0,0,0,182,183,3,26,13,0,183,184,5,33,0,0,184,185,3,4,2,0,185,
-	186,5,35,0,0,186,188,1,0,0,0,187,182,1,0,0,0,188,191,1,0,0,0,189,187,1,
-	0,0,0,189,190,1,0,0,0,190,196,1,0,0,0,191,189,1,0,0,0,192,193,3,26,13,0,
-	193,194,5,33,0,0,194,195,3,4,2,0,195,197,1,0,0,0,196,192,1,0,0,0,196,197,
-	1,0,0,0,197,17,1,0,0,0,198,199,7,8,0,0,199,19,1,0,0,0,200,202,3,18,9,0,
-	201,200,1,0,0,0,202,205,1,0,0,0,203,201,1,0,0,0,203,204,1,0,0,0,204,206,
-	1,0,0,0,205,203,1,0,0,0,206,207,5,9,0,0,207,208,3,26,13,0,208,209,5,27,
-	0,0,209,210,3,16,8,0,210,214,5,28,0,0,211,212,5,46,0,0,212,213,5,39,0,0,
-	213,215,3,4,2,0,214,211,1,0,0,0,214,215,1,0,0,0,215,216,1,0,0,0,216,217,
-	3,12,6,0,217,234,1,0,0,0,218,220,3,18,9,0,219,218,1,0,0,0,220,223,1,0,0,
-	0,221,219,1,0,0,0,221,222,1,0,0,0,222,224,1,0,0,0,223,221,1,0,0,0,224,225,
-	5,9,0,0,225,226,3,26,13,0,226,227,5,27,0,0,227,228,3,16,8,0,228,229,5,28,
-	0,0,229,230,5,46,0,0,230,231,5,39,0,0,231,232,3,4,2,0,232,234,1,0,0,0,233,
-	203,1,0,0,0,233,221,1,0,0,0,234,21,1,0,0,0,235,237,5,10,0,0,236,238,3,4,
-	2,0,237,236,1,0,0,0,237,238,1,0,0,0,238,23,1,0,0,0,239,240,5,13,0,0,240,
-	241,3,26,13,0,241,242,3,12,6,0,242,25,1,0,0,0,243,244,5,69,0,0,244,27,1,
-	0,0,0,21,31,39,43,59,110,113,118,120,130,138,158,164,175,178,189,196,203,
-	214,221,233,237];
+	1,4,1,4,1,4,5,4,137,8,4,10,4,12,4,140,9,4,1,5,5,5,143,8,5,10,5,12,5,146,
+	9,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,5,5,156,8,5,10,5,12,5,159,9,5,1,5,1,
+	5,1,5,1,5,1,5,1,5,5,5,167,8,5,10,5,12,5,170,9,5,1,5,1,5,1,5,1,5,1,5,3,5,
+	177,8,5,1,6,1,6,5,6,181,8,6,10,6,12,6,184,9,6,1,6,1,6,1,7,1,7,1,7,1,7,5,
+	7,192,8,7,10,7,12,7,195,9,7,3,7,197,8,7,1,7,1,7,1,8,1,8,1,8,1,8,1,8,5,8,
+	206,8,8,10,8,12,8,209,9,8,1,8,1,8,1,8,1,8,3,8,215,8,8,1,9,1,9,1,10,5,10,
+	220,8,10,10,10,12,10,223,9,10,1,10,1,10,1,10,1,10,1,10,1,10,1,10,1,10,3,
+	10,233,8,10,1,10,1,10,1,10,5,10,238,8,10,10,10,12,10,241,9,10,1,10,1,10,
+	1,10,1,10,1,10,1,10,1,10,1,10,1,10,3,10,252,8,10,1,11,1,11,3,11,256,8,11,
+	1,12,1,12,1,12,1,12,1,13,1,13,1,13,0,1,4,14,0,2,4,6,8,10,12,14,16,18,20,
+	22,24,26,0,10,3,0,45,46,50,50,57,57,1,0,14,15,1,0,47,49,1,0,45,46,1,0,43,
+	44,1,0,39,42,1,0,36,37,2,0,38,38,58,67,1,0,1,2,2,0,19,20,22,24,299,0,31,
+	1,0,0,0,2,43,1,0,0,0,4,59,1,0,0,0,6,130,1,0,0,0,8,132,1,0,0,0,10,176,1,
+	0,0,0,12,178,1,0,0,0,14,187,1,0,0,0,16,207,1,0,0,0,18,216,1,0,0,0,20,251,
+	1,0,0,0,22,253,1,0,0,0,24,257,1,0,0,0,26,261,1,0,0,0,28,30,3,2,1,0,29,28,
+	1,0,0,0,30,33,1,0,0,0,31,29,1,0,0,0,31,32,1,0,0,0,32,34,1,0,0,0,33,31,1,
+	0,0,0,34,35,5,0,0,1,35,1,1,0,0,0,36,37,3,4,2,0,37,39,5,34,0,0,38,40,5,68,
+	0,0,39,38,1,0,0,0,39,40,1,0,0,0,40,44,1,0,0,0,41,44,5,68,0,0,42,44,5,34,
+	0,0,43,36,1,0,0,0,43,41,1,0,0,0,43,42,1,0,0,0,44,3,1,0,0,0,45,46,6,2,-1,
+	0,46,60,3,6,3,0,47,48,5,47,0,0,48,60,3,4,2,18,49,50,7,0,0,0,50,60,3,4,2,
+	17,51,60,5,71,0,0,52,60,5,74,0,0,53,60,7,1,0,0,54,60,3,26,13,0,55,56,5,
+	27,0,0,56,57,3,4,2,0,57,58,5,28,0,0,58,60,1,0,0,0,59,45,1,0,0,0,59,47,1,
+	0,0,0,59,49,1,0,0,0,59,51,1,0,0,0,59,52,1,0,0,0,59,53,1,0,0,0,59,54,1,0,
+	0,0,59,55,1,0,0,0,60,120,1,0,0,0,61,62,10,22,0,0,62,63,5,33,0,0,63,64,5,
+	33,0,0,64,119,3,4,2,23,65,66,10,21,0,0,66,67,5,54,0,0,67,119,3,4,2,22,68,
+	69,10,16,0,0,69,70,7,2,0,0,70,119,3,4,2,17,71,72,10,15,0,0,72,73,7,3,0,
+	0,73,119,3,4,2,16,74,75,10,14,0,0,75,76,7,4,0,0,76,119,3,4,2,15,77,78,10,
+	13,0,0,78,79,7,5,0,0,79,119,3,4,2,14,80,81,10,12,0,0,81,82,7,6,0,0,82,119,
+	3,4,2,13,83,84,10,11,0,0,84,85,5,51,0,0,85,119,3,4,2,12,86,87,10,10,0,0,
+	87,88,5,53,0,0,88,119,3,4,2,11,89,90,10,9,0,0,90,91,5,52,0,0,91,119,3,4,
+	2,10,92,93,10,8,0,0,93,94,5,51,0,0,94,95,5,51,0,0,95,119,3,4,2,9,96,97,
+	10,7,0,0,97,98,5,52,0,0,98,99,5,52,0,0,99,119,3,4,2,8,100,101,10,6,0,0,
+	101,102,7,7,0,0,102,119,3,4,2,7,103,104,10,20,0,0,104,113,5,27,0,0,105,
+	110,3,4,2,0,106,107,5,35,0,0,107,109,3,4,2,0,108,106,1,0,0,0,109,112,1,
+	0,0,0,110,108,1,0,0,0,110,111,1,0,0,0,111,114,1,0,0,0,112,110,1,0,0,0,113,
+	105,1,0,0,0,113,114,1,0,0,0,114,115,1,0,0,0,115,119,5,28,0,0,116,117,10,
+	19,0,0,117,119,5,47,0,0,118,61,1,0,0,0,118,65,1,0,0,0,118,68,1,0,0,0,118,
+	71,1,0,0,0,118,74,1,0,0,0,118,77,1,0,0,0,118,80,1,0,0,0,118,83,1,0,0,0,
+	118,86,1,0,0,0,118,89,1,0,0,0,118,92,1,0,0,0,118,96,1,0,0,0,118,100,1,0,
+	0,0,118,103,1,0,0,0,118,116,1,0,0,0,119,122,1,0,0,0,120,118,1,0,0,0,120,
+	121,1,0,0,0,121,5,1,0,0,0,122,120,1,0,0,0,123,131,3,10,5,0,124,131,3,20,
+	10,0,125,131,3,24,12,0,126,131,3,14,7,0,127,131,3,12,6,0,128,131,3,22,11,
+	0,129,131,3,8,4,0,130,123,1,0,0,0,130,124,1,0,0,0,130,125,1,0,0,0,130,126,
+	1,0,0,0,130,127,1,0,0,0,130,128,1,0,0,0,130,129,1,0,0,0,131,7,1,0,0,0,132,
+	133,5,12,0,0,133,138,3,26,13,0,134,135,5,54,0,0,135,137,3,26,13,0,136,134,
+	1,0,0,0,137,140,1,0,0,0,138,136,1,0,0,0,138,139,1,0,0,0,139,9,1,0,0,0,140,
+	138,1,0,0,0,141,143,3,18,9,0,142,141,1,0,0,0,143,146,1,0,0,0,144,142,1,
+	0,0,0,144,145,1,0,0,0,145,147,1,0,0,0,146,144,1,0,0,0,147,148,7,8,0,0,148,
+	149,3,26,13,0,149,150,5,33,0,0,150,151,3,4,2,0,151,152,5,38,0,0,152,153,
+	3,4,2,0,153,177,1,0,0,0,154,156,3,18,9,0,155,154,1,0,0,0,156,159,1,0,0,
+	0,157,155,1,0,0,0,157,158,1,0,0,0,158,160,1,0,0,0,159,157,1,0,0,0,160,161,
+	7,8,0,0,161,162,3,26,13,0,162,163,5,38,0,0,163,164,3,4,2,0,164,177,1,0,
+	0,0,165,167,3,18,9,0,166,165,1,0,0,0,167,170,1,0,0,0,168,166,1,0,0,0,168,
+	169,1,0,0,0,169,171,1,0,0,0,170,168,1,0,0,0,171,172,7,8,0,0,172,173,3,26,
+	13,0,173,174,5,33,0,0,174,175,3,4,2,0,175,177,1,0,0,0,176,144,1,0,0,0,176,
+	157,1,0,0,0,176,168,1,0,0,0,177,11,1,0,0,0,178,182,5,31,0,0,179,181,3,2,
+	1,0,180,179,1,0,0,0,181,184,1,0,0,0,182,180,1,0,0,0,182,183,1,0,0,0,183,
+	185,1,0,0,0,184,182,1,0,0,0,185,186,5,32,0,0,186,13,1,0,0,0,187,196,5,31,
+	0,0,188,193,3,4,2,0,189,190,5,35,0,0,190,192,3,4,2,0,191,189,1,0,0,0,192,
+	195,1,0,0,0,193,191,1,0,0,0,193,194,1,0,0,0,194,197,1,0,0,0,195,193,1,0,
+	0,0,196,188,1,0,0,0,196,197,1,0,0,0,197,198,1,0,0,0,198,199,5,32,0,0,199,
+	15,1,0,0,0,200,201,3,26,13,0,201,202,5,33,0,0,202,203,3,4,2,0,203,204,5,
+	35,0,0,204,206,1,0,0,0,205,200,1,0,0,0,206,209,1,0,0,0,207,205,1,0,0,0,
+	207,208,1,0,0,0,208,214,1,0,0,0,209,207,1,0,0,0,210,211,3,26,13,0,211,212,
+	5,33,0,0,212,213,3,4,2,0,213,215,1,0,0,0,214,210,1,0,0,0,214,215,1,0,0,
+	0,215,17,1,0,0,0,216,217,7,9,0,0,217,19,1,0,0,0,218,220,3,18,9,0,219,218,
+	1,0,0,0,220,223,1,0,0,0,221,219,1,0,0,0,221,222,1,0,0,0,222,224,1,0,0,0,
+	223,221,1,0,0,0,224,225,5,9,0,0,225,226,3,26,13,0,226,227,5,27,0,0,227,
+	228,3,16,8,0,228,232,5,28,0,0,229,230,5,46,0,0,230,231,5,39,0,0,231,233,
+	3,4,2,0,232,229,1,0,0,0,232,233,1,0,0,0,233,234,1,0,0,0,234,235,3,12,6,
+	0,235,252,1,0,0,0,236,238,3,18,9,0,237,236,1,0,0,0,238,241,1,0,0,0,239,
+	237,1,0,0,0,239,240,1,0,0,0,240,242,1,0,0,0,241,239,1,0,0,0,242,243,5,9,
+	0,0,243,244,3,26,13,0,244,245,5,27,0,0,245,246,3,16,8,0,246,247,5,28,0,
+	0,247,248,5,46,0,0,248,249,5,39,0,0,249,250,3,4,2,0,250,252,1,0,0,0,251,
+	221,1,0,0,0,251,239,1,0,0,0,252,21,1,0,0,0,253,255,5,10,0,0,254,256,3,4,
+	2,0,255,254,1,0,0,0,255,256,1,0,0,0,256,23,1,0,0,0,257,258,5,13,0,0,258,
+	259,3,26,13,0,259,260,3,12,6,0,260,25,1,0,0,0,261,262,5,69,0,0,262,27,1,
+	0,0,0,24,31,39,43,59,110,113,118,120,130,138,144,157,168,176,182,193,196,
+	207,214,221,232,239,251,255];
 
 	private static __ATN: ATN;
 	public static get _ATN(): ATN {
@@ -2570,15 +2645,13 @@ export class PackStmtContext extends ParserRuleContext {
 
 
 export class VarDeclContext extends ParserRuleContext {
+	public _varType!: Token;
 	public _name!: IdContext;
 	public _type_!: ExpressionContext;
 	public _value!: ExpressionContext;
 	constructor(parser?: RiddleParser, parent?: ParserRuleContext, invokingState?: number) {
 		super(parent, invokingState);
     	this.parser = parser;
-	}
-	public Var(): TerminalNode {
-		return this.getToken(RiddleParser.Var, 0);
 	}
 	public Colon(): TerminalNode {
 		return this.getToken(RiddleParser.Colon, 0);
@@ -2594,6 +2667,18 @@ export class VarDeclContext extends ParserRuleContext {
 	}
 	public expression(i: number): ExpressionContext {
 		return this.getTypedRuleContext(ExpressionContext, i) as ExpressionContext;
+	}
+	public Var(): TerminalNode {
+		return this.getToken(RiddleParser.Var, 0);
+	}
+	public Val(): TerminalNode {
+		return this.getToken(RiddleParser.Val, 0);
+	}
+	public modifier_list(): ModifierContext[] {
+		return this.getTypedRuleContexts(ModifierContext) as ModifierContext[];
+	}
+	public modifier(i: number): ModifierContext {
+		return this.getTypedRuleContext(ModifierContext, i) as ModifierContext;
 	}
     public get ruleIndex(): number {
     	return RiddleParser.RULE_varDecl;
