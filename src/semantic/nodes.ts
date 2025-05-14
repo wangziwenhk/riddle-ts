@@ -108,6 +108,11 @@ export abstract class SemBaseVisitor {
         this.visit(node.then);
         if (node.else_) this.visit(node.else_);
     }
+
+    visitWhile(node: WhileNode) {
+        this.visit(node.cond);
+        this.visit(node.body);
+    }
 }
 
 /**
@@ -558,5 +563,22 @@ export class IfNode extends ExprNode {
 
     accept(visitor: SemBaseVisitor) {
         return visitor.visitIf(this);
+    }
+}
+
+export class WhileNode extends ExprNode {
+    cond: ExprNode;
+    body: ExprNode;
+    condBlock?: llvm.BasicBlock;
+    exitBlock?: llvm.BasicBlock;
+
+    constructor(cond: ExprNode, body: ExprNode) {
+        super();
+        this.cond = cond;
+        this.body = body;
+    }
+
+    accept(visitor: SemBaseVisitor) {
+        return visitor.visitWhile(this);
     }
 }

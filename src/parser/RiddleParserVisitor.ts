@@ -38,6 +38,7 @@ import { ModifierContext } from "./RiddleParser.js";
 import { FuncDeclContext } from "./RiddleParser.js";
 import { IfStmtContext } from "./RiddleParser.js";
 import { WhileStmtContext } from "./RiddleParser.js";
+import { ForStmtContext } from "./RiddleParser.js";
 import { ReturnStmtContext } from "./RiddleParser.js";
 import { ClassDeclContext } from "./RiddleParser.js";
 import { IdContext } from "./RiddleParser.js";
@@ -284,6 +285,12 @@ export default class RiddleParserVisitor<Result> extends ParseTreeVisitor<Result
 	 * @return the visitor result
 	 */
 	visitWhileStmt?: (ctx: WhileStmtContext) => Result;
+	/**
+	 * Visit a parse tree produced by `RiddleParser.forStmt`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitForStmt?: (ctx: ForStmtContext) => Result;
 	/**
 	 * Visit a parse tree produced by `RiddleParser.returnStmt`.
 	 * @param ctx the parse tree

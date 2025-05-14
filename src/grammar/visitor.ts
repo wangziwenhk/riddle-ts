@@ -33,7 +33,7 @@ import {
     CompoundAssignOpContext,
     ShiftOpContext,
     PointerToContext,
-    LoadExprContext, ScopeAccessContext, ModifierContext, IfStmtContext,
+    LoadExprContext, ScopeAccessContext, ModifierContext, IfStmtContext, WhileStmtContext, ForStmtContext,
 } from '../parser/RiddleParser';
 import {ParserRuleContext, ParseTree, TerminalNode} from 'antlr4';
 import {
@@ -45,7 +45,7 @@ import {
     ObjectNode, PointerToNode,
     ProgramNode, ReturnNode, ScopeAccessNode,
     SemNode, UnaryOpNode,
-    VarDeclNode
+    VarDeclNode, WhileNode
 } from '../semantic/nodes';
 import {PrimitiveType, PrimitiveTypeInfo} from '../semantic/typeInfo';
 import {ModifierList} from "../semantic/modifier";
@@ -56,6 +56,7 @@ import {ModifierList} from "../semantic/modifier";
  * 在需要判断节点是否为空时，可以通过此对象进行识别。
  */
 const noneNode = new NoneNode();
+const trueNode = new ConstantNode(true, new PrimitiveTypeInfo('bool'));
 
 /**
  * GrammarVisitor 是一个用于遍历语法规则树的类，继承自 RiddleParserVisitor。
@@ -404,5 +405,25 @@ export class GrammarVisitor extends RiddleParserVisitor<any> {
             else_ = this.visit(ctx._else_);
         }
         return new IfNode(cond, then, else_);
+    }
+
+    visitWhileStmt = (ctx: WhileStmtContext) => {
+        const cond: ExprNode = this.visit(ctx._cond);
+        const body = this.visit(ctx._body);
+        return new WhileNode(cond, body);
+    }
+
+    visitForStmt = (ctx: ForStmtContext) => {
+        let init = ctx._init ? this.visit(ctx._init) : noneNode;
+        let cond = ctx._cond ? this.visit(ctx._cond) : trueNode;
+        let change = ctx._change ? this.visit(ctx._change) : noneNode;
+
+        let body = this.visit(ctx._body);
+        if(!(body instanceof BlockNode)){
+            body = new BlockNode([body,change]);
+        }else{
+            body.children.push(change);
+        }
+        return new BlockNode([init, new WhileNode(cond, body)]);
     }
 }

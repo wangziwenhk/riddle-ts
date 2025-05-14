@@ -11,7 +11,7 @@ import {
     ProgramNode,
     ReturnNode,
     SemBaseVisitor,
-    VarDeclNode
+    VarDeclNode, WhileNode
 } from '../semantic/nodes';
 import llvm from '@wangziwenhk/llvm-bindings';
 import {Config} from './config';
@@ -91,7 +91,7 @@ export class Generate extends SemBaseVisitor {
     visitFuncDecl(node: FuncDeclNode) {
         const returnType = this.parseType(node.obj!.return_type)
 
-        let paramTypes = node.obj?.param.map(param=>{return this.parseType(param.type)}) || []
+        let paramTypes = node.obj?.param.map(param => {return this.parseType(param.type)}) || []
 
         // 构造函数的全名（包括类名）
         const functionName = node.obj?.theClass?.name
@@ -235,15 +235,20 @@ export class Generate extends SemBaseVisitor {
     }
 
     visitComparisonOp(node: CompoundOpNode) {
-        const left = this.visit(node.left);
+        let left = this.visit(node.left);
         const right = this.visit(node.right);
         ok(left instanceof llvm.Value, "Expected 'left' to be an instance of llvm.Value");
         ok(right instanceof llvm.Value, "Expected 'right' to be an instance of llvm.Value");
+
+        if (left instanceof llvm.LoadInst) {
+            left = left.getOperand(0);
+        }
+
         let result = right;
         if (node.func) {
             result = node.func(left, right, this.builder);
         }
-        return this.builder.CreateStore(left, result);
+        return this.builder.CreateStore(result, left);
     }
 
     visitLoad(node: LoadExprNode) {
@@ -255,7 +260,7 @@ export class Generate extends SemBaseVisitor {
 
     visitIf(node: IfNode) {
         const parent = this.builder.GetInsertBlock()?.getParent()!;
-        const condBlock = llvm.BasicBlock.Create(this.context, "b", parent);
+        const condBlock = llvm.BasicBlock.Create(this.context, "bb", parent);
         const hasElse = node.else_ !== undefined;
 
         this.builder.CreateBr(condBlock);
@@ -264,11 +269,11 @@ export class Generate extends SemBaseVisitor {
         ok(cond instanceof llvm.Value, "Expected condition to be an instance of llvm.Value");
         ok(cond.getType().isIntegerTy(1), "Condition must be of type bool");
 
-        const thenBlock = llvm.BasicBlock.Create(this.context, "b", parent);
+        const thenBlock = llvm.BasicBlock.Create(this.context, "bb", parent);
         let elseBlock: llvm.BasicBlock | undefined;
-        const exitBlock = llvm.BasicBlock.Create(this.context, "b", parent);
+        const exitBlock = llvm.BasicBlock.Create(this.context, "bb", parent);
         if (hasElse) {
-            elseBlock = llvm.BasicBlock.Create(this.context, "b", parent, exitBlock);
+            elseBlock = llvm.BasicBlock.Create(this.context, "bb", parent, exitBlock);
             this.builder.CreateCondBr(cond, thenBlock, elseBlock);
         } else {
             this.builder.CreateCondBr(cond, thenBlock, exitBlock);
@@ -284,6 +289,28 @@ export class Generate extends SemBaseVisitor {
             this.visit(node.else_!);
             this.builder.CreateBr(exitBlock);
         }
+
+        this.builder.SetInsertPoint(exitBlock);
+    }
+
+    visitWhile(node: WhileNode) {
+        const parent = this.builder.GetInsertBlock()?.getParent()!;
+        const condBlock = llvm.BasicBlock.Create(this.context, "bb", parent);
+        const loopBlock = llvm.BasicBlock.Create(this.context, "bb", parent);
+        const exitBlock = llvm.BasicBlock.Create(this.context, "bb", parent);
+
+        node.condBlock = condBlock;
+        node.exitBlock = exitBlock;
+
+        this.builder.CreateBr(condBlock);
+        this.builder.SetInsertPoint(condBlock);
+
+        const cond = this.visit(node.cond);
+        this.builder.CreateCondBr(cond, loopBlock, exitBlock);
+
+        this.builder.SetInsertPoint(loopBlock);
+        this.visit(node.body);
+        this.builder.CreateBr(loopBlock);
 
         this.builder.SetInsertPoint(exitBlock);
     }

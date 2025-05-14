@@ -7,7 +7,7 @@ import {
     ProgramNode, ReturnNode, ScopeAccessNode,
     SemBaseVisitor,
     SemNode,
-    VarDeclNode
+    VarDeclNode, WhileNode
 } from "./nodes";
 import {ClassTypeInfo, PointerTypeInfo, PRIMITIVE_TYPES, PrimitiveType, PrimitiveTypeInfo, TypeInfo} from "./typeInfo";
 import {SemClass, SemFunction, SemObject, SemType, SemValue, SemVariable} from "./objects";
@@ -579,8 +579,8 @@ export class SemanticAnalysis extends SemBaseVisitor {
     visitIf(node: IfNode) {
         this.enterScope();
         const cond = this.visit(node.cond);
-        ok(cond instanceof SemValue, "Condition must be of type bool")
-        ok(cond.type.equal(boolTy), "Condition must be of type bool")
+        ok(cond instanceof SemValue, "Condition must be of type bool");
+        ok(cond.type.equal(boolTy), "Condition must be of type bool");
         this.enterScope();
         this.visit(node.then);
         this.leaveScope();
@@ -589,6 +589,17 @@ export class SemanticAnalysis extends SemBaseVisitor {
             this.visit(node.else_);
             this.leaveScope();
         }
+        this.leaveScope();
+    }
+
+    visitWhile(node: WhileNode) {
+        this.enterScope();
+        const cond = this.visit(node.cond);
+        ok(cond instanceof SemValue, "Condition must be of type bool");
+        ok(cond.type.equal(boolTy), "Condition must be of type bool");
+        this.enterScope();
+        this.visit(node.body);
+        this.leaveScope();
         this.leaveScope();
     }
 }

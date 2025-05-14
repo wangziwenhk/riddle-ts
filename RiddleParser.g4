@@ -57,6 +57,7 @@ statement
     | packStmt
     | ifStmt
     | whileStmt
+    | forStmt
     ;
 
 packStmt
@@ -102,6 +103,10 @@ ifStmt
 
 whileStmt
     : While LeftBracket cond=expression RightBracket body=block
+    ;
+
+forStmt
+    : For LeftBracket (init=expression)? Semi (cond=expression)? Semi (change=expression)? RightBracket body=block
     ;
 
 returnStmt
