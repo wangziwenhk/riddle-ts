@@ -1,5 +1,7 @@
 import llvm from "@wangziwenhk/llvm-bindings";
 import {SemClass} from "./objects";
+import {Equatable} from "../utils/equatable";
+import "../utils/hash"
 
 export const PRIMITIVE_TYPES = [
     'int',
@@ -19,7 +21,7 @@ export type PrimitiveType = typeof PRIMITIVE_TYPES[number];
  * 提供了获取类型名称以及判断是否为浮点类型的功能。
  * 该类作为基类使用，具体的类型实现应继承此抽象类并提供所需的行为。
  */
-export abstract class TypeInfo {
+export abstract class TypeInfo implements Equatable<TypeInfo> {
     name!: string;
 
     isFloatPointTy(): boolean {
@@ -32,6 +34,12 @@ export abstract class TypeInfo {
 
     getElementType(): TypeInfo {
         return this;
+    }
+
+    abstract toString(): string;
+
+    hashCode(): number {
+        return this.toString().hashCode();
     }
 }
 
@@ -50,6 +58,14 @@ export class PrimitiveTypeInfo extends TypeInfo {
 
     isFloatPointTy() {
         return this.name === 'float' || this.name === 'double';
+    }
+
+    equal(type: TypeInfo): boolean {
+        return super.equal(type) && type instanceof PrimitiveTypeInfo;
+    }
+
+    toString(): string {
+        return `PrimitiveType(${this.name})`;
     }
 }
 
@@ -73,6 +89,18 @@ export class ClassTypeInfo extends TypeInfo {
     equal(type: TypeInfo): boolean {
         if (type.name !== this.name) return false;
         return type instanceof ClassTypeInfo;
+    }
+
+    toString(): string {
+        let result = `ClassType(${this.name}){`;
+        this.members.forEach(child => {
+            result += child.name + ',';
+        })
+        if (result[-1] === ',') {
+            result = result.trimEnd();
+        }
+        result += '}'
+        return result;
     }
 }
 
@@ -98,5 +126,9 @@ export class PointerTypeInfo extends TypeInfo {
 
     getElementType() {
         return this.type.getElementType();
+    }
+
+    toString(): string {
+        return `PointerType(${this.type.toString()})`;
     }
 }
